@@ -83,7 +83,7 @@
                            <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
                             {% if request.user.is_superuser %}
                                 <div class="dropdown-divider"></div>
-                                <a href="/admin/" class="dropdown-item text-danger">Admin Panel</a>
+                                <a href="#" class="dropdown-item text-danger">Admin Panel</a>
                             {% endif %}
                             <a href="{% url 'account_logout' %}" class="dropdown-item">Logout</a>
                         {% else %}
