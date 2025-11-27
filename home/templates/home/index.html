@@ -1,59 +1,82 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block page_header %}
-<div class="container header-container mt-1 pt-1">
+<div class="container header-container">
     <div class="row">
         <div class="col text-center"></div>
     </div>
 </div>
 {% endblock %}
+
 {% block content %}
-<!-- ======= Hero Section ======= -->
+
+<!-- ===========================
+     HERO SECTION
+=========================== -->
 <section id="hero" class="d-flex align-items-center justify-content-center">
-  <div class="container" data-aos="fade-up">
+    <div class="container" data-aos="fade-up">
 
-    <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="150">
-      <div class="col-xl-6 col-lg-8">
-        <h1 class="display-4">Transform Your Fitness Journey</h1>
-        <br>
-         <a class="btn btn-primary btn-lg" href="#">Start Membership</a>
-         <a class="btn btn-lg btn-white-green" href="#">Browse Shop</a>        
+        <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="150">
+            <div class="col-xl-6 col-lg-8 text-center">
+                <h1 class="display-4">Transform Your Fitness Journey</h1>
+                <br>
+                <a class="btn btn-primary btn-lg" href="#">Start Membership</a>
+                <a class="btn btn-lg btn-white-green" href="#">Browse Shop</a>
+            </div>
         </div>
-    </div>
 
-    
+    </div>
+</section>
+
+<!-- ===========================
+     FEATURE CARDS
+=========================== -->
 <div class="container my-5">
     <div class="row">
+
+        <!-- Workout Plans -->
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-dumbbell fa-3x mb-3 text-primary"></i>
                     <h3 class="card-title">Workout Plans</h3>
-                    <p class="card-text">Customized exercise plans tailored to your fitness level and goals.</p>
+                    <p class="card-text">
+                        Customized exercise plans tailored to your fitness level and goals.
+                    </p>
                     <a href="#" class="btn btn-primary">View Plans</a>
                 </div>
             </div>
         </div>
+
+        <!-- Nutrition Guides -->
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-utensils fa-3x mb-3 text-success"></i>
                     <h3 class="card-title">Nutrition Guides</h3>
-                    <p class="card-text">Expert-designed meal plans to complement your fitness routine.</p>
+                    <p class="card-text">
+                        Expert-designed meal plans to complement your fitness routine.
+                    </p>
                     <a href="#" class="btn btn-success">Learn More</a>
                 </div>
             </div>
         </div>
+
+        <!-- Premium Products -->
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-store fa-3x mb-3 text-info"></i>
                     <h3 class="card-title">Premium Products</h3>
-                    <p class="card-text">High-quality supplements and fitness equipment to support your journey.</p>
+                    <p class="card-text">
+                        High-quality supplements and fitness equipment to support your journey.
+                    </p>
                     <a href="#" class="btn btn-info">Shop Now</a>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
