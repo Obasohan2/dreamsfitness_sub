@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+
 {% block page_header %}
 <div class="container header-container">
   <div class="row">
@@ -36,7 +37,7 @@
         <span class="text-muted">
           Category:
           {% if product.category %}
-            <a href="{% url 'products:category_products' product.category.slug %}"
+            <a href="{% url 'products' %}?category={{ product.category.name }}"
                class="text-decoration-none">{{ product.category.name }}</a>
           {% else %}
             <span class="text-secondary">Uncategorized</span>
@@ -58,7 +59,7 @@
         <h3 class="text-primary">£{{ product.price }}</h3>
 
         <!-- Add to Cart -->
-        <form method="post" action="{% url 'cart:add_to_cart' product.id %}">
+        <form method="post" action="#">
           {% csrf_token %}
           <div class="input-group mb-3" style="max-width: 250px;">
             <input type="number" name="quantity" value="1" min="1" max="10"
@@ -71,10 +72,10 @@
 
         <!-- Navigation Buttons -->
         <div class="d-flex gap-2">
-          <a href="{% url 'products:all_products' %}" class="btn btn-outline-secondary">
+          <a href="{% url 'products' %}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i> Keep Shopping
           </a>
-          <a href="{% url 'cart:cart_view' %}" class="btn btn-primary">
+          <a href="#" class="btn btn-primary">
             View Cart <i class="fas fa-arrow-right ms-2"></i>
           </a>
         </div>
@@ -115,7 +116,7 @@
         <div class="card mt-4">
           <div class="card-body">
             <h4 class="mb-3">Write a Review</h4>
-            <form method="post" action="{% url 'products:add_review' product.slug %}">
+            <form method="post" action="#">
               {% csrf_token %}
               {{ review_form|crispy }}
               <button type="submit" class="btn btn-primary mt-3">Submit Review</button>
@@ -133,3 +134,4 @@
   </div>
 </div>
 {% endblock %}
+

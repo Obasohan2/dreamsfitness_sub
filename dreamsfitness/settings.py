@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     
+    'crispy_forms',
+    'crispy_bootstrap4',
+    
     'home',  # our app
     'products',  # our app
 ]
@@ -57,6 +60,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'dreamsfitness.urls'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 TEMPLATES = [
     {
