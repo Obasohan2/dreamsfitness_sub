@@ -96,7 +96,7 @@
                 <!-- Clickable Shopping Cart -->
                 <li class="list-inline-item position-relative">
                     <a class="{% if grand_total %}text-info font-weight-bold{% else %}text-black{% endif %} nav-link"
-                       href="#">
+                       href="{% url 'view_cart' %}">
                         <div class="text-center position-relative">
                             <div>
                                 <i class="fas fa-shopping-bag fa-lg"></i>

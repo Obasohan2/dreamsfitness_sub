@@ -3,9 +3,9 @@
 
 {% block page_header %}
 <div class="container header-container">
-  <div class="row">
-    <div class="col text-center"></div>
-  </div>
+    <div class="row">
+        <div class="col text-center"></div>
+    </div>
 </div>
 {% endblock %}
 
@@ -13,125 +13,148 @@
 <div class="overlay"></div>
 <div class="container my-5">
 
-  <!-- Product Section -->
-  <div class="row">
-    <!-- Image -->
-    <div class="col-md-6 mb-4">
-      <div class="card border-0">
-        {% if product.images %}
-          <img src="{{ product.images.url }}" class="img-fluid rounded shadow-sm w-100"
-               alt="{{ product.name }}" style="object-fit: cover; max-height: 400px;">
-        {% else %}
-          <img src="{{ MEDIA_URL }}photos/noimage.png" class="img-fluid rounded shadow-sm w-100"
-               alt="No image available" style="object-fit: cover; max-height: 400px;">
-        {% endif %}
-      </div>
-    </div>
+    <!-- Product Section -->
+    <div class="row">
 
-    <!-- Details -->
-    <div class="col-md-6">
-      <h1 class="mb-3">{{ product.name }}</h1>
-
-      <!-- Category & Rating -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <span class="text-muted">
-          Category:
-          {% if product.category %}
-            <a href="{% url 'products' %}?category={{ product.category.name }}"
-               class="text-decoration-none">{{ product.category.name }}</a>
-          {% else %}
-            <span class="text-secondary">Uncategorized</span>
-          {% endif %}
-        </span>
-
-        {% if product.rating %}
-          <span class="badge bg-warning text-dark">
-            {{ product.rating|floatformat:1 }} <i class="fas fa-star"></i>
-          </span>
-        {% endif %}
-      </div>
-
-      <!-- Description -->
-      <p class="mb-4">{{ product.description }}</p>
-
-      <!-- Price & Add to Cart -->
-      <div class="border-top border-bottom py-3 mb-4">
-        <h3 class="text-primary">£{{ product.price }}</h3>
-
-        <!-- Add to Cart -->
-        <form method="post" action="#">
-          {% csrf_token %}
-          <div class="input-group mb-3" style="max-width: 250px;">
-            <input type="number" name="quantity" value="1" min="1" max="10"
-                   class="form-control text-center">
-            <button type="submit" class="btn btn-success">
-              <i class="fas fa-shopping-cart me-2"></i> Add to Cart
-            </button>
-          </div>
-        </form>
-
-        <!-- Navigation Buttons -->
-        <div class="d-flex gap-2">
-          <a href="{% url 'products' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i> Keep Shopping
-          </a>
-          <a href="#" class="btn btn-primary">
-            View Cart <i class="fas fa-arrow-right ms-2"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Reviews -->
-  <div class="row mt-5">
-    <div class="col-12">
-      <h3 class="mb-4">Customer Reviews</h3>
-
-      {% for review in product.reviews.all %}
-        <div class="card mb-3">
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <h5 class="card-title">{{ review.user.username }}</h5>
-              <div class="text-warning">
-                {% for i in "12345" %}
-                  {% if forloop.counter <= review.rating %}
-                    <i class="fas fa-star"></i>
-                  {% else %}
-                    <i class="far fa-star"></i>
-                  {% endif %}
-                {% endfor %}
-              </div>
+        <!-- Image -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0">
+                {% if product.images %}
+                    <img src="{{ product.images.url }}" class="img-fluid rounded shadow-sm w-100"
+                         alt="{{ product.name }}" style="object-fit: cover; max-height: 400px;">
+                {% else %}
+                    <img src="{{ MEDIA_URL }}photos/noimage.png" class="img-fluid rounded shadow-sm w-100"
+                         alt="No image available" style="object-fit: cover; max-height: 400px;">
+                {% endif %}
             </div>
-            <small class="text-muted">{{ review.created|date:"F j, Y, g:i A" }}</small>
-            <h6 class="fw-semibold">{{ review.title }}</h6>
-            <p>{{ review.comment }}</p>
-          </div>
         </div>
-      {% empty %}
-        <div class="alert alert-info text-center">No reviews yet. Be the first to review!</div>
-      {% endfor %}
 
-      {% if request.user.is_authenticated %}
-        <div class="card mt-4">
-          <div class="card-body">
-            <h4 class="mb-3">Write a Review</h4>
-            <form method="post" action="#">
-              {% csrf_token %}
-              {{ review_form|crispy }}
-              <button type="submit" class="btn btn-primary mt-3">Submit Review</button>
-            </form>
-          </div>
+        <!-- Details -->
+        <div class="col-md-6">
+
+            <h1 class="mb-3">{{ product.name }}</h1>
+
+            <!-- Category + Product Name + Rating -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <p class="text-muted mb-0">
+                    {% if product.category %}
+                        <a href="{% url 'products' %}?category={{ product.category.name }}"
+                           class="text-decoration-none">
+                            {{ product.category.name }}
+                        </a>
+                    {% endif %}
+                    • <span class="fw-bold">{{ product.name }}</span>
+                </p>
+
+                {% if product.rating %}
+                    <span class="badge bg-warning text-dark">
+                        {{ product.rating|floatformat:1 }} <i class="fas fa-star"></i>
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <!-- Description -->
+            <p class="mb-4">{{ product.description }}</p>
+
+            <!-- Price & Add to Cart -->
+            <div class="border-top border-bottom py-3 mb-4">
+
+                <h3 class="text-primary">£{{ product.price }}</h3>
+
+                <!-- Add to Cart -->
+                <form method="post" action="#">
+                    {% csrf_token %}
+                    <div class="input-group mb-3" style="max-width: 250px;">
+    <input type="number" name="quantity" value="1" min="1" max="10"
+           class="form-control text-center me-2">
+    <button type="submit" class="btn btn-success">
+        <i class="fas fa-shopping-cart me-2"></i> Add to Cart
+    </button>
+</div>
+
+                </form>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex gap-2">
+                    <a href="{% url 'products' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Keep Shopping
+                    </a>
+                    <a href="#" class="btn btn-primary">
+                        View Cart <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+
+            </div>
+
         </div>
-      {% else %}
-        <div class="alert alert-warning mt-4">
-          <a href="{% url 'account_login' %}?next={{ request.path }}" class="alert-link">
-            Sign in
-          </a> to leave a review.
-        </div>
-      {% endif %}
     </div>
-  </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+
+            <h3 class="mb-4">Customer Reviews</h3>
+
+            {% for review in product.reviews.all %}
+                <div class="card mb-3">
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title">{{ review.user.username }}</h5>
+
+                            <div class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <small class="text-muted">
+                            {{ review.created|date:"F j, Y, g:i A" }}
+                        </small>
+
+                        <h6 class="fw-semibold">{{ review.title }}</h6>
+                        <p>{{ review.comment }}</p>
+
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-info text-center">
+                    No reviews yet. Be the first to review!
+                </div>
+            {% endfor %}
+
+            {% if request.user.is_authenticated %}
+                <div class="card mt-4">
+                    <div class="card-body">
+
+                        <h4 class="mb-3">Write a Review</h4>
+
+                        <form method="post" action="#">
+                            {% csrf_token %}
+                            {{ review_form|crispy }}
+                            <button type="submit" class="btn btn-primary mt-3">Submit Review</button>
+                        </form>
+
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning mt-4">
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="alert-link">
+                        Sign in
+                    </a>
+                    to leave a review.
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
 </div>
 {% endblock %}
-
