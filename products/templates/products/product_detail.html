@@ -20,11 +20,15 @@
         <div class="col-md-6 mb-4">
             <div class="card border-0">
                 {% if product.images %}
-                    <img src="{{ product.images.url }}" class="img-fluid rounded shadow-sm w-100"
-                         alt="{{ product.name }}" style="object-fit: cover; max-height: 400px;">
+                    <img src="{{ product.images.url }}"
+                         class="img-fluid rounded shadow-sm w-100"
+                         alt="{{ product.name }}"
+                         style="object-fit: cover; max-height: 400px;">
                 {% else %}
-                    <img src="{{ MEDIA_URL }}photos/noimage.png" class="img-fluid rounded shadow-sm w-100"
-                         alt="No image available" style="object-fit: cover; max-height: 400px;">
+                    <img src="{{ MEDIA_URL }}photos/noimage.png"
+                         class="img-fluid rounded shadow-sm w-100"
+                         alt="No image available"
+                         style="object-fit: cover; max-height: 400px;">
                 {% endif %}
             </div>
         </div>
@@ -68,28 +72,56 @@
                     {% csrf_token %}
                     <input type="hidden" name="redirect_url" value="{{ request.path }}">
 
-                    <div class="input-group mb-3" style="max-width: 250px;">
+                    <!-- Quantity + Add to Cart Row -->
+                    <div class="d-flex align-items-center mb-3" style="max-width: 400px;">
 
-                        <!-- Quantity -->
-                        <input type="number"
-                               name="quantity"
-                               value="1"
-                               min="1"
-                               max="99"
-                               class="form-control text-center me-2">
+                        <!-- Quantity Controls -->
+                        <div class="input-group me-2" style="max-width: 150px;">
 
-                        <!-- Add Button -->
+                            <div class="input-group-prepend">
+                                <button class="btn btn-outline-secondary decrement-qty"
+                                        type="button"
+                                        data-item_id="{{ product.id }}"
+                                        id="decrement-qty_{{ product.id }}">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+
+                            <input class="form-control text-center qty_input"
+                                   style="max-width: 70px;"
+                                   type="number"
+                                   name="quantity"
+                                   value="1"
+                                   min="1"
+                                   max="99"
+                                   data-item_id="{{ product.id }}"
+                                   id="id_qty_{{ product.id }}">
+
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary increment-qty"
+                                        type="button"
+                                        data-item_id="{{ product.id }}"
+                                        id="increment-qty_{{ product.id }}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <!-- Add to Cart Button -->
                         {% if product.stock <= 0 %}
                             <button type="button" class="btn btn-danger" disabled>
                                 Out of Stock
                             </button>
                         {% else %}
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-shopping-cart me-2"></i>
+                                <i class="fas fa-shopping-cart"></i>
                                 Add to Cart
                             </button>
                         {% endif %}
+
                     </div>
+
                 </form>
 
                 <!-- Navigation Buttons -->
@@ -161,7 +193,8 @@
                 <div class="alert alert-warning mt-4">
                     <a href="{% url 'account_login' %}?next={{ request.path }}" class="alert-link">
                         Sign in
-                    </a> to leave a review.
+                    </a>
+                    to leave a review.
                 </div>
             {% endif %}
 
@@ -169,4 +202,9 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block postloadjs %}
+{{ block.super }}
+{% include 'products/includes/quantity_input_script.html' %}
 {% endblock %}
