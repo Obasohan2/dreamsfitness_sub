@@ -1,61 +1,160 @@
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
+from django.shortcuts import render, redirect, reverse, HttpResponse
 
 
 def view_cart(request):
-    """ A view that renders the cart contents page """
+    """Render the shopping cart page."""
     return render(request, 'cart/cart.html')
 
 
 def add_to_cart(request, item_id):
-    """ Add a quantity of the specified product to the shopping cart """
-
-    # Safe quantity handling
-    quantity = int(request.POST.get('quantity', 1))
-
-    # Redirect back to previous page or fallback to product list
-    redirect_url = request.POST.get('redirect_url') or reverse('products')
-
+    """Add a product to the cart."""
     cart = request.session.get('cart', {})
 
-    # Convert item_id to string because session keys are strings
+    # Safe quantity conversion
+    qty_raw = request.POST.get('quantity', "1")
+    try:
+        quantity = int(qty_raw)
+    except ValueError:
+        quantity = 1
+
+    quantity = max(1, quantity)  # enforce minimum 1
+
+    # Convert key to string for session consistency
     item_id = str(item_id)
 
-    if item_id in cart:
-        cart[item_id] += quantity
-    else:
-        cart[item_id] = quantity
+    # Add or increase
+    cart[item_id] = cart.get(item_id, 0) + quantity
 
     request.session['cart'] = cart
 
-    print("Updated cart:", request.session['cart'])
-
+    redirect_url = request.POST.get('redirect_url') or reverse('products')
     return redirect(redirect_url)
 
 
 def adjust_cart(request, item_id):
-    """Adjust the quantity of the specified product."""
-    
-    quantity = int(request.POST.get('quantity'))
+    """Adjust the quantity of a specific cart item."""
     cart = request.session.get('cart', {})
 
-    if quantity > 0:
-        cart[item_id] = quantity
-    else:
-        cart.pop(item_id, None)
+    qty_raw = request.POST.get('quantity', "1")
+
+    # Safe integer conversion
+    try:
+        quantity = int(qty_raw)
+    except ValueError:
+        quantity = 1
+
+    quantity = max(1, quantity)  # enforce minimum quantity
+
+    item_id = str(item_id)
+
+    # Update quantity
+    cart[item_id] = quantity
 
     request.session['cart'] = cart
     return redirect(reverse('view_cart'))
 
 
 def remove_from_cart(request, item_id):
-    """Remove an item from the shopping cart."""
+    """Remove an item from the cart."""
     try:
         cart = request.session.get('cart', {})
-        cart.pop(item_id, None)
+        item_id = str(item_id)
+
+        if item_id in cart:
+            del cart[item_id]
 
         request.session['cart'] = cart
         return HttpResponse(status=200)
 
     except Exception:
         return HttpResponse(status=500)
+
+
+
+
+
+# from django.shortcuts import render, redirect, reverse, HttpResponse
+
+# # Create your views here.
+
+
+# def view_cart(request):
+#     """ A view that renders the cart contents page """
+
+#     return render(request, 'cart/cart.html')
+
+
+# def add_to_cart(request, item_id):
+#     """ Add a quantity of the specified product to the shopping cart """
+
+#     quantity = int(request.POST.get('quantity'))
+#     redirect_url = request.POST.get('redirect_url')
+#     size = None
+#     if 'product_size' in request.POST:
+#         size = request.POST['product_size']
+#     cart = request.session.get('cart', {})
+
+#     if size:
+#         if item_id in list(cart.keys()):
+#             if size in cart[item_id]['items_by_size'].keys():
+#                 cart[item_id]['items_by_size'][size] += quantity
+#             else:
+#                 cart[item_id]['items_by_size'][size] = quantity
+#         else:
+#             cart[item_id] = {'items_by_size': {size: quantity}}
+#     else:
+#         if item_id in list(cart.keys()):
+#             cart[item_id] += quantity
+#         else:
+#             cart[item_id] = quantity
+
+#     request.session['cart'] = cart
+#     return redirect(redirect_url)
+
+
+# def adjust_cart(request, item_id):
+#     """ Adjust the quantity of the specified product to the specified amount """
+
+#     quantity = int(request.POST.get('quantity'))
+#     size = None
+#     if 'product_size' in request.POST:
+#         size = request.POST['product_size']
+#     cart = request.session.get('cart', {})
+
+#     if size:
+#         if quantity > 0:
+#             cart[item_id]['items_by_size'][size] = quantity
+#         else:
+#             del cart[item_id]['items_by_size'][size]
+#             if not cart[item_id]['items_by_size']:
+#                 cart.pop(item_id)
+#     else:
+#         if quantity > 0:
+#             cart[item_id] = quantity
+#         else:
+#             cart.pop(item_id)
+
+#     request.session['cart'] = cart
+#     return redirect(reverse('view_cart'))
+
+
+# def remove_from_cart(request, item_id):
+#     """ Remove the item from the shopping cart """
+#     try:
+#         size = None
+#         if 'product_size' in request.POST:
+#             size = request.POST['product_size']
+#         cart = request.session.get('cart', {})
+
+#         if size:
+#             del cart[item_id]['items_by_size'][size]
+#             if not cart[item_id]['items_by_size']:
+#                 cart.pop(item_id)
+#         else:
+#             cart.pop(item_id)
+
+#         request.session['cart'] = cart
+#         return HttpResponse(status=200)
+    
+#     except Exception as e:
+#         return HttpResponse(status=500)

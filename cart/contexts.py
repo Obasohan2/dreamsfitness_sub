@@ -5,6 +5,7 @@ from products.models import Product
 
 
 def cart_contents(request):
+
     cart_items = []
     total = 0
     product_count = 0
@@ -13,8 +14,7 @@ def cart_contents(request):
     for item_id, quantity in cart.items():
         product = get_object_or_404(Product, pk=item_id)
 
-        subtotal = product.price * quantity   # 👈 calculate subtotal
-
+        subtotal = product.price * quantity   # FIXED
         total += subtotal
         product_count += quantity
 
@@ -22,7 +22,7 @@ def cart_contents(request):
             'item_id': item_id,
             'quantity': quantity,
             'product': product,
-            'subtotal': subtotal,             # 👈 pass to template
+            'subtotal': subtotal,
         })
 
     if total < settings.FREE_DELIVERY_THRESHOLD:
@@ -32,7 +32,7 @@ def cart_contents(request):
         delivery = Decimal('0.00')
         free_delivery_delta = Decimal('0.00')
 
-    grand_total = delivery + total
+    grand_total = total + delivery
 
     return {
         'cart_items': cart_items,
@@ -40,6 +40,5 @@ def cart_contents(request):
         'product_count': product_count,
         'delivery': delivery,
         'free_delivery_delta': free_delivery_delta,
-        'free_delivery_threshold': settings.FREE_DELIVERY_THRESHOLD,
         'grand_total': grand_total,
     }

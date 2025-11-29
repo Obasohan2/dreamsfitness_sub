@@ -79,7 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',  # important for allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'cart.contexts.cart_contents', # to make cart available globally
+                'cart.contexts.cart_contents',  # to make cart available globally
             ],
         },
     },
