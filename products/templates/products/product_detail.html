@@ -63,16 +63,32 @@
 
                 <h3 class="text-primary">£{{ product.price }}</h3>
 
-                <!-- Add to Cart -->
+                <!-- Add to Cart Form -->
                 <form method="post" action="#">
                     {% csrf_token %}
+
                     <div class="input-group mb-3" style="max-width: 250px;">
-    <input type="number" name="quantity" value="1" min="1" max="10"
-           class="form-control text-center me-2">
-    <button type="submit" class="btn btn-success">
-        <i class="fas fa-shopping-cart me-2"></i> Add to Cart
-    </button>
-</div>
+
+                        <!-- Quantity -->
+                        <input type="number"
+                               name="quantity"
+                               value="1"
+                               min="1"
+                               max="10"
+                               class="form-control text-center me-2">
+
+                        <!-- Add Button -->
+                        {% if product.stock <= 0 %}
+                            <button type="button" class="btn btn-danger" disabled>
+                                Out of Stock
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Add to Cart
+                            </button>
+                        {% endif %}
+                    </div>
 
                 </form>
 
@@ -133,23 +149,19 @@
             {% if request.user.is_authenticated %}
                 <div class="card mt-4">
                     <div class="card-body">
-
                         <h4 class="mb-3">Write a Review</h4>
-
                         <form method="post" action="#">
                             {% csrf_token %}
                             {{ review_form|crispy }}
                             <button type="submit" class="btn btn-primary mt-3">Submit Review</button>
                         </form>
-
                     </div>
                 </div>
             {% else %}
                 <div class="alert alert-warning mt-4">
                     <a href="{% url 'account_login' %}?next={{ request.path }}" class="alert-link">
                         Sign in
-                    </a>
-                    to leave a review.
+                    </a> to leave a review.
                 </div>
             {% endif %}
 
