@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block page_header %}
 <div class="container header-container">
     <div class="row">
@@ -17,6 +16,7 @@
 </div>
 {% endblock %}
 
+
 {% block content %}
 <div class="overlay"></div>
 
@@ -25,24 +25,22 @@
         {% for product in products %}
             <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card h-100 shadow-sm border-0">
-                    
+
                     <!-- Product Image -->
-                    {% if product.images %}
-                        <a href="{% url 'product_detail' product.slug %}">
-                            <img src="{{ product.images.url }}" 
-                                 class="card-img-top img-fluid" 
-                                 alt="{{ product.name }}" 
+                    <a href="{% url 'product_detail' product.slug %}">
+                        {% if product.images %}
+                            <img src="{{ product.images.url }}"
+                                 class="card-img-top img-fluid"
+                                 alt="{{ product.name }}"
                                  style="height: 200px; object-fit: cover;">
-                        </a>
-                    {% else %}
-                        <a href="{% url 'product_detail' product.slug %}">
-                            <img src="{% static 'images/noimage.png' %}" 
-                                 class="card-img-top img-fluid" 
-                                 alt="No image available" 
+                        {% else %}
+                            <img src="{% static 'images/noimage.png' %}"
+                                 class="card-img-top img-fluid"
+                                 alt="No image available"
                                  style="height: 200px; object-fit: cover;">
-                        </a>
-                    {% endif %}
-                    
+                        {% endif %}
+                    </a>
+
                     <!-- Product Body -->
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
@@ -53,9 +51,10 @@
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fw-bold text-dark">£{{ product.price }}</span>
+                            <span class="font-weight-bold text-dark">£{{ product.price }}</span>
+
                             {% if product.rating %}
-                                <span class="badge bg-warning text-dark rounded-pill">
+                                <span class="badge badge-warning text-dark">
                                     {{ product.rating|floatformat:1 }} <i class="fas fa-star"></i>
                                 </span>
                             {% endif %}
@@ -64,19 +63,23 @@
 
                     <!-- Footer Buttons -->
                     <div class="card-footer bg-white border-0 d-flex justify-content-between">
-                        <a href="{% url 'product_detail' product.slug %}" 
-                           class="btn btn-outline-primary btn-sm w-50 me-1">
+
+                        <a href="{% url 'product_detail' product.slug %}"
+                           class="btn btn-outline-primary btn-sm w-50 mr-1">
                             View
                         </a>
 
-                        <form method="post" action="#" class="w-50">
+                        <form method="post"
+                              action="{% url 'add_to_cart' product.id %}"
+                              class="w-50">
                             {% csrf_token %}
                             <input type="hidden" name="quantity" value="1">
-                            <input type="hidden" name="buy_now" value="true">
+                            <input type="hidden" name="redirect_url" value="{{ request.path }}">
                             <button type="submit" class="btn btn-success btn-sm w-100">
                                 Buy Now
                             </button>
                         </form>
+
                     </div>
 
                 </div>
@@ -90,19 +93,29 @@
         {% endfor %}
     </div>
 </div>
+
 <!-- Back to Top Button -->
 <div class="btt-button shadow-sm rounded-0 border border-black">
     <a class="btt-link d-flex h-100">
-        <i class="fas fa-arrow-up text-black mx-auto my-auto"></i>
+        <i class="fas fa-arrow-up text-dark mx-auto my-auto"></i>
     </a>
 </div>
+
 {% endblock %}
 
-{% block postloadjs %}  
-    {{ block.super }}
-    <script>
-        $('.btt-link').click(function (e) {
-            window.scrollTo(0, 0);
-        });
-    </script>
+{% block postloadjs %}
+{{ block.super }}
+<script>
+    $('.btt-link').click(function () {
+        window.scrollTo(0, 0);
+    });
+</script>
 {% endblock %}
+
+
+
+
+
+
+
+

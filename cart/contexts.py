@@ -7,14 +7,14 @@ from products.models import Product
 def cart_contents(request):
 
     cart_items = []
-    total = 0
+    total = Decimal('0.00')
     product_count = 0
     cart = request.session.get('cart', {})
 
     for item_id, quantity in cart.items():
         product = get_object_or_404(Product, pk=item_id)
 
-        subtotal = product.price * quantity   # FIXED
+        subtotal = product.price * quantity
         total += subtotal
         product_count += quantity
 
@@ -25,8 +25,9 @@ def cart_contents(request):
             'subtotal': subtotal,
         })
 
+    # Delivery logic
     if total < settings.FREE_DELIVERY_THRESHOLD:
-        delivery = total * Decimal(settings.STANDARD_DELIVERY_PERCENTAGE / 100)
+        delivery = total * (Decimal(settings.STANDARD_DELIVERY_PERCENTAGE) / 100)
         free_delivery_delta = settings.FREE_DELIVERY_THRESHOLD - total
     else:
         delivery = Decimal('0.00')
@@ -40,5 +41,7 @@ def cart_contents(request):
         'product_count': product_count,
         'delivery': delivery,
         'free_delivery_delta': free_delivery_delta,
+        'free_delivery_threshold': settings.FREE_DELIVERY_THRESHOLD,
         'grand_total': grand_total,
+        'cart_count': product_count,   # Adds cart bubble count
     }
