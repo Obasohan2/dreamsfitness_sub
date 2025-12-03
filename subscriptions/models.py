@@ -9,7 +9,7 @@ class SubPlan(models.Model):
     price = models.PositiveIntegerField()
     max_member = models.PositiveIntegerField(null=True, blank=True)
     highlight_status = models.BooleanField(default=False)
-    validity_days = models.PositiveIntegerField(null=True, blank=True)
+    validity_days = models.PositiveIntegerField(default=30)
 
     def __str__(self):
         return self.title
