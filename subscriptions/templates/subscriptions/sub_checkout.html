@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_header %}
+<div class="container header-container">
+  <div class="row">
+    <div class="col text-center"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="overlay"></div>
+
+<main class="container my-4">
+
+    <!-- PAGE TITLE -->
+    <h1 class="text-center mb-4 section-heading border-bottom pb-2">
+        Subscription Checkout
+    </h1>
+
+    <!-- CHECKOUT TABLE -->
+    <table class="table table-bordered">
+        <thead class="table-warning">
+            <tr>
+                <th>Selected Plan</th>
+                <th>Plan Features</th>
+                <th>Payment Options</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+
+                <!-- LEFT: PLAN DETAILS -->
+                <td width="33%">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Name</th>
+                            <td>{{ plan.title }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Price</th>
+                            <td>£{{ plan.price }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Max Members</th>
+                            <td>{{ plan.max_member }}</td>
+                        </tr>
+                    </table>
+                </td>
+
+                <!-- MIDDLE: FEATURES -->
+                <td width="33%">
+                    <ul class="list-unstyled">
+                        {% for feature in features %}
+                            <li>{{ feature.title }}</li>
+                        {% empty %}
+                            <li>No features available.</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+
+                <!-- RIGHT: DISCOUNTS -->
+                <td width="33%">
+                    <table class="table table-bordered">
+
+                        {% for discount in discounts|dictsort:"total_months" %}
+                            <tr>
+                                <td>
+                                    <input 
+                                        type="radio"
+                                        class="select-validity"
+                                        name="validity"
+                                        id="validity{{ discount.id }}"
+                                        value="{{ discount.total_months }}"
+                                        data-planprice="{{ plan.price }}"
+                                        data-discount="{{ discount.total_discount }}"
+                                    >
+                                </td>
+
+                                <th>
+                                    <label for="validity{{ discount.id }}">
+                                        {{ discount.total_months }}
+                                        Month{% if discount.total_months > 1 %}s{% endif %}
+                                    </label>
+                                </th>
+
+                                <td>{{ discount.total_discount }}%</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No discounts available.</td>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </td>
+
+            </tr>
+        </tbody>
+
+        <!-- FOOTER SECTION -->
+        <tfoot class="table-info">
+
+            <!-- ROW 1: Total Amount centered -->
+            <tr>
+                <td></td>
+                <th class="text-center">Total Amount</th>
+                <td><b>£<span class="totalAmount"></span></b></td>
+            </tr>
+
+            <!-- ROW 2 -->
+            <tr>
+
+                <!-- LEFT: Return button -->
+                <td class="text-center">
+                    <a href="{% url 'pricing' %}" class="btn btn-outline-secondary mx-auto">
+                        ← Return to Plans
+                    </a>
+                </td>
+
+                <!-- CENTER: GYM ICON -->
+                <td class="text-center">
+                    <i class="bi bi-barbell fs-1 text-primary"></i>
+                </td>
+
+                <!-- RIGHT: Confirm -->
+                <td>
+                    <form method="post" action="{% url 'checkout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-100" id="payBtn" disabled>
+                            Confirm Subscription
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
+
+        </tfoot>
+
+    </table>
+
+</main>
+
+<!-- JAVASCRIPT FOR PRICE CALCULATION -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const radios = document.querySelectorAll(".select-validity");
+    const totalSpan = document.querySelector(".totalAmount");
+    const payBtn = document.getElementById("payBtn");
+
+    // Initial state
+    totalSpan.textContent = "";
+    payBtn.disabled = true;
+
+    radios.forEach(radio => {
+        radio.addEventListener("click", function () {
+
+            let price = parseFloat(this.dataset.planprice);
+            let months = parseInt(this.value);
+            let discount = parseFloat(this.dataset.discount);
+
+            let total = price * months;
+
+            if (discount > 0) {
+                total -= total * (discount / 100);
+            }
+
+            totalSpan.textContent = total.toFixed(2);
+
+            // Enable button after selection
+            payBtn.disabled = false;
+
+            // Safety check
+            if (!document.querySelector(".select-validity:checked")) {
+                payBtn.disabled = true;
+            }
+        });
+    });
+
+});
+</script>
+
+{% endblock %}
+

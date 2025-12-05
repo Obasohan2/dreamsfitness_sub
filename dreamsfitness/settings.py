@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'products',  # our app
     'cart',  # our app
     'subscriptions',  # our app
-    'checkout',  # our app
+    'checkout.apps.CheckoutConfig',  # our app
+
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "allauth.account.middleware.AccountMiddleware",  # for allauth
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

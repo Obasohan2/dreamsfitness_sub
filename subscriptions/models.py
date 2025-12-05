@@ -6,7 +6,7 @@ from django.db import models
 # ---------------------------
 class SubPlan(models.Model):
     title = models.CharField(max_length=150)
-    price = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=6, decimal_places=2)
     max_member = models.PositiveIntegerField(null=True, blank=True)
     highlight_status = models.BooleanField(default=False)
     validity_days = models.PositiveIntegerField(default=30)
@@ -35,8 +35,11 @@ class PlanDiscount(models.Model):
         related_name="discounts",
         on_delete=models.CASCADE
     )
-    total_months = models.PositiveIntegerField()
-    total_discount = models.PositiveIntegerField()
+    total_months = models.IntegerField()
+    total_discount = models.IntegerField()
 
     def __str__(self):
         return str(self.total_months)
+
+
+

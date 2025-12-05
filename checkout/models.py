@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models import Sum
 
 from products.models import Product
-from subscriptions.models import SubPlan   # ✅ FIXED IMPORT
+from subscriptions.models import SubPlan  
 
 
 class Order(models.Model):
@@ -85,14 +85,16 @@ class ProductLineItem(models.Model):
 
 
 class SubscriptionLineItem(models.Model):
-    """Subscription purchase"""
+    """Subscription purchase with multi-month support"""
     order = models.ForeignKey(
-        Order, related_name="subscription_items", on_delete=models.CASCADE
+        "Order",
+        related_name="subscription_items",
+        on_delete=models.CASCADE,
     )
-    subscription_plan = models.ForeignKey(SubPlan, on_delete=models.CASCADE)  # ✅ FIXED
+    subscription_plan = models.ForeignKey(SubPlan, on_delete=models.CASCADE)
+    months = models.PositiveIntegerField(default=1)
+    lineitem_total = models.DecimalField(max_digits=10, decimal_places=2)
 
-    lineitem_total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    def __str__(self):
+        return f"{self.subscription_plan.title} x {self.months} months"
 
-    def save(self, *args, **kwargs):
-        self.lineitem_total = self.subscription_plan.price
-        super().save(*args, **kwargs)
