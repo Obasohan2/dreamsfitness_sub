@@ -5,6 +5,7 @@ from django_countries.fields import CountryField
 import uuid
 from decimal import Decimal
 
+
 class Order(models.Model):
     order_number = models.CharField(max_length=32, editable=False)
     full_name = models.CharField(max_length=50)
@@ -15,6 +16,12 @@ class Order(models.Model):
     city = models.CharField(max_length=40)
     postcode = models.CharField(max_length=20)
     country = CountryField()
+
+    # NEW TOTAL FIELDS
+    order_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    subscription_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     date = models.DateTimeField(auto_now_add=True)
 
@@ -31,23 +38,26 @@ class Order(models.Model):
 
 
 class ProductLineItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="product_items"
+    )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2)
 
-    def __str__(self):
-        return f"{self.product.name} x {self.quantity}"
-
 
 class SubscriptionLineItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="subscription_items"
+    )
     subscription_plan = models.ForeignKey(SubPlan, on_delete=models.CASCADE)
     months = models.IntegerField()
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2)
 
-    def __str__(self):
-        return f"{self.subscription_plan.title} ({self.months} months)"
 
 
 

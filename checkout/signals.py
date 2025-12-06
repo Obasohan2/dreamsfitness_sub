@@ -1,49 +1,33 @@
-import uuid
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 from .models import Order
-
-
-def generate_order_number():
-    """Generate a random unique order number"""
-    return uuid.uuid4().hex.upper()
-
-
-@receiver(pre_save, sender=Order)
-def add_order_number(sender, instance, **kwargs):
-    """
-    Add a unique order number before saving
-    """
-    if not instance.order_number:
-        instance.order_number = generate_order_number()
 
 
 @receiver(post_save, sender=Order)
 def update_order_totals(sender, instance, **kwargs):
     """
-    Recalculate totals after saving an order.
-
-    Supports:
-    ✔ Product-only orders
-    ✔ Subscription-only orders
-    ✔ Mixed orders
+    Recalculate totals whenever an Order or its LineItems change.
     """
 
-    lineitems = instance.lineitems.all()
+    # PRODUCT LINE ITEMS
+    product_total = sum(
+        item.lineitem_total for item in instance.product_items.all()
+    )
 
-    # PRODUCT TOTAL
-    product_total = sum(item.lineitem_total for item in lineitems)
+    # SUBSCRIPTION LINE ITEMS
+    subscription_total = sum(
+        item.lineitem_total for item in instance.subscription_items.all()
+    )
 
-    # SUBSCRIPTION TOTAL
-    subscription_total = instance.subscription_price or 0
+    # Delivery Cost (if present, else 0)
+    delivery_cost = getattr(instance, "delivery_cost", 0)
 
-    # UPDATE ORDER TOTALS
-    instance.order_total = product_total
-    instance.grand_total = product_total + subscription_total + instance.delivery_cost
+    # Final grand total
+    grand_total = product_total + subscription_total + delivery_cost
 
-    # Prevent repeat saves
+    # Save values efficiently (no recursion)
     Order.objects.filter(id=instance.id).update(
-        order_total=instance.order_total,
-        grand_total=instance.grand_total
+        order_total=product_total,
+        subscription_total=subscription_total,
+        grand_total=grand_total
     )

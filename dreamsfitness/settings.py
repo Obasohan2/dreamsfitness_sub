@@ -83,7 +83,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',  # important for allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',  # to handle media files
                 'cart.contexts.cart_contents',  # to make cart available globally
+            ],
+            'builtins': [
+                'crispy_forms.templatetags.crispy_forms_tags',
+                'crispy_forms.templatetags.crispy_forms_field',
             ],
         },
     },
