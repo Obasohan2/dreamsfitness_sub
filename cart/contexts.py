@@ -2,75 +2,77 @@ from decimal import Decimal
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from products.models import Product
-from subscriptions.models import SubPlan
+from subscriptions.models import SubPlan, PlanDiscount
 
 
 def cart_contents(request):
-
     cart_items = []
-    subscription_items = []
-
-    cart = request.session.get('cart', {})
-    subs = request.session.get('subscriptions', {})
-
-    product_total = Decimal("0.00")
-    subscription_total = Decimal("0.00")
+    total = Decimal("0.00")
     product_count = 0
+    cart = request.session.get("cart", {})
 
-    # -------------------------------
-    # PRODUCT ITEMS
-    # -------------------------------
+    # ----- PRODUCTS -----
     for item_id, quantity in cart.items():
         product = get_object_or_404(Product, pk=item_id)
-        subtotal = product.price * quantity
-
+        total += quantity * product.price
+        product_count += quantity
         cart_items.append({
             "item_id": item_id,
-            "product": product,
             "quantity": quantity,
-            "subtotal": subtotal,
+            "product": product,
         })
 
-        product_total += subtotal
-        product_count += quantity
+    # ----- SUBSCRIPTION (do NOT add into total here) -----
+    subscription_data = request.session.get("subscription_cart")
+    subscription_item = None
+    subscription_total = Decimal("0.00")
 
-    # -------------------------------
-    # SUBSCRIPTION ITEMS
-    # -------------------------------
-    for plan_id in subs.keys():
-        plan = get_object_or_404(SubPlan, pk=plan_id)
+    if subscription_data:
+        plan = get_object_or_404(SubPlan, pk=subscription_data["plan_id"])
+        months = int(subscription_data["months"])
+        discount = None
 
-        subscription_items.append({
+        if subscription_data.get("discount_id"):
+            discount = get_object_or_404(
+                PlanDiscount,
+                pk=subscription_data["discount_id"],
+                subplan=plan,
+            )
+
+        subscription_total = plan.price * Decimal(months)
+
+        if discount and discount.total_discount:
+            subscription_total = subscription_total - (
+                subscription_total * (discount.total_discount / Decimal("100"))
+            )
+
+        subscription_item = {
             "plan": plan,
-            "price": plan.price,
-        })
+            "months": months,
+            "discount": discount,
+            "total": subscription_total,
+        }
 
-        subscription_total += plan.price
-
-    # -------------------------------
-    # DELIVERY CALCULATION
-    # -------------------------------
-    free_threshold = Decimal(str(settings.FREE_DELIVERY_THRESHOLD))
-    delivery_percentage = Decimal(str(settings.STANDARD_DELIVERY_PERCENTAGE)) / Decimal("100")
-
-    if Decimal("0.00") < product_total < free_threshold:
-        delivery_cost = product_total * delivery_percentage
+    # ----- DELIVERY COST -----
+    if total < settings.FREE_DELIVERY_THRESHOLD:
+        delivery = total * Decimal(settings.STANDARD_DELIVERY_PERCENTAGE / 100)
+        free_delivery_delta = settings.FREE_DELIVERY_THRESHOLD - total
     else:
-        delivery_cost = Decimal("0.00")
+        delivery = Decimal("0.00")
+        free_delivery_delta = Decimal("0.00")
 
-    # -------------------------------
-    # GRAND TOTAL
-    # -------------------------------
-    grand_total = product_total + subscription_total + delivery_cost
+    grand_total = total + delivery  # <- subscription NOT included here
 
     return {
         "cart_items": cart_items,
-        "subscription_items": subscription_items,
-        "product_total": product_total,
-        "subscription_total": subscription_total,
-        "delivery_cost": delivery_cost,
-        "grand_total": grand_total,
+        "total": total,
         "product_count": product_count,
-        "cart_count": product_count,  # cart bubble icon
-    }
+        "delivery": delivery,
+        "free_delivery_delta": free_delivery_delta,
+        "free_delivery_threshold": settings.FREE_DELIVERY_THRESHOLD,
+        "grand_total": grand_total,
 
+        # subscription separate
+        "subscription_item": subscription_item,
+        "subscription_total": subscription_total,
+    }

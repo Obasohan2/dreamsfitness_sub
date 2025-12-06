@@ -13,79 +13,12 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mb-5">
+<div class="container text-center my-5">
+    <h2>Order Successful!</h2>
+    <p>Your order number is:</p>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+    <h3 class="text-primary">{{ order_number }}</h3>
 
-            <div class="card p-4 shadow-sm border-0 text-center">
-
-                <!-- Checkmark -->
-                <div class="text-success mb-3" style="font-size: 70px;">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-
-                <h3 class="text-black">Thank you for your purchase!</h3>
-                <p class="text-muted">
-                    Your order has been successfully processed.
-                </p>
-
-                <!-- Order Number -->
-                <div class="alert alert-light border mt-4">
-                    <strong>Order Number:</strong> {{ order.order_number }}
-                </div>
-
-                <!-- Summary -->
-                <div class="text-start mt-4">
-                    <h5 class="text-black">Order Summary</h5>
-                    <hr>
-
-                    {% if order.productlineitem_set.all %}
-                    <h6 class="text-black">Products</h6>
-                    <ul class="list-group mb-3">
-                        {% for line in order.productlineitem_set.all %}
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>{{ line.product.name }} (x{{ line.quantity }})</span>
-                            <strong>£{{ line.product.price|floatformat:2 }}</strong>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-
-                    {% if order.subscriptionlineitem_set.all %}
-                    <h6 class="text-black">Subscription</h6>
-                    <ul class="list-group mb-3">
-                        {% for line in order.subscriptionlineitem_set.all %}
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>{{ line.subscription_plan.title }}</span>
-                            <strong>£{{ line.subscription_plan.price|floatformat:2 }}</strong>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-
-                    <h5 class="d-flex justify-content-between text-black">
-                        <span>Total Paid:</span>
-                        <strong>£{{ order.grand_total|floatformat:2 }}</strong>
-                    </h5>
-
-                </div>
-
-                <!-- Buttons -->
-                <div class="mt-4">
-                    <a href="{% url 'products' %}" class="btn btn-primary px-4">
-                        Continue Shopping
-                    </a>
-
-                    <a href="{% url 'profile' %}" class="btn btn-outline-dark px-4 ms-2">
-                        View Order History
-                    </a>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
+    <a href="{% url 'products' %}" class="btn btn-dark mt-3">Continue Shopping</a>
 </div>
 {% endblock %}

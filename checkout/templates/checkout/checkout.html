@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
-{% load cart_tools %}
+{% load crispy_forms_tags %}
+{% load cart_extras %}
 
 {% block page_header %}
 <div class="container header-container mb-4">
@@ -14,468 +15,106 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mb-5">
-    <div class="row">
+<div class="overlay"></div>
+<div class="container py-4">
+    <div class="row g-4">
 
-        <!-- LEFT: BILLING FORM -->
-        <div class="col-lg-7 mb-4">
-            <div class="card p-4 shadow-sm border-0">
-                <h4 class="text-black mb-4">Billing Details</h4>
+        <!-- BILLING SECTION -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Billing Details</h4>
+                </div>
 
-                <form action="{% url 'checkout' %}" method="POST" id="checkout-form">
-                    {% csrf_token %}
-                    <div class="row">
-                        {% for field in form %}
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-black">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger small">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+                <div class="card-body">
+                    <form method="POST" action="{% url 'process_order' %}">
+    {% csrf_token %}
+
+    {{ order_form|crispy }}
+
+    {% if subscription %}
+        <input type="hidden" name="plan_id" value="{{ subscription.plan.id }}">
+        <input type="hidden" name="months" value="{{ subscription.months }}">
+        {% if subscription.discount %}
+            <input type="hidden" name="discount_id" value="{{ subscription.discount }}">
+        {% endif %}
+    {% endif %}
+
+    <button class="btn btn-primary w-100 mt-3 py-2">
+        <i class="bi bi-check-circle me-2"></i> Place Order
+    </button>
+</form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDER SUMMARY -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Order Summary</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- PRODUCT ITEMS -->
+                    <h5 class="text-primary">Product</h5>
+                    {% for item in products %}
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                        (<small>£{{ item.product.price|floatformat:2 }} each</small>)
+                        <strong>£{{ item.product.price|mul:item.quantity|floatformat:2 }}</strong>
                     </div>
-
-                    <button id="place-order-btn" class="btn btn-dark w-100 py-2 mt-3">
-                        <span class="spinner-border spinner-border-sm d-none" id="checkoutSpinner"></span>
-                        <span id="checkoutText">Place Order</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- RIGHT: ORDER SUMMARY -->
-        <div class="col-lg-5">
-            <div class="card p-4 shadow-sm border-0">
-                <h4 class="text-black mb-4">Order Summary</h4>
-
-                <!-- PRODUCTS -->
-                {% if cart_items %}
-                    <h6 class="text-black">Products</h6>
-                    <ul class="list-group mb-4">
-                        {% for item in cart_items %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                            <div>
-                                <strong>{{ item.product.name }}</strong><br>
-                                £{{ item.product.price|floatformat:2 }} × {{ item.quantity }}
-                            </div>
-                            <a href="#" class="remove-product text-danger small"
-                               data-id="{{ item.item_id }}">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
-                <!-- SUBSCRIPTIONS -->
-                {% if subscription_items %}
-                    <h6 class="text-black">Subscriptions</h6>
-                    <ul class="list-group mb-4">
-
-                        {% for item in subscription_items %}
-                        <li class="list-group-item border-0 px-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <strong>{{ item.plan.title }}</strong><br>
-                                    <span class="small text-muted">
-                                        Base: £{{ item.plan.price|floatformat:2 }} / {{ item.plan.validity_days }} days
-                                    </span>
-                                </div>
-                                <a href="#" class="remove-sub text-danger small"
-                                   data-id="{{ item.plan.id }}">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-
-                            <!-- Billing period selector -->
-                            <div class="mt-2">
-                                <label class="small text-muted">Billing Period:</label>
-                                <select class="form-select form-select-sm select-validity"
-                                        data-planprice="{{ item.plan.price }}"
-                                        data-planid="{{ item.plan.id }}">
-                                    {% for disc in item.discounts %}
-                                        <option value="{{ disc.total_months }}"
-                                                data-discount="{{ disc.total_discount }}">
-                                            {{ disc.total_months }} Month{% if disc.total_months > 1 %}s{% endif %}
-                                            {% if disc.total_discount > 0 %}
-                                                — {{ disc.total_discount }}% Off
-                                            {% endif %}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <!-- hidden fields to send months + price to backend -->
-                            <input type="hidden" class="months-input"
-                                   name="sub_months_{{ item.plan.id }}" value="{{ item.discounts.first.total_months|default:1 }}">
-                            <input type="hidden" class="price-input"
-                                   name="sub_price_{{ item.plan.id }}" value="{{ item.plan.price }}">
-
-                            <div class="mt-2">
-                                <strong>
-                                    Total: £<span class="sub-total">{{ item.plan.price|floatformat:2 }}</span>
-                                </strong>
-                            </div>
-                        </li>
-                        {% endfor %}
-
-                    </ul>
-                {% endif %}
-
-                <!-- TOTALS -->
-                <hr>
-                <p class="d-flex justify-content-between text-black">
-                    <span>Products Total:</span>
-                    <strong>£{{ product_total|floatformat:2 }}</strong>
-                </p>
-
-                <p class="d-flex justify-content-between text-black">
-                    <span>Subscriptions Total:</span>
-                    <strong>£<span id="subscriptionTotal">{{ subscription_total|floatformat:2 }}</span></strong>
-                </p>
-
-                <p class="d-flex justify-content-between text-black">
-                    <span>Delivery:</span>
-                    <strong>£{{ delivery_cost|floatformat:2 }}</strong>
-                </p>
-
-                <h4 class="d-flex justify-content-between mt-3 text-black">
-                    <span>Total:</span>
-                    <strong>£<span id="grandTotal">{{ grand_total|floatformat:2 }}</span></strong>
-                </h4>
-
-                <a href="{% url 'view_cart' %}" class="btn btn-outline-dark w-100 mt-3">
-                    <i class="fas fa-chevron-left"></i> Back to Cart
-                </a>
-            </div>
-        </div>
-
-    </div>
-</div>
-{% endblock %}
-
-{% block postloadjs %}
-{{ block.super }}
-
-<script>
-/* Spinner */
-document.getElementById("place-order-btn").addEventListener("click", function() {
-    document.getElementById("checkoutSpinner").classList.remove("d-none");
-    document.getElementById("checkoutText").textContent = "Processing...";
-});
-
-/* Remove Product */
-$('.remove-product').click(function (e) {
-    e.preventDefault();
-    $.post(`/cart/remove/product/${$(this).data("id")}/`, {
-        csrfmiddlewaretoken: "{{ csrf_token }}"
-    }).done(() => location.reload());
-});
-
-/* Remove Subscription */
-$('.remove-sub').click(function (e) {
-    e.preventDefault();
-    $.post(`/cart/remove/subscription/${$(this).data("id")}/`, {
-        csrfmiddlewaretoken: "{{ csrf_token }}"
-    }).done(() => location.reload());
-});
-
-/* Subscription months + discount logic */
-$(document).ready(function () {
-
-    function updateTotals() {
-        let subsTotal = 0;
-        $(".sub-total").each(function() {
-            subsTotal += parseFloat($(this).text()) || 0;
-        });
-
-        $("#subscriptionTotal").text(subsTotal.toFixed(2));
-
-        const productTotal = parseFloat("{{ product_total }}") || 0;
-        const delivery = parseFloat("{{ delivery_cost }}") || 0;
-        const grandTotal = productTotal + subsTotal + delivery;
-
-        $("#grandTotal").text(grandTotal.toFixed(2));
-    }
-
-    $(".select-validity").on("change", function() {
-        const $select = $(this);
-        const months = parseInt($select.val());
-        const base = parseFloat($select.data("planprice"));
-        const discount = parseFloat($select.find("option:selected").data("discount")) || 0;
-
-        let total = base * months;
-        total -= (total * discount) / 100;
-
-        const $li = $select.closest("li");
-        $li.find(".sub-total").text(total.toFixed(2));
-        $li.find(".months-input").val(months);
-        $li.find(".price-input").val(total.toFixed(2));
-
-        updateTotals();
-    });
-
-});
-</script>
-{% endblock %}
-
-
-
-
-
-
-
-
-{% comment %} {% extends "base.html" %}
-{% load static %}
-{% load cart_tools %}
-
-{% block page_header %}
-<div class="container header-container mb-4">
-    <div class="row">
-        <div class="col text-center">
-            <h2 class="logo-font mt-3 text-black">Checkout</h2>
-            <hr class="w-25 mx-auto">
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block content %}
-
-<div class="container mb-5">
-
-    <div class="row">
-
-        <!-- ========================= -->
-        <!-- LEFT: BILLING FORM -->
-        <!-- ========================= -->
-        <div class="col-lg-7 mb-4">
-
-            <div class="card p-4 shadow-sm border-0">
-                <h4 class="text-black mb-4">Billing Details</h4>
-
-                <form action="#" method="POST" id="checkout-form">
-                    {% csrf_token %}
-
-                    <div class="row">
-                        {% for field in form %}
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-black">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <button id="place-order-btn"
-                            class="btn btn-dark w-100 py-2 mt-3">
-                        <span class="spinner-border spinner-border-sm d-none" id="checkoutSpinner"></span>
-                        <span id="checkoutText">Place Order</span>
-                    </button>
-                </form>
-            </div>
-
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- RIGHT: ORDER SUMMARY -->
-        <!-- ========================= -->
-        <div class="col-lg-5">
-
-            <div class="card p-4 shadow-sm border-0">
-                <h4 class="text-black mb-4">Order Summary</h4>
-
-
-                <!-- ========================= -->
-                <!-- PRODUCT ITEMS -->
-                <!-- ========================= -->
-
-                {% if cart_items %}
-                <h6 class="text-black">Products</h6>
-                <ul class="list-group mb-4">
-                    {% for item in cart_items %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                        <div>
-                            <strong>{{ item.product.name }}</strong><br>
-                            £{{ item.product.price|floatformat:2 }} × {{ item.quantity }}
-                        </div>
-                        <a href="#" class="remove-product text-danger small"
-                           data-id="{{ item.item_id }}">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-
-
-                <!-- ========================= -->
-                <!-- SUBSCRIPTION ITEMS -->
-                <!-- ========================= -->
-
-                {% if subscription_items %}
-                <h6 class="text-black">Subscriptions</h6>
-
-                <ul class="list-group mb-4">
-
-                    {% for item in subscription_items %}
-                    <li class="list-group-item border-0 px-0">
-
-                        <div class="d-flex justify-content-between align-items-start">
-
-                            <div>
-                                <strong>{{ item.plan.title }}</strong><br>
-                                Base: £{{ item.plan.price|floatformat:2 }}
-                            </div>
-
-                            <a href="#" class="remove-sub text-danger small"
-                               data-id="{{ item.plan.id }}">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </div>
-
-                        <!-- MONTHS SELECTOR -->
-                        <div class="mt-2">
-                            <label class="small text-muted">Billing Period:</label>
-                            <select class="form-select select-validity"
-                                    data-planprice="{{ item.plan.price }}"
-                                    data-discount="{{ item.plan.discount|default:0 }}">
-                                <option value="1">1 Month — £{{ item.plan.price|floatformat:2 }}</option>
-                                <option value="3">3 Months — Auto 10% Off</option>
-                                <option value="6">6 Months — Auto 15% Off</option>
-                                <option value="12">12 Months — Auto 20% Off</option>
-                            </select>
-                        </div>
-
-                        <div class="mt-2">
-                            <strong>Total: £<span class="sub-total">{{ item.plan.price|floatformat:2 }}</span></strong>
-                        </div>
-
-                    </li>
                     {% endfor %}
 
-                </ul>
-                {% endif %}
+                    <!-- SUBSCRIPTION -->
+                    {% if subscription %}
+                    <div class="mt-3">
+                        <h5 class="text-primary">Subscription</h5>
+                        <div class="d-flex justify-content-between">
+                            <span>{{ subscription.plan.title }} ({{ subscription.months }} months)</span>
+                            <strong>£{{ subscription.total|floatformat:2 }}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
 
+                    <hr>
 
-                <!-- ========================= -->
-                <!-- TOTALS -->
-                <!-- ========================= -->
+                    <!-- TOTALS -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">Products Total:</span>
+                        <span>£{{ product_total|floatformat:2 }}</span>
+                    </div>
 
-                <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">Delivery:</span>
+                        <span>£{{ delivery|floatformat:2 }}</span>
+                    </div>
 
-                <p class="d-flex justify-content-between text-black">
-                    <span>Products Total:</span>
-                    <strong>£{{ product_total|floatformat:2 }}</strong>
-                </p>
+                    {% if subscription %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">Subscription Total:</span>
+                        <span>£{{ subscription.total|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
 
-                <p class="d-flex justify-content-between text-black">
-                    <span>Subscriptions Total:</span>
-                    <strong>£<span id="subscriptionTotal">{{ subscription_total|floatformat:2 }}</span></strong>
-                </p>
+                    <hr>
 
-                <p class="d-flex justify-content-between text-black">
-                    <span>Delivery:</span>
-                    <strong>£{{ delivery_cost|floatformat:2 }}</strong>
-                </p>
+                    <div class="d-flex justify-content-between h4 text-primary">
+                        <span>Total:</span>
+                        <strong>£{{ final_total|floatformat:2 }}</strong>
+                    </div>
 
-                <h4 class="d-flex justify-content-between mt-3 text-black">
-                    <span>Total:</span>
-                    <strong>£<span id="grandTotal">{{ grand_total|floatformat:2 }}</span></strong>
-                </h4>
+                    <!-- BACK BUTTON -->
+                    <a href="{% url 'view_cart' %}" 
+                       class="btn btn-outline-secondary w-100 mt-3">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Cart
+                    </a>
 
-                <a href="{% url 'view_cart' %}" class="btn btn-outline-dark w-100 mt-3">
-                    <i class="fas fa-chevron-left"></i> Back to Cart
-                </a>
-
+                </div>
             </div>
         </div>
 
     </div>
-
 </div>
-
 {% endblock %}
-
-
-{% block postloadjs %}
-{{ block.super }}
-
-<script>
-/* Spinner */
-document.getElementById("place-order-btn").addEventListener("click", function() {
-    document.getElementById("checkoutSpinner").classList.remove("d-none");
-    document.getElementById("checkoutText").textContent = "Processing...";
-});
-
-
-/* Remove Product */
-$('.remove-product').click(function (e) {
-    e.preventDefault();
-    $.post(`/cart/remove/product/${$(this).data("id")}/`, {
-        csrfmiddlewaretoken: "{{ csrf_token }}"
-    }).done(() => location.reload());
-});
-
-
-/* Remove Subscription */
-$('.remove-sub').click(function (e) {
-    e.preventDefault();
-    $.post(`/cart/remove/subscription/${$(this).data("id")}/`, {
-        csrfmiddlewaretoken: "{{ csrf_token }}"
-    }).done(() => location.reload());
-});
-</script>
-
-
-<!-- ============================================== -->
-<!-- JAVASCRIPT — SUBSCRIPTION MONTH SELECTOR LOGIC -->
-<!-- ============================================== -->
-
-<script>
-$(document).ready(function () {
-
-    function updateTotals() {
-        let subsTotal = 0;
-
-        $(".sub-total").each(function() {
-            subsTotal += parseFloat($(this).text()) || 0;
-        });
-
-        $("#subscriptionTotal").text(subsTotal.toFixed(2));
-
-        const productTotal = parseFloat("{{ product_total }}") || 0;
-        const delivery = parseFloat("{{ delivery_cost }}") || 0;
-
-        const grandTotal = productTotal + subsTotal + delivery;
-
-        $("#grandTotal").text(grandTotal.toFixed(2));
-    }
-
-    $(".select-validity").on("change", function() {
-
-        const months = parseInt($(this).val());
-        const base = parseFloat($(this).data("planprice"));
-        let discount = 0;
-
-        if (months === 3) discount = 10;
-        if (months === 6) discount = 15;
-        if (months === 12) discount = 20;
-
-        let total = base * months;
-        total -= (total * discount) / 100;
-
-        $(this).closest("li").find(".sub-total").text(total.toFixed(2));
-
-        updateTotals();
-    });
-
-});
-</script>
-
-{% endblock %} {% endcomment %}

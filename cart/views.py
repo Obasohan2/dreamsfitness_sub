@@ -4,18 +4,23 @@ from products.models import Product
 from subscriptions.models import SubPlan
 
 
+# -----------------------------
+# VIEW CART
+# -----------------------------
 def view_cart(request):
     """ Render the shopping cart page """
     return render(request, 'cart/cart.html')
 
 
+# -----------------------------
+# PRODUCT CART FUNCTIONS
+# -----------------------------
 def add_to_cart(request, item_id):
     """ Add a product to the cart """
 
     product = get_object_or_404(Product, pk=item_id)
     cart = request.session.get('cart', {})
 
-    # Safe quantity
     qty_raw = request.POST.get('quantity', "1")
     try:
         quantity = int(qty_raw)
@@ -23,18 +28,13 @@ def add_to_cart(request, item_id):
         quantity = 1
 
     quantity = max(1, quantity)
+    item_id = str(item_id)
 
-    item_id = str(item_id)  # session keys must be strings
-
-    # Add or update quantity
     cart[item_id] = cart.get(item_id, 0) + quantity
 
-    # Success message
     messages.success(request, f"Added {product.name} to your cart.")
 
-    # Save cart
     request.session['cart'] = cart
-
     redirect_url = request.POST.get('redirect_url') or reverse('products')
     return redirect(redirect_url)
 
@@ -52,20 +52,17 @@ def adjust_cart(request, item_id):
         quantity = 1
 
     quantity = max(1, quantity)
-
     item_id = str(item_id)
 
-    # Update quantity
     cart[item_id] = quantity
-
     messages.success(request, f"Updated {product.name} quantity to {quantity}.")
-
     request.session['cart'] = cart
+
     return redirect(reverse("view_cart"))
 
 
 def remove_from_cart(request, item_id):
-    """ Remove an item from the cart """
+    """ Remove a product from the cart """
 
     product = get_object_or_404(Product, pk=item_id)
     cart = request.session.get('cart', {})
@@ -84,65 +81,30 @@ def remove_from_cart(request, item_id):
         return HttpResponse(status=500)
 
 
+# -----------------------------
+# SUBSCRIPTION CART FUNCTIONS
+# -----------------------------
 def add_subscription_to_cart(request, plan_id):
-    """Add a subscription plan to the cart."""
+    """Add a subscription plan to the cart (only one at a time)."""
 
     plan = get_object_or_404(SubPlan, pk=plan_id)
-    subs = request.session.get("subscriptions", {})
 
-    plan_id = str(plan_id)
-
-    # Only one of each subscription (common practice)
-    subs[plan_id] = True
-
-    request.session["subscriptions"] = subs
+    # Subscription stored as a SINGLE object
+    request.session["subscription_cart"] = {
+        "plan_id": plan.id
+    }
 
     messages.success(request, f"Added subscription: {plan.title}")
 
-    redirect_url = request.POST.get("redirect_url") or reverse("subscriptions")
+    redirect_url = request.POST.get("redirect_url") or reverse("pricing")
     return redirect(redirect_url)
 
 
-def remove_subscription_from_cart(request, plan_id):
-    """Remove a subscription from the cart."""
-
-    plan = get_object_or_404(SubPlan, pk=plan_id)
-    subs = request.session.get("subscriptions", {})
-    plan_id = str(plan_id)
-
-    try:
-        if plan_id in subs:
-            del subs[plan_id]
-            request.session["subscriptions"] = subs
-            messages.success(request, f"Removed subscription: {plan.title}")
-            return HttpResponse(status=200)
-
-        return HttpResponse(status=404)
-
-    except Exception as e:
-        messages.error(request, f"Error removing subscription: {e}")
-        return HttpResponse(status=500)
-
-
-def remove_product(request, item_id):
-    """Remove product from cart."""
-    cart = request.session.get('cart', {})
-
-    if str(item_id) in cart:
-        del cart[str(item_id)]
-        request.session['cart'] = cart
-        return HttpResponse(status=200)
-
-    return HttpResponse(status=404)
-
-
-def remove_subscription(request, plan_id):
+def remove_subscription_from_cart(request):
     """Remove subscription from cart."""
-    subs = request.session.get('subscriptions', {})
 
-    if str(plan_id) in subs:
-        del subs[str(plan_id)]
-        request.session['subscriptions'] = subs
-        return HttpResponse(status=200)
+    if "subscription_cart" in request.session:
+        del request.session["subscription_cart"]
+        messages.success(request, "Subscription removed from your cart.")
 
-    return HttpResponse(status=404)
+    return redirect("view_cart")

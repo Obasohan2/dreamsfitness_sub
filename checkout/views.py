@@ -1,51 +1,146 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from decimal import Decimal
 
-from .models import Order, ProductLineItem, SubscriptionLineItem
 from .forms import OrderForm
-from products.models import Product
-from subscriptions.models import SubPlan
+from cart.contexts import cart_contents
 
-from cart.contexts import cart_contents  # to access cart data
-
+from subscriptions.models import SubPlan, PlanDiscount
 
 
-def checkout(request, plan_id=None):
+def checkout(request):
     """
-    Display checkout page for a selected plan.
-    Allow removing the selected plan from inside checkout.
+    Handles:
+    - POST from subscription selection → saves subscription_cart into session
+    - Displays final checkout page (products + subscription)
     """
 
-    # If user clicked "remove plan"
-    if request.GET.get("remove") == "1":
-        # No cart → simply redirect back to pricing page
-        return redirect("pricing")
+    # --------------------------------------------------
+    # 1) Handle subscription POST from sub_checkout.html
+    # --------------------------------------------------
+    if request.method == "POST" and "plan_id" in request.POST:
 
-    # If no plan_id → also redirect
-    if plan_id is None:
-        messages.error(request, "Please select a subscription plan.")
-        return redirect("pricing")
+        plan_id = request.POST.get("plan_id")
+        months = int(request.POST.get("months", 1))
+        discount_id = request.POST.get("discount_id") or None
 
-    # Load plan
-    plan = get_object_or_404(SubPlan, id=plan_id)
+        # Save subscription to session
+        request.session["subscription_cart"] = {
+            "plan_id": plan_id,
+            "months": months,
+            "discount_id": discount_id,
+        }
 
-    # Member stats
-    registered = plan.subscriptionlineitem.count()
-    balance = plan.max_member - registered
+        return redirect("checkout")  # Load final checkout summary
 
-    return render(request, "checkout.html", {
-        "plan": plan,
-        "registered": registered,
-        "balance": balance,
-        "features": plan.subplanfeature.all(),
-        "discounts": plan.discounts.all(),
+    # --------------------------------------------------
+    # 2) Build final combined checkout summary
+    # --------------------------------------------------
+    cart = cart_contents(request)
+    order_form = OrderForm()
+
+    products = cart["cart_items"]
+    product_total = cart["total"]
+    delivery = cart["delivery"]
+
+    # ---------------- SUBSCRIPTION ----------------
+    subscription = request.session.get("subscription_cart")
+    subscription_detail = None
+    subscription_total = Decimal("0")
+
+    if subscription:
+        plan = get_object_or_404(SubPlan, pk=subscription["plan_id"])
+        months = int(subscription["months"])
+        discount_id = subscription.get("discount_id")
+
+        # Base subscription price
+        subscription_total = plan.price * Decimal(months)
+
+        # Apply discount if selected
+        if discount_id:
+            discount = get_object_or_404(PlanDiscount, pk=discount_id)
+            subscription_total -= subscription_total * (Decimal(discount.total_discount) / 100)
+
+        subscription_detail = {
+            "plan": plan,
+            "months": months,
+            "discount_id": discount_id,
+            "total": subscription_total,
+        }
+
+    # --------------- FINAL TOTAL -----------------
+    final_total = product_total + delivery + subscription_total
+
+    return render(request, "checkout/checkout.html", {
+        "order_form": order_form,
+        "products": products,
+        "product_total": product_total,
+        "delivery": delivery,
+        "subscription": subscription_detail,
+        "subscription_total": subscription_total,
+        "final_total": final_total,
     })
-    
+
+
+def process_order(request):
+    """ Creates Order + Product LineItems + Subscription LineItem """
+
+    if request.method != "POST":
+        return redirect("checkout")
+
+    cart = cart_contents(request)
+    subscription = request.session.get("subscription_cart")
+
+    form = OrderForm(request.POST)
+    if not form.is_valid():
+        messages.error(request, "There was an error in your billing form.")
+        return redirect("checkout")
+
+    order = form.save(commit=False)
+    order.save()
+
+    # ---------------- PRODUCTS -----------------
+    from .models import ProductLineItem
+    for item in cart["cart_items"]:
+        ProductLineItem.objects.create(
+            order=order,
+            product=item["product"],
+            quantity=item["quantity"],
+            lineitem_total=item["product"].price * item["quantity"],
+        )
+
+    # ---------------- SUBSCRIPTION -------------
+    if subscription:
+        from .models import SubscriptionLineItem
+
+        plan = get_object_or_404(SubPlan, pk=subscription["plan_id"])
+        months = int(subscription["months"])
+        discount_id = subscription.get("discount_id")
+
+        price = plan.price * Decimal(months)
+
+        if discount_id:
+            discount = get_object_or_404(PlanDiscount, pk=discount_id)
+            price -= price * (Decimal(discount.total_discount) / 100)
+
+        SubscriptionLineItem.objects.create(
+            order=order,
+            subscription_plan=plan,
+            months=months,
+            lineitem_total=price,
+        )
+
+        # Remove subscription from session after purchase
+        del request.session["subscription_cart"]
+
+    # ---------------- CLEAR PRODUCT CART ----------------
+    if "cart" in request.session:
+        del request.session["cart"]
+
+    return redirect("checkout_success", order_number=order.order_number)
+
 
 def checkout_success(request, order_number):
-    """
-    Display the checkout success page.
-    """
     return render(request, "checkout/checkout_success.html", {
-        "order_number": order_number
+        "order_number": order_number,
     })

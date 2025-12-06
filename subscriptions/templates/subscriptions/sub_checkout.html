@@ -71,13 +71,13 @@
                             <tr>
                                 <td>
                                     <input 
-                                        type="radio"
+                                        type="radio" 
                                         class="select-validity"
                                         name="validity"
-                                        id="validity{{ discount.id }}"
                                         value="{{ discount.total_months }}"
                                         data-planprice="{{ plan.price }}"
                                         data-discount="{{ discount.total_discount }}"
+                                        data-discountid="{{ discount.id }}"
                                     >
                                 </td>
 
@@ -131,8 +131,11 @@
                 <td>
                     <form method="post" action="{% url 'checkout' %}">
                         {% csrf_token %}
+                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                        <input type="hidden" name="months" id="selectedMonths">
+                        <input type="hidden" name="discount_id" id="selectedDiscount">
                         <button type="submit" class="btn btn-primary w-100" id="payBtn" disabled>
-                            Confirm Subscription
+                            Secure Checkout
                         </button>
                     </form>
                 </td>
@@ -152,18 +155,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const radios = document.querySelectorAll(".select-validity");
     const totalSpan = document.querySelector(".totalAmount");
     const payBtn = document.getElementById("payBtn");
+    const monthsInput = document.getElementById("selectedMonths");
+    const discountInput = document.getElementById("selectedDiscount");
 
-    // Initial state
-    totalSpan.textContent = "";
     payBtn.disabled = true;
+    totalSpan.textContent = "";
+    monthsInput.value = "";
+    discountInput.value = "";
 
     radios.forEach(radio => {
-        radio.addEventListener("click", function () {
+        radio.addEventListener("change", function () {
 
             let price = parseFloat(this.dataset.planprice);
             let months = parseInt(this.value);
             let discount = parseFloat(this.dataset.discount);
+            let discountId = this.dataset.discountid;
 
+            // Save values for POST
+            monthsInput.value = months;
+            discountInput.value = discountId;
+
+            // Calculate subscription total
             let total = price * months;
 
             if (discount > 0) {
@@ -172,18 +184,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             totalSpan.textContent = total.toFixed(2);
 
-            // Enable button after selection
             payBtn.disabled = false;
-
-            // Safety check
-            if (!document.querySelector(".select-validity:checked")) {
-                payBtn.disabled = true;
-            }
         });
     });
-
 });
 </script>
 
 {% endblock %}
-
