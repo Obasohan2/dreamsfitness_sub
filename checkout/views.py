@@ -2,7 +2,6 @@ from decimal import Decimal
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-
 from .forms import OrderForm
 from .models import Order, ProductLineItem, SubscriptionLineItem
 from cart.contexts import cart_contents
@@ -14,6 +13,7 @@ import stripe
 # -------------------------------------------------------------------
 # CHECKOUT VIEW
 # -------------------------------------------------------------------
+
 def checkout(request):
     """ Handle the checkout page """
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
@@ -172,6 +172,11 @@ def process_order(request):
 # -------------------------------------------------------------------
 def checkout_success(request, order_number):
     order = get_object_or_404(Order, order_number=order_number)
+
+    messages.success(
+        request,
+        f"Payment successful! Your order {order_number} has been completed."
+    )
 
     return render(request, "checkout/checkout_success.html", {
         "order": order,

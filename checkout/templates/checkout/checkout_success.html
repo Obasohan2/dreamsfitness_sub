@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block page_header %}
-<div class="container header-container mb-0">
+<div class="container header-container my-4">
     <div class="row">
         <div class="col text-center">
-            <h2 class="logo-font mt-4 text-black">Order Complete</h2>
-            <hr class="w-25 mx-auto">
+            <h2 class="logo-font text-black">Order Complete</h2>
+            <p class="text-muted">Your order details are below.</p>
         </div>
     </div>
 </div>
@@ -14,78 +14,91 @@
 
 {% block content %}
 <div class="overlay"></div>
-<div class="container mt-4">
+<div class="container my-0">
     <div class="row justify-content-center">
         <div class="col-lg-5">
 
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Order Successful!</h3>
+                    <h3 class="mb-0">Thank You for Your Purchase!</h3>
                 </div>
 
                 <div class="card-body">
 
                     <p class="lead">
-                        Thank you, <strong>{{ order.full_name }}</strong>!  
-                        Your order has been processed successfully.
-                    </p>
-
-                    <p>
-                        <strong>Order Number:</strong> {{ order.order_number }}<br>
-                        <strong>Email Confirmation Sent To:</strong> {{ order.email }}
+                        A confirmation email has been sent to 
+                        <strong>{{ order.email }}</strong>.
                     </p>
 
                     <hr>
 
-                    <h5>Order Summary</h5>
+                    <!-- ORDER INFO -->
+                    <h5 class="text-primary">Order Info</h5>
 
-                    {% for item in order.product_items.all %}
-                        <div class="d-flex justify-content-between border-bottom py-2">
-                            <span>{{ item.product.name }} × {{ item.quantity }}</span>
-                            <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
-                        </div>
-                    {% endfor %}
+                    <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+                    <p><strong>Order Date:</strong> {{ order.date }}</p>
 
+                    <hr>
+
+                    <!-- PRODUCTS -->
+                    <h5 class="text-primary">Products</h5>
+
+                    {% if order.product_items.all %}
+                        {% for item in order.product_items.all %}
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                                <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No products purchased.</p>
+                    {% endif %}
+
+                    <!-- SUBSCRIPTION -->
                     {% if order.subscription_items.all %}
-                        <h5 class="mt-4">Subscription</h5>
-                        {% for item in order.subscription_items.all %}
-                            <div class="d-flex justify-content-between border-bottom py-2">
-                                <span>{{ item.subscription_plan.title }} ({{ item.months }} months)</span>
-                                <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                        <h5 class="text-primary mt-4">Subscription Plan</h5>
+
+                        {% for sub in order.subscription_items.all %}
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span>{{ sub.subscription_plan.title }} ({{ sub.months }} months)</span>
+                                <strong>£{{ sub.lineitem_total|floatformat:2 }}</strong>
                             </div>
                         {% endfor %}
                     {% endif %}
 
                     <hr>
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <strong>Products Total:</strong>
-                        £{{ order.order_total|floatformat:2 }}
-                    </div>
+                    <!-- DELIVERY INFO -->
+                    <h5 class="text-primary">Billing Information</h5>
 
-                    {% if order.subscription_total > 0 %}
-                    <div class="d-flex justify-content-between mb-2">
-                        <strong>Subscription Total:</strong>
-                        £{{ order.subscription_total|floatformat:2 }}
-                    </div>
+                    <p>{{ order.full_name }}</p>
+                    <p>{{ order.address1 }}</p>
+                    {% if order.address2 %}
+                        <p>{{ order.address2 }}</p>
                     {% endif %}
-
-                    {% if order.delivery_cost > 0 %}
-                    <div class="d-flex justify-content-between mb-2">
-                        <strong>Delivery:</strong>
-                        £{{ order.delivery_cost|floatformat:2 }}
-                    </div>
-                    {% endif %}
+                    <p>{{ order.city }}</p>
+                    <p>{{ order.postcode }}</p>
+                    <p>{{ order.country.name }}</p>
+                    <p>Phone: {{ order.phone_number }}</p>
 
                     <hr>
 
-                    <h4 class="text-primary">
-                        Total Paid: £{{ order.grand_total|floatformat:2 }}
+                    <!-- TOTALS -->
+                    <h5 class="text-primary">Totals</h5>
+
+                    <p><strong>Order Total:</strong> £{{ order.order_total|floatformat:2 }}</p>
+                    <p><strong>Subscription Total:</strong> £{{ order.subscription_total|floatformat:2 }}</p>
+                    <p><strong>Delivery Cost:</strong> £{{ order.delivery_cost|floatformat:2 }}</p>
+
+                    <h4 class="text-success mt-3">
+                        <strong>Grand Total: £{{ order.grand_total|floatformat:2 }}</strong>
                     </h4>
 
-                    <a href="/" class="btn btn-outline-primary mt-3">
-                        Return Home
-                    </a>
+                    <div class="text-center mt-4">
+                        <a href="/" class="btn btn-outline-primary">
+                            Return Home
+                        </a>
+                    </div>
 
                 </div>
             </div>
@@ -94,82 +107,3 @@
     </div>
 </div>
 {% endblock %}
-
-
-
-
-
-{% comment %} {% extends "base.html" %}
-{% load static %}
-
-{% block page_header %}
-<div class="container header-container mb-5">
-    <div class="row">
-        <div class="col text-center">
-            <h2 class="logo-font mt-4 text-black">Order Complete</h2>
-            <hr class="w-25 mx-auto">
-        </div>
-    </div>
-</div>
-{% endblock %}
-{% block content %}
-<div class="overlay"></div>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Order Successful!</h3>
-                </div>
-
-                <div class="card-body">
-
-                    <p class="lead">
-                        Thank you, <strong>{{ order.full_name }}</strong>!  
-                        Your order has been processed successfully.
-                    </p>
-
-                    <p>
-                        <strong>Order Number:</strong> {{ order.order_number }}<br>
-                        <strong>Email Confirmation Sent To:</strong> {{ order.email }}
-                    </p>
-
-                    <hr>
-
-                    <h5>Order Summary</h5>
-
-                    {% for item in order.productlineitem_set.all %}
-                        <div class="d-flex justify-content-between border-bottom py-2">
-                            <span>{{ item.product.name }} × {{ item.quantity }}</span>
-                            <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
-                        </div>
-                    {% endfor %}
-
-                    {% if order.subscriptionlineitem_set.all %}
-                        <h5 class="mt-4">Subscription</h5>
-                        {% for item in order.subscriptionlineitem_set.all %}
-                            <div class="d-flex justify-content-between border-bottom py-2">
-                                <span>{{ item.subscription_plan.title }} ({{ item.months }} months)</span>
-                                <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <hr>
-
-                    <h4 class="text-primary">
-                        Total Paid: £{{ order.grand_total|floatformat:2 }}
-                    </h4>
-
-                    <a href="/" class="btn btn-outline-primary mt-3">
-                        Return Home
-                    </a>
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-{% endblock %} {% endcomment %}
