@@ -5,35 +5,64 @@ from .models import Order, ProductLineItem, SubscriptionLineItem
 class ProductLineItemAdminInline(admin.TabularInline):
     model = ProductLineItem
     readonly_fields = ("lineitem_total",)
+    extra = 0
 
 
 class SubscriptionLineItemAdminInline(admin.TabularInline):
     model = SubscriptionLineItem
     readonly_fields = ("lineitem_total",)
+    extra = 0
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     inlines = (ProductLineItemAdminInline, SubscriptionLineItemAdminInline)
 
-    # Only include fields that you KNOW exist on your Order model
     readonly_fields = (
         "order_number",
         "date",
-        "full_name",
-        "email",
-        "phone_number",
-        "country",
-        "postcode",
+        "display_order_total",
+        "display_subscription_total",
+        "display_delivery_cost",
+        "display_grand_total",
     )
-
-    fields = readonly_fields   # reuse the same fields
 
     list_display = (
         "order_number",
-        "date",
         "full_name",
         "email",
+        "display_grand_total",  # currency formatted!
+        "date",
     )
 
+    search_fields = ("order_number", "full_name", "email")
     ordering = ("-date",)
+
+    fieldsets = (
+        ("Order Info", {
+            "fields": (
+                "order_number",
+                "date",
+                "full_name",
+                "email",
+                "phone_number",
+            )
+        }),
+        ("Delivery Details", {
+            "fields": (
+                "address1",
+                "address2",
+                "city",
+                "postcode",
+                "country",
+            )
+        }),
+        ("Totals", {
+            "fields": (
+                "display_order_total",
+                "display_subscription_total",
+                "display_delivery_cost",
+                "display_grand_total",
+            )
+        }),
+    )

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_header %}
-<div class="container header-container mb-5">
+<div class="container header-container mb-0">
     <div class="row">
         <div class="col text-center">
             <h2 class="logo-font mt-4 text-black">Order Complete</h2>
@@ -13,12 +13,163 @@
 {% endblock %}
 
 {% block content %}
-<div class="container text-center my-5">
-    <h2>Order Successful!</h2>
-    <p>Your order number is:</p>
+<div class="overlay"></div>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
 
-    <h3 class="text-primary">{{ order_number }}</h3>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Order Successful!</h3>
+                </div>
 
-    <a href="{% url 'products' %}" class="btn btn-dark mt-3">Continue Shopping</a>
+                <div class="card-body">
+
+                    <p class="lead">
+                        Thank you, <strong>{{ order.full_name }}</strong>!  
+                        Your order has been processed successfully.
+                    </p>
+
+                    <p>
+                        <strong>Order Number:</strong> {{ order.order_number }}<br>
+                        <strong>Email Confirmation Sent To:</strong> {{ order.email }}
+                    </p>
+
+                    <hr>
+
+                    <h5>Order Summary</h5>
+
+                    {% for item in order.product_items.all %}
+                        <div class="d-flex justify-content-between border-bottom py-2">
+                            <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                            <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                        </div>
+                    {% endfor %}
+
+                    {% if order.subscription_items.all %}
+                        <h5 class="mt-4">Subscription</h5>
+                        {% for item in order.subscription_items.all %}
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                <span>{{ item.subscription_plan.title }} ({{ item.months }} months)</span>
+                                <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Products Total:</strong>
+                        £{{ order.order_total|floatformat:2 }}
+                    </div>
+
+                    {% if order.subscription_total > 0 %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Subscription Total:</strong>
+                        £{{ order.subscription_total|floatformat:2 }}
+                    </div>
+                    {% endif %}
+
+                    {% if order.delivery_cost > 0 %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Delivery:</strong>
+                        £{{ order.delivery_cost|floatformat:2 }}
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <h4 class="text-primary">
+                        Total Paid: £{{ order.grand_total|floatformat:2 }}
+                    </h4>
+
+                    <a href="/" class="btn btn-outline-primary mt-3">
+                        Return Home
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
 {% endblock %}
+
+
+
+
+
+{% comment %} {% extends "base.html" %}
+{% load static %}
+
+{% block page_header %}
+<div class="container header-container mb-5">
+    <div class="row">
+        <div class="col text-center">
+            <h2 class="logo-font mt-4 text-black">Order Complete</h2>
+            <hr class="w-25 mx-auto">
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="overlay"></div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Order Successful!</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="lead">
+                        Thank you, <strong>{{ order.full_name }}</strong>!  
+                        Your order has been processed successfully.
+                    </p>
+
+                    <p>
+                        <strong>Order Number:</strong> {{ order.order_number }}<br>
+                        <strong>Email Confirmation Sent To:</strong> {{ order.email }}
+                    </p>
+
+                    <hr>
+
+                    <h5>Order Summary</h5>
+
+                    {% for item in order.productlineitem_set.all %}
+                        <div class="d-flex justify-content-between border-bottom py-2">
+                            <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                            <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                        </div>
+                    {% endfor %}
+
+                    {% if order.subscriptionlineitem_set.all %}
+                        <h5 class="mt-4">Subscription</h5>
+                        {% for item in order.subscriptionlineitem_set.all %}
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                <span>{{ item.subscription_plan.title }} ({{ item.months }} months)</span>
+                                <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <hr>
+
+                    <h4 class="text-primary">
+                        Total Paid: £{{ order.grand_total|floatformat:2 }}
+                    </h4>
+
+                    <a href="/" class="btn btn-outline-primary mt-3">
+                        Return Home
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %} {% endcomment %}
