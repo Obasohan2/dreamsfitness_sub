@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404, HttpR
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .forms import OrderForm
-from .models import Order, ProductLineItem, SubscriptionLineItem
+from .models import Order, OrderLineItem, SubscriptionLineItem
 from cart.contexts import cart_contents
 from subscriptions.models import SubPlan, PlanDiscount
 
@@ -31,6 +31,7 @@ def cache_checkout_data(request):
 # -------------------------------------------------------------------
 # CHECKOUT VIEW
 # -------------------------------------------------------------------
+
 
 def checkout(request):
     """ Handle the checkout page """
@@ -143,7 +144,7 @@ def process_order(request):
         price = Decimal(str(item["product"].price))
         quantity = Decimal(item["quantity"])
 
-        ProductLineItem.objects.create(
+        OrderLineItem.objects.create(
             order=order,
             product=item["product"],
             quantity=item["quantity"],

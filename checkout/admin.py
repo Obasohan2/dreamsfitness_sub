@@ -1,12 +1,9 @@
-from django.contrib import admin, messages
-from django.urls import path
-from django.shortcuts import redirect, get_object_or_404
-
-from .models import Order, ProductLineItem, SubscriptionLineItem
+from django.contrib import admin
+from .models import Order, OrderLineItem, SubscriptionLineItem
 
 
-class ProductLineItemAdminInline(admin.TabularInline):
-    model = ProductLineItem
+class OrderLineItemAdminInline(admin.TabularInline):
+    model = OrderLineItem
     readonly_fields = ("lineitem_total",)
     extra = 0
 
@@ -17,17 +14,9 @@ class SubscriptionLineItemAdminInline(admin.TabularInline):
     extra = 0
 
 
-@admin.action(description='Remove subscription from selected orders')
-def remove_subscription_action(modeladmin, request, queryset):
-    for order in queryset:
-        SubscriptionLineItem.objects.filter(order=order).delete()
-        order.update_totals()
-
-
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    inlines = (ProductLineItemAdminInline, SubscriptionLineItemAdminInline)
-    actions = [remove_subscription_action]
+    inlines = (OrderLineItemAdminInline, SubscriptionLineItemAdminInline)
 
     readonly_fields = (
         "order_number",
