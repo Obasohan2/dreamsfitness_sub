@@ -7,10 +7,8 @@ from decimal import Decimal
 import uuid
 
 
-# ----------------------------------------------------
-# ORDER MODEL
-# ----------------------------------------------------
 class Order(models.Model):
+    # ---------------- Billing fields ----------------
     order_number = models.CharField(max_length=32, editable=False)
     full_name = models.CharField(max_length=50)
     email = models.EmailField()
@@ -21,19 +19,27 @@ class Order(models.Model):
     postcode = models.CharField(max_length=20)
     country = CountryField()
 
-    # Totals — all must have defaults to allow safe migrations
+    # ---------------- Shipping fields ----------------
+    shipping_full_name = models.CharField(max_length=50, blank=True, null=True)
+    shipping_phone_number = models.CharField(max_length=20, blank=True, null=True)
+    shipping_address1 = models.CharField(max_length=80, blank=True, null=True)
+    shipping_address2 = models.CharField(max_length=80, blank=True, null=True)
+    shipping_city = models.CharField(max_length=40, blank=True, null=True)
+    shipping_postcode = models.CharField(max_length=20, blank=True, null=True)
+    shipping_country = CountryField(blank=True, null=True)
+
+    # ---------------- Totals ----------------
     order_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     subscription_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    # Safe defaults for existing rows
+    # ---------------- Meta Info ----------------
     original_cart = models.TextField(default='', blank=True)
     stripe_pid = models.CharField(max_length=254, default='', blank=True)
-
     date = models.DateTimeField(auto_now_add=True)
 
-    # ------------------------- Admin Display -------------------------
+    # ---------------- Admin Display Helpers ----------------
     def display_order_total(self):
         return f"£{self.order_total:.2f}"
     display_order_total.short_description = "Order Total"
@@ -50,12 +56,11 @@ class Order(models.Model):
         return f"£{self.grand_total:.2f}"
     display_grand_total.short_description = "Grand Total"
 
-    # ------------------------- Order Logic -------------------------
+    # ---------------- Methods ----------------
     def _generate_order_number(self):
         return uuid.uuid4().hex.upper()
 
     def update_totals(self):
-        """Recalculate totals correctly without breaking migrations."""
         product_total = (
             self.lineitems.aggregate(total=Sum("lineitem_total"))["total"]
             or Decimal("0.00")
@@ -72,7 +77,6 @@ class Order(models.Model):
             product_total + subscription_total + Decimal(self.delivery_cost)
         )
 
-        # Safe for migrations — updates only necessary fields
         self.save(update_fields=[
             "order_total",
             "subscription_total",
@@ -97,18 +101,16 @@ class OrderLineItem(models.Model):
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
-    # Must have defaults for migration safety
     quantity = models.IntegerField(default=1)
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        """Calculate total and update order safely."""
         self.lineitem_total = self.product.price * self.quantity
         super().save(*args, **kwargs)
         self.order.update_totals()
 
     def __str__(self):
-        return f'{self.product.name} (x{self.quantity}) on {self.order.order_number}'
+        return f"{self.product.name} (x{self.quantity}) on {self.order.order_number}"
 
 
 # ----------------------------------------------------
@@ -120,16 +122,17 @@ class SubscriptionLineItem(models.Model):
     )
     subscription_plan = models.ForeignKey(SubPlan, on_delete=models.CASCADE)
 
-    # Must have defaults for safe migrations
     months = models.IntegerField(default=1)
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        """Calculate subscription cost safely."""
-        # Assumes SubPlan has monthly_price field
+        # Using monthly_price from SubPlan
         self.lineitem_total = self.subscription_plan.monthly_price * self.months
         super().save(*args, **kwargs)
         self.order.update_totals()
 
     def __str__(self):
-        return f'{self.subscription_plan.name} ({self.months} months) on {self.order.order_number}'
+        return (
+            f"{self.subscription_plan.name} ({self.months} months) "
+            f"on {self.order.order_number}"
+        )

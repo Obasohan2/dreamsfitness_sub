@@ -19,96 +19,119 @@
     </div>
 </div>
 {% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row g-4">
 
-        <!-- LEFT SIDE: BILLING -->
+        <!-- LEFT SIDE -->
         <div class="col-lg-6">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Billing Details</h4>
+                    <h4 class="mb-0">Billing & Shipping Details</h4>
                 </div>
 
                 <div class="col-12 mx-auto p-4">
-                    <p class="text-muted">Please fill out the form below to complete your order.</p>
 
                     <form action="{% url 'process_order' %}" method="POST" id="payment-form">
                         {% csrf_token %}
 
-                        <!-- CUSTOMER DETAILS -->
+                        <p class="text-muted">
+                            Please fill out your billing address.  
+                            You may optionally enter a different shipping address.
+                        </p>
+
+                        <!-- CONTACT -->
                         <fieldset class="rounded px-3 mb-4">
+                            <legend class="fieldset-label small text-black px-2 w-auto">Contact</legend>
                             {{ order_form.full_name|as_crispy_field }}
                             {{ order_form.email|as_crispy_field }}
+                            {{ order_form.phone_number|as_crispy_field }}
                         </fieldset>
 
-                        <!-- DELIVERY -->
+                        <!-- BILLING -->
                         <fieldset class="rounded px-3 mb-4">
-                            <legend class="fieldset-label small text-black px-2 w-auto">Delivery</legend>
+                            <legend class="fieldset-label small text-black px-2 w-auto">Billing Address</legend>
 
-                            {{ order_form.phone_number|as_crispy_field }}
                             {{ order_form.address1|as_crispy_field }}
                             {{ order_form.address2|as_crispy_field }}
                             {{ order_form.city|as_crispy_field }}
                             {{ order_form.postcode|as_crispy_field }}
                             {{ order_form.country|as_crispy_field }}
 
-                            <div class="form-check mt-3">
-                                {% if user.is_authenticated %}
+                            {% if user.is_authenticated %}
+                                <div class="form-check mt-3">
                                     <input type="checkbox" class="form-check-input" id="save-info" name="save-info" checked>
-                                    <label for="save-info" class="form-check-label">
-                                        Save this delivery information to my profile
+                                    <label class="form-check-label" for="save-info">
+                                        Save billing information to profile
                                     </label>
-                                {% else %}
-                                    <label class="form-check-label">
-                                        <a href="{% url 'account_signup' %}" class="text-info">Create an account</a>
-                                        or
-                                        <a href="{% url 'account_login' %}" class="text-info">login</a>
-                                        to save this information.
-                                    </label>
-                                {% endif %}
+                                </div>
+                            {% endif %}
+
+                            <div class="form-check mt-3">
+                                <input type="checkbox" class="form-check-input" id="use-different-shipping">
+                                <label class="form-check-label" for="use-different-shipping">
+                                    Ship to a different address
+                                </label>
                             </div>
                         </fieldset>
 
-                        <!-- PAYMENT -->
-                        <fieldset class="px-3 mb-4">
-                            <legend class="fieldset-label small text-black fw-bold px-2 w-auto">Payment</legend>
+                        <!-- SHIPPING -->
+                        <fieldset class="rounded px-3 mb-4 d-none" id="shipping-fields">
+                            <legend class="fieldset-label small text-black px-2 w-auto">Shipping Address</legend>
 
-                            <div id="card-element" class="mb-3"></div>
-                            <div id="card-errors" class="text-danger mb-3" role="alert"></div>
+                            {{ order_form.shipping_full_name|as_crispy_field }}
+                            {{ order_form.shipping_phone_number|as_crispy_field }}
+                            {{ order_form.shipping_address1|as_crispy_field }}
+                            {{ order_form.shipping_address2|as_crispy_field }}
+                            {{ order_form.shipping_city|as_crispy_field }}
+                            {{ order_form.shipping_postcode|as_crispy_field }}
+                            {{ order_form.shipping_country|as_crispy_field }}
                         </fieldset>
 
-                        <!-- SUBSCRIPTION HIDDEN FIELDS -->
+                        <!-- PAYMENT -->
+                        <fieldset class="rounded px-3 mb-4">
+                            <legend class="fieldset-label small text-black px-2 w-auto">Payment</legend>
+
+                            <div id="card-element" class="mb-3"></div>
+                            <div id="card-errors" class="text-danger mb-2"></div>
+
+                            <input type="hidden" name="client_secret" value="{{ client_secret }}">
+                        </fieldset>
+
+                        <!-- HIDDEN SUB FIELDS -->
                         {% if subscription %}
                             <input type="hidden" name="plan_id" value="{{ subscription.plan.id }}">
                             <input type="hidden" name="months" value="{{ subscription.months }}">
                             {% if subscription.discount %}
-                                <input type="hidden" name="discount_id" value="{{ subscription.discount }}">
+                                <input type="hidden" name="discount_id" value="{{ subscription.discount.id }}">
                             {% endif %}
                         {% endif %}
 
                         <!-- SUBMIT BUTTON -->
-                        <div class="submit-button text-right mt-4">
+                        <div class="submit-button text-end mt-4">
                             <a href="{% url 'view_cart' %}" class="btn btn-outline-secondary rounded-0">
                                 <i class="bi bi-chevron-left"></i> Adjust Cart
                             </a>
 
                             <button id="submit-button" class="btn btn-primary rounded-0">
-                                <span>Complete Order</span>
-                                <i class="bi bi-lock-fill"></i>
+                                Complete Order <i class="bi bi-lock-fill"></i>
                             </button>
 
                             <p class="small text-danger mt-2">
                                 <i class="bi bi-exclamation-circle"></i>
-                                Your card will be charged <strong>£{{ final_total|floatformat:2 }}</strong>
+                                Your card will be charged
+                                <strong>£{{ final_total|floatformat:2 }}</strong>
                             </p>
                         </div>
+
                     </form>
+
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT SIDE: ORDER SUMMARY -->
+        <!-- RIGHT SIDE -->
         <div class="col-lg-5">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-dark text-white">
@@ -122,22 +145,21 @@
                         {% for item in products %}
                             <div class="d-flex justify-content-between py-2 border-bottom">
                                 <span>
-                                    {{ item.product.name }} × {{ item.quantity }} <br>
-                                    <small>(£{{ item.product.price|floatformat:2 }} each)</small>
+                                    {{ item.product.name }} × {{ item.quantity }}<br>
+                                    <small>£{{ item.product.price|floatformat:2 }} each</small>
                                 </span>
-
-                                <strong>£{{ item.product.price|mul:item.quantity|floatformat:2 }}</strong>
+                                <strong>
+                                    £{{ item.product.price|mul:item.quantity|floatformat:2 }}
+                                </strong>
                             </div>
                         {% endfor %}
                     {% endif %}
 
                     {% if subscription %}
-                        <div class="mt-3">
-                            <h5 class="text-primary">Subscription</h5>
-                            <div class="d-flex justify-content-between">
-                                <span>{{ subscription.plan.title }} ({{ subscription.months }} months)</span>
-                                <strong>£{{ subscription.total|floatformat:2 }}</strong>
-                            </div>
+                        <h5 class="text-primary mt-3">Subscription</h5>
+                        <div class="d-flex justify-content-between">
+                            <span>{{ subscription.plan.title }} ({{ subscription.months }} months)</span>
+                            <strong>£{{ subscription.total|floatformat:2 }}</strong>
                         </div>
                     {% endif %}
 
@@ -171,24 +193,37 @@
                         <strong>£{{ final_total|floatformat:2 }}</strong>
                     </div>
 
-                    {% if subscription %}
-                    <a href="{% url 'pricing' %}" class="btn btn-outline-secondary w-100 mt-3">
-                        <i class="bi bi-arrow-left me-1"></i> Adjust Subscription Plan
-                    </a>
-                    {% endif %}
-
                 </div>
             </div>
         </div>
 
     </div>
 </div>
+
+<div id="loading-overlay">
+    <h1 class="text-light logo-font loading-spinner">
+        <span class="icon">
+            <i class="fas fa-3x fa-sync-alt fa-spin"></i>
+        </span>
+    </h1>
+</div>
 {% endblock %}
 
-
 {% block postloadjs %}
-    {{ block.super }}
-    {{ stripe_public_key|json_script:"id_stripe_public_key" }}
-    {{ client_secret|json_script:"id_client_secret" }}
-    <script src="{% static 'checkout/js/stripe_elements.js' %}"></script>
+{{ block.super }}
+{{ stripe_public_key|json_script:"id_stripe_public_key" }}
+{{ client_secret|json_script:"id_client_secret" }}
+<script src="{% static 'checkout/js/stripe_elements.js' %}"></script>
+
+<!-- SHIPPING TOGGLE -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("use-different-shipping");
+    const shipping = document.getElementById("shipping-fields");
+
+    toggle.addEventListener("change", () => {
+        shipping.classList.toggle("d-none", !toggle.checked);
+    });
+});
+</script>
 {% endblock %}
