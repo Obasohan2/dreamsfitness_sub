@@ -66,14 +66,18 @@ def cart_contents(request):
     grand_total = total + delivery
 
     return {
-        "cart_items": cart_items,
-        "total": total,
-        "delivery": delivery,
-        "product_count": product_count,
-        "cart_count": product_count,   # subscription removed
-        "grand_total": grand_total,
+    "cart_items": cart_items,
+    "total": total,
+    "delivery": delivery,
+    "product_count": product_count,
+    "cart_count": product_count,
+    "grand_total": grand_total,
 
-        # Subscription — not counted in cart bubble
-        "subscription_item": subscription_item,
-        "subscription_total": subscription_total,
-    }
+    # Threshold values for banner and messaging
+    "free_delivery_threshold": Decimal(settings.FREE_DELIVERY_THRESHOLD),
+    "free_delivery_delta": free_delivery_delta,
+
+    # Subscription — not counted in cart bubble
+    "subscription_item": subscription_item,
+    "subscription_total": subscription_total,
+}
