@@ -6,11 +6,14 @@ from django.db.models import Sum
 from decimal import Decimal
 import uuid
 import json
+from profiles.models import UserProfile
 
 
 class Order(models.Model):
     # ---------------- Billing fields ----------------
     order_number = models.CharField(max_length=32, editable=False)
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
+                                     null=True, blank=True, related_name='orders')
     full_name = models.CharField(max_length=50)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
