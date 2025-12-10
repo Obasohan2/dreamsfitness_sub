@@ -18,7 +18,7 @@ class Order(models.Model):
     address2 = models.CharField(max_length=80, blank=True, null=True)
     city = models.CharField(max_length=40)
     postcode = models.CharField(max_length=20)
-    country = CountryField()
+    country = CountryField(blank_label='Country *', null=False, blank=False)
 
     # ---------------- Shipping fields ----------------
     shipping_full_name = models.CharField(max_length=50, blank=True, null=True)

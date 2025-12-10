@@ -114,7 +114,7 @@ class OrderAdmin(admin.ModelAdmin):
                 "display_delivery_cost",
                 "display_grand_total",
                 # "original_cart",
-                "readable_cart",   #  ADD THIS
+                "readable_cart",   #  ADDED THIS
                 "stripe_pid",
             )
         }),

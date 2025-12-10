@@ -29,6 +29,7 @@ class OrderForm(forms.ModelForm):
             "address2": "Billing Address Line 2",
             "city": "Billing City",
             "postcode": "Billing Postcode",
+            "country": "Billing Country",
 
             # Shipping
             "shipping_full_name": "Recipient Full Name",
@@ -37,22 +38,18 @@ class OrderForm(forms.ModelForm):
             "shipping_address2": "Shipping Address Line 2",
             "shipping_city": "Shipping City",
             "shipping_postcode": "Shipping Postcode",
+            "shipping_country": "Shipping Country",
         }
 
-        for name, field in self.fields.items():
-
-            # Skip placeholders for dropdown country fields
-            if name not in ("country", "shipping_country"):
-                placeholder = placeholders.get(name, "")
-                if field.required:
-                    placeholder += " *"
-                field.widget.attrs["placeholder"] = placeholder
-
-            # CSS class for Stripe styling compatibility
-            field.widget.attrs["class"] = "stripe-style-input"
-
-            # Remove labels (Crispy will render clean form)
-            field.label = False
-
-        # Autofocus
+        # Autofocus first field
         self.fields["full_name"].widget.attrs["autofocus"] = True
+
+        # Apply placeholders + styling
+        for field in self.fields:
+            if field not in ("country", "shipping_country"):
+                ph = placeholders.get(field, "")
+                placeholder = f"{ph} *" if self.fields[field].required else ph
+                self.fields[field].widget.attrs["placeholder"] = placeholder
+
+            self.fields[field].widget.attrs["class"] = "stripe-style-input"
+            self.fields[field].label = False
