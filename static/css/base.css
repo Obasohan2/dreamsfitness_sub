@@ -102,6 +102,12 @@ body {
     height: 2px;
 }
 
+/* ------------------------------- footer adjustments */
+footer a:hover {
+    color: #0d6efd !important;
+}
+
+
 /* from CSS-tricks.com: https://css-tricks.com/snippets/css/css-triangle/ */
 
 .arrow-up {

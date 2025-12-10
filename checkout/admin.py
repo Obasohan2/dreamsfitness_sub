@@ -1,19 +1,55 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Order, OrderLineItem, SubscriptionLineItem
 
 
+# ---------------------------------------------------------
+# PRODUCT LINE ITEMS INLINE
+# ---------------------------------------------------------
 class OrderLineItemAdminInline(admin.TabularInline):
     model = OrderLineItem
-    readonly_fields = ("lineitem_total",)
+    readonly_fields = ("lineitem_total", "display_name")
     extra = 0
 
+    def display_name(self, obj):
+        """
+        Show product name + quantity in bold large font.
+        Example: Kettlebells (x3)
+        """
+        return format_html(
+            '<span style="font-size:16px; font-weight:bold;">{} (x{})</span>',
+            obj.product.name,
+            obj.quantity,
+        )
 
+    display_name.short_description = "Product"
+
+
+# ---------------------------------------------------------
+# SUBSCRIPTION LINE ITEMS INLINE
+# ---------------------------------------------------------
 class SubscriptionLineItemAdminInline(admin.TabularInline):
     model = SubscriptionLineItem
-    readonly_fields = ("lineitem_total",)
+    readonly_fields = ("lineitem_total", "display_name")
     extra = 0
 
+    def display_name(self, obj):
+        """
+        Shows subscription plan title and months.
+        Example: Elite Plan (3 months)
+        """
+        return format_html(
+            '<span style="font-size:16px; font-weight:bold;">{} ({} months)</span>',
+            obj.subscription_plan.title,
+            obj.months,
+        )
 
+    display_name.short_description = "Subscription"
+
+
+# ---------------------------------------------------------
+# ORDER ADMIN
+# ---------------------------------------------------------
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     inlines = (OrderLineItemAdminInline, SubscriptionLineItemAdminInline)
@@ -25,7 +61,8 @@ class OrderAdmin(admin.ModelAdmin):
         "display_subscription_total",
         "display_delivery_cost",
         "display_grand_total",
-        "original_cart",
+        # "original_cart",
+        "readable_cart",   # SHOWS PRODUCT NAMES HERE
         "stripe_pid",
     )
 
@@ -76,8 +113,11 @@ class OrderAdmin(admin.ModelAdmin):
                 "display_subscription_total",
                 "display_delivery_cost",
                 "display_grand_total",
-                "original_cart",
+                # "original_cart",
+                "readable_cart",   #  ADD THIS
                 "stripe_pid",
             )
         }),
     )
+    
+    ordering = ("-date",)

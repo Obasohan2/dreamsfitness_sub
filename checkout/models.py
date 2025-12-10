@@ -5,6 +5,7 @@ from django_countries.fields import CountryField
 from django.db.models import Sum
 from decimal import Decimal
 import uuid
+import json
 
 
 class Order(models.Model):
@@ -39,22 +40,26 @@ class Order(models.Model):
     stripe_pid = models.CharField(max_length=254, default='', blank=True)
     date = models.DateTimeField(auto_now_add=True)
 
-    # ---------------- Admin Display Helpers ----------------
-    def display_order_total(self):
-        return f"£{self.order_total:.2f}"
-    display_order_total.short_description = "Order Total"
+    # ---------------- Admin Display Helper (Formatter) ----------------
+    def _currency(self, value):
+        """Formats any numeric value as £XX.XX"""
+        return f"£{value:.2f}"
 
-    def display_subscription_total(self):
-        return f"£{self.subscription_total:.2f}"
-    display_subscription_total.short_description = "Subscription Total"
+    # Mapping used to generate helper methods dynamically
+    _DISPLAY_FIELDS = {
+        "display_order_total": ("order_total", "Order Total"),
+        "display_subscription_total": ("subscription_total", "Subscription Total"),
+        "display_delivery_cost": ("delivery_cost", "Delivery Cost"),
+        "display_grand_total": ("grand_total", "Grand Total"),
+    }
 
-    def display_delivery_cost(self):
-        return f"£{self.delivery_cost:.2f}"
-    display_delivery_cost.short_description = "Delivery Cost"
-
-    def display_grand_total(self):
-        return f"£{self.grand_total:.2f}"
-    display_grand_total.short_description = "Grand Total"
+    # Create the display methods dynamically
+    for method_name, (field_name, label) in _DISPLAY_FIELDS.items():
+        def make_display(field):
+            return lambda self: self._currency(getattr(self, field))
+        func = make_display(field_name)
+        func.short_description = label
+        locals()[method_name] = func
 
     # ---------------- Methods ----------------
     def _generate_order_number(self):
@@ -91,6 +96,28 @@ class Order(models.Model):
     def __str__(self):
         return self.order_number
 
+    # ---------------- Readable Cart ----------------
+    def readable_cart(self):
+        """
+        Convert original_cart JSON into readable product names + quantities.
+        """
+        try:
+            cart = json.loads(self.original_cart)
+        except Exception:
+            return "Invalid cart data"
+
+        lines = []
+        for product_id, qty in cart.items():
+            try:
+                product = Product.objects.get(id=product_id)
+                lines.append(f"{product.name} × {qty}")
+            except Product.DoesNotExist:
+                lines.append(f"Unknown product (ID {product_id}) × {qty}")
+
+        return "\n".join(lines)
+
+    readable_cart.short_description = "Original Cart"
+
 
 # ----------------------------------------------------
 # PRODUCT LINE ITEMS
@@ -110,7 +137,7 @@ class OrderLineItem(models.Model):
         self.order.update_totals()
 
     def __str__(self):
-        return f"{self.product.name} (x{self.quantity}) on {self.order.order_number}"
+        return f"{self.product.name} (x{self.quantity})"
 
 
 # ----------------------------------------------------
@@ -126,13 +153,22 @@ class SubscriptionLineItem(models.Model):
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        # Using monthly_price from SubPlan
-        self.lineitem_total = self.subscription_plan.monthly_price * self.months
+        monthly_cost = self.subscription_plan.price  
+        total = monthly_cost * self.months
+
+        discount = self.subscription_plan.discounts.filter(
+            total_months=self.months
+        ).first()
+
+        if discount:
+            discount_amount = (total * discount.total_discount) / 100
+            total -= discount_amount
+
+        self.lineitem_total = total
+
         super().save(*args, **kwargs)
         self.order.update_totals()
 
     def __str__(self):
-        return (
-            f"{self.subscription_plan.name} ({self.months} months) "
-            f"on {self.order.order_number}"
-        )
+        return f"{self.subscription_plan.title} ({self.months} months)"
+

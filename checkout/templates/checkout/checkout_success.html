@@ -16,7 +16,7 @@
 <div class="overlay"></div>
 <div class="container my-0">
     <div class="row justify-content-center">
-        <div class="col-lg-5">
+        <div class="col-lg-6">
 
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-success text-white">
@@ -34,41 +34,58 @@
 
                     <!-- ORDER INFO -->
                     <h5 class="text-primary">Order Info</h5>
-
                     <p><strong>Order Number:</strong> {{ order.order_number }}</p>
                     <p><strong>Order Date:</strong> {{ order.date }}</p>
 
                     <hr>
 
-                    <!-- PRODUCTS -->
-                    <h5 class="text-primary">Products</h5>
+                    <!-- PRODUCTS (only show if products exist) -->
+                    {% if order.lineitems.all %}
+                        <h5 class="text-primary">Products</h5>
 
-                    {% if order.product_items.all %}
-                        {% for item in order.product_items.all %}
-                            <div class="d-flex justify-content-between py-2 border-bottom">
-                                <span>{{ item.product.name }} × {{ item.quantity }}</span>
-                                <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                        {% for item in order.lineitems.all %}
+                        <div class="d-flex align-items-center py-2 border-bottom">
+
+                            <!-- PRODUCT IMAGE -->
+                            {% if item.product.images %}
+                                <img src="{{ item.product.images.url }}"
+                                     class="me-3 rounded"
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'images/noimage.png' %}"
+                                     class="me-3 rounded"
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                            {% endif %}
+
+                            <!-- PRODUCT INFO -->
+                            <div class="flex-grow-1">
+                                <strong>{{ item.product.name }}</strong><br>
+                                <small>Qty: {{ item.quantity }}</small>
                             </div>
+
+                            <!-- PRICE -->
+                            <strong>£{{ item.lineitem_total|floatformat:2 }}</strong>
+                        </div>
                         {% endfor %}
-                    {% else %}
-                        <p class="text-muted">No products purchased.</p>
+
+                        <hr>
                     {% endif %}
 
-                    <!-- SUBSCRIPTION -->
+                    <!-- SUBSCRIPTIONS -->
                     {% if order.subscription_items.all %}
-                        <h5 class="text-primary mt-4">Subscription Plan</h5>
+                        <h5 class="text-primary">Subscription Plan</h5>
 
                         {% for sub in order.subscription_items.all %}
-                            <div class="d-flex justify-content-between py-2 border-bottom">
-                                <span>{{ sub.subscription_plan.title }} ({{ sub.months }} months)</span>
-                                <strong>£{{ sub.lineitem_total|floatformat:2 }}</strong>
-                            </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span>{{ sub.subscription_plan.title }} ({{ sub.months }} months)</span>
+                            <strong>£{{ sub.lineitem_total|floatformat:2 }}</strong>
+                        </div>
                         {% endfor %}
+
+                        <hr>
                     {% endif %}
 
-                    <hr>
-
-                    <!-- DELIVERY INFO -->
+                    <!-- BILLING INFO -->
                     <h5 class="text-primary">Billing Information</h5>
 
                     <p>{{ order.full_name }}</p>
@@ -86,18 +103,21 @@
                     <!-- TOTALS -->
                     <h5 class="text-primary">Totals</h5>
 
-                    <p><strong>Order Total:</strong> £{{ order.order_total|floatformat:2 }}</p>
-                    <p><strong>Subscription Total:</strong> £{{ order.subscription_total|floatformat:2 }}</p>
-                    <p><strong>Delivery Cost:</strong> £{{ order.delivery_cost|floatformat:2 }}</p>
+                    {% if order.order_total > 0 %}
+                        <p><strong>Order Total:</strong> £{{ order.order_total|floatformat:2 }}</p>
+                        <p><strong>Delivery Cost:</strong> £{{ order.delivery_cost|floatformat:2 }}</p>
+                    {% endif %}
+
+                    {% if order.subscription_total > 0 %}
+                        <p><strong>Subscription Total:</strong> £{{ order.subscription_total|floatformat:2 }}</p>
+                    {% endif %}
 
                     <h4 class="text-success mt-3">
                         <strong>Grand Total: £{{ order.grand_total|floatformat:2 }}</strong>
                     </h4>
 
                     <div class="text-center mt-4">
-                        <a href="/" class="btn btn-outline-primary">
-                            Return Home
-                        </a>
+                        <a href="/" class="btn btn-outline-primary">Return Home</a>
                     </div>
 
                 </div>

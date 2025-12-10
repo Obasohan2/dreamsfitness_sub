@@ -13,8 +13,8 @@ class SubPlan(models.Model):
 
     def __str__(self):
         return self.title
-
-
+    
+ 
 # ---------------------------
 # Subscription Plan Features
 # ---------------------------
