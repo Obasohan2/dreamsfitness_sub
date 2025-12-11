@@ -1,16 +1,22 @@
 from decimal import Decimal
 from django.conf import settings
-from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+
 from .forms import OrderForm
 from .models import Order, OrderLineItem, SubscriptionLineItem
+
+from profiles.forms import UserProfileForm
+from profiles.models import UserProfile
+
 from cart.contexts import cart_contents
 from subscriptions.models import SubPlan, PlanDiscount
 
 import stripe
 import json
+
 
 
 @require_POST
@@ -201,13 +207,35 @@ def process_order(request):
 # -------------------------------------------------------------------
 
 def checkout_success(request, order_number):
+    """ Handle successful checkout """
+    save_info = request.session.get("save_info")
     order = get_object_or_404(Order, order_number=order_number)
 
-    messages.success(
-        request,
-        f"Payment successful! Your order {order_number} has been completed."
-    )
+    if request.user.is_authenticated:
+        profile = UserProfile.objects.get(user=request.user)
+        order.user_profile = profile
+        order.save()
+
+        if save_info:
+            profile_data = {
+                "default_phone_number": order.phone_number,
+                "default_country": order.country,
+                "default_postcode": order.postcode,
+                "default_town_or_city": order.city,
+                "default_street_address1": order.address1,
+                "default_street_address2": order.address2,
+            }
+            form = UserProfileForm(profile_data, instance=profile)
+            if form.is_valid():
+                form.save()
+
+    messages.success(request, f"Order {order_number} processed successfully.")
+
+    # cleanup
+    request.session.pop("cart", None)
+    request.session.pop("subscription_cart", None)
 
     return render(request, "checkout/checkout_success.html", {
         "order": order,
+        "from_profile": False,
     })

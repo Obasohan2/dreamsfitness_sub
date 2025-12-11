@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_header %}
+<div class="container header-container my-4">
+    <div class="row">
+        <div class="col text-center">
+            <h2 class="logo-font text-black">Subscription Details</h2>
+            <p class="text-muted">Your subscription information is shown below.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="overlay"></div>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ subscription.subscription_plan.title }}</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- PLAN DETAILS -->
+                    <p><strong>Plan:</strong> {{ subscription.subscription_plan.title }}</p>
+                    <p><strong>Months:</strong> {{ subscription.months }}</p>
+
+                    {% if subscription.subscription_plan.discounts.first %}
+                        <p><strong>Discount:</strong> {{ subscription.subscription_plan.discounts.first.total_discount }}%</p>
+                    {% else %}
+                        <p><strong>Discount:</strong> None</p>
+                    {% endif %}
+
+                    <p><strong>Total Paid:</strong> £{{ subscription.lineitem_total|floatformat:2 }}</p>
+
+                    <hr>
+
+                    <!-- ORDER INFO -->
+                    <h5 class="text-primary">Order Info</h5>
+                    <p><strong>Order Number:</strong> {{ subscription.order.order_number }}</p>
+                    <p><strong>Date:</strong> {{ subscription.order.date|date:"Y-m-d H:i" }}</p>
+
+                    <hr>
+
+                    <div class="text-right mt-4">
+                        <a href="{% url 'profile' %}" class="btn btn-black rounded-0">
+                            <i class="fas fa-angle-left mr-2"></i>
+                            Back to Profile
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

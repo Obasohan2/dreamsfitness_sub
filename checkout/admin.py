@@ -56,12 +56,12 @@ class OrderAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         "order_number",
+        "user_profile",
         "date",
         "display_order_total",
         "display_subscription_total",
         "display_delivery_cost",
         "display_grand_total",
-        # "original_cart",
         "readable_cart",   # SHOWS PRODUCT NAMES HERE
         "stripe_pid",
     )
@@ -113,7 +113,6 @@ class OrderAdmin(admin.ModelAdmin):
                 "display_subscription_total",
                 "display_delivery_cost",
                 "display_grand_total",
-                # "original_cart",
                 "readable_cart",   #  ADDED THIS
                 "stripe_pid",
             )
