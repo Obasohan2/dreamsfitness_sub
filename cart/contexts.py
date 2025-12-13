@@ -1,41 +1,55 @@
 from decimal import Decimal
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+
 from products.models import Product
 from subscriptions.models import SubPlan, PlanDiscount
 
 
 def cart_contents(request):
+    """
+    Makes cart contents available to all templates
+    (products + subscription).
+    """
+
+    # ======================
+    # PRODUCTS
+    # ======================
     cart_items = []
-    total = Decimal("0.00")
+    product_total = Decimal("0.00")
     product_count = 0
 
     cart = request.session.get("cart", {})
 
-    # ----------------------
-    # PRODUCTS
-    # ----------------------
     for item_id, quantity in cart.items():
         product = get_object_or_404(Product, pk=item_id)
-        total += quantity * product.price
+        line_total = product.price * quantity
+
+        product_total += line_total
         product_count += quantity
+
         cart_items.append({
             "item_id": item_id,
             "quantity": quantity,
             "product": product,
+            "line_total": line_total,
         })
 
-    # ----------------------
+    # ======================
     # SUBSCRIPTION
-    # ----------------------
+    # ======================
     subscription_data = request.session.get("subscription_cart")
     subscription_item = None
-    subscription_total = Decimal("0.00")
+
+    subscription_pre_discount = Decimal("0.00")
+    subscription_discount_amount = Decimal("0.00")
+    subscription_after_discount = Decimal("0.00")
 
     if subscription_data:
         plan = get_object_or_404(SubPlan, pk=subscription_data["plan_id"])
         months = int(subscription_data["months"])
-        subscription_total = plan.price * Decimal(months)
+
+        subscription_pre_discount = plan.price * Decimal(months)
 
         discount = None
         if subscription_data.get("discount_id"):
@@ -44,40 +58,73 @@ def cart_contents(request):
                 pk=subscription_data["discount_id"],
                 subplan=plan
             )
-            subscription_total -= subscription_total * (Decimal(discount.total_discount) / 100)
+            subscription_discount_amount = (
+                subscription_pre_discount *
+                Decimal(discount.total_discount) / Decimal("100")
+            )
+
+        subscription_after_discount = (
+            subscription_pre_discount - subscription_discount_amount
+        )
 
         subscription_item = {
             "plan": plan,
             "months": months,
             "discount": discount,
-            "total": subscription_total,
         }
 
-    # ----------------------
-    # DELIVERY COST
-    # ----------------------
-    if total < settings.FREE_DELIVERY_THRESHOLD:
-        delivery = total * Decimal(settings.STANDARD_DELIVERY_PERCENTAGE / 100)
-        free_delivery_delta = settings.FREE_DELIVERY_THRESHOLD - total
+    # ======================
+    # DELIVERY (PRODUCTS ONLY)
+    # ======================
+    if product_total > 0:
+        if product_total < settings.FREE_DELIVERY_THRESHOLD:
+            delivery = (
+                product_total *
+                Decimal(settings.STANDARD_DELIVERY_PERCENTAGE) / Decimal("100")
+            )
+            free_delivery_delta = settings.FREE_DELIVERY_THRESHOLD - product_total
+        else:
+            delivery = Decimal("0.00")
+            free_delivery_delta = Decimal("0.00")
     else:
         delivery = Decimal("0.00")
-        free_delivery_delta = Decimal("0.00")
+        free_delivery_delta = None
 
-    grand_total = total + delivery
+    # ======================
+    # FLAGS
+    # ======================
+    has_products = product_count > 0
+    has_subscription = subscription_item is not None
+
+    # ======================
+    # TOTALS
+    # ======================
+    product_grand_total = product_total + delivery
+    grand_total = product_grand_total + subscription_after_discount
 
     return {
-    "cart_items": cart_items,
-    "total": total,
-    "delivery": delivery,
-    "product_count": product_count,
-    "cart_count": product_count,
-    "grand_total": grand_total,
+        # Products
+        "cart_items": cart_items,
+        "total": product_total,
+        "product_count": product_count,
+        "has_products": has_products,
 
-    # Threshold values for banner and messaging
-    "free_delivery_threshold": Decimal(settings.FREE_DELIVERY_THRESHOLD),
-    "free_delivery_delta": free_delivery_delta,
+        # Subscription
+        "subscription_item": subscription_item,
+        "subscription_pre_discount_total": subscription_pre_discount,
+        "subscription_discount_amount": subscription_discount_amount,
+        "subscription_after_discount": subscription_after_discount,
+        "has_subscription": has_subscription,
 
-    # Subscription — not counted in cart bubble
-    "subscription_item": subscription_item,
-    "subscription_total": subscription_total,
-}
+        # Counts
+        "cart_count": product_count + (1 if has_subscription else 0),
+
+        # Delivery
+        "delivery": delivery,
+        "free_delivery_delta": free_delivery_delta,
+        "free_delivery_threshold": Decimal(settings.FREE_DELIVERY_THRESHOLD),
+
+        # Totals
+        "product_grand_total": product_grand_total,
+        "grand_total": grand_total,
+    }

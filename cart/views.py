@@ -89,9 +89,17 @@ def add_subscription_to_cart(request, plan_id):
 
     plan = get_object_or_404(SubPlan, pk=plan_id)
 
-    # Subscription stored as a SINGLE object
+    months_raw = request.POST.get("months", 1)
+    try:
+        months = int(months_raw)
+    except ValueError:
+        months = 1
+
+    months = max(1, months)
+
     request.session["subscription_cart"] = {
-        "plan_id": plan.id
+        "plan_id": plan.id,
+        "months": months,
     }
 
     messages.success(request, f"Added subscription: {plan.title}")
@@ -100,6 +108,9 @@ def add_subscription_to_cart(request, plan_id):
     return redirect(redirect_url)
 
 
+# -----------------------------
+# SUBSCRIPTION CART FUNCTIONS
+# -----------------------------
 def remove_subscription_from_cart(request):
     """Remove subscription from cart."""
 

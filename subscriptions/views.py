@@ -1,13 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models import SubPlan, SubPlanFeature, PlanDiscount
 from decimal import Decimal
 
+from .models import SubPlan, SubPlanFeature, PlanDiscount
 
+
+# -------------------------------------------------
+# PRICING PAGE
+# -------------------------------------------------
 def pricing(request):
-    """Display all plans + comparison table."""
     plans = SubPlan.objects.all()
     dfeatures = SubPlanFeature.objects.all()
+
+    subscription = request.session.get("subscription_cart")
+    selected_plan_id = subscription.get("plan_id") if subscription else None
+
+    for plan in plans:
+        plan.is_selected = (plan.id == selected_plan_id)
 
     return render(request, "subscriptions/pricing.html", {
         "plans": plans,
@@ -15,16 +24,19 @@ def pricing(request):
     })
 
 
+# -------------------------------------------------
+# SUBSCRIPTION CHECKOUT
+# -------------------------------------------------
 def sub_checkout(request, plan_id):
-    """Show checkout page for a selected subscription plan and store selection in session."""
+    """Show checkout page for a selected subscription plan."""
+
     plan = get_object_or_404(SubPlan, pk=plan_id)
 
-    # Features & Discounts
     features = SubPlanFeature.objects.filter(subplan=plan)
     discounts = plan.discounts.all()
 
     # -----------------------------
-    # POST → User selects duration
+    # POST → Save selection
     # -----------------------------
     if request.method == "POST":
 
@@ -35,23 +47,20 @@ def sub_checkout(request, plan_id):
             messages.error(request, "Please select a subscription duration.")
             return redirect("sub_checkout", plan_id=plan.id)
 
-        # Fetch discount (if exists)
         discount = None
         if discount_id:
             discount = get_object_or_404(
-                PlanDiscount, 
-                pk=discount_id, 
+                PlanDiscount,
+                pk=discount_id,
                 subplan=plan
             )
 
-        # Base price
         total_price = plan.price * Decimal(months)
 
-        # Apply discount
         if discount and discount.total_discount:
-            total_price -= total_price * (Decimal(discount.total_discount) / Decimal("100"))
+            total_price -= total_price * (Decimal(discount.total_discount) / 100)
 
-        # Save into session
+        # Save to session
         request.session["subscription_cart"] = {
             "plan_id": plan.id,
             "months": months,
@@ -66,7 +75,7 @@ def sub_checkout(request, plan_id):
         return redirect("checkout")
 
     # -----------------------------
-    # GET → Display plan checkout
+    # GET → Render checkout page
     # -----------------------------
     return render(request, "subscriptions/sub_checkout.html", {
         "plan": plan,

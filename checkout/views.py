@@ -18,7 +18,9 @@ import stripe
 import json
 
 
-
+# -------------------------------------------------------------------
+# STRIPE: CACHE CHECKOUT DATA
+# -------------------------------------------------------------------
 @require_POST
 def cache_checkout_data(request):
     try:
@@ -31,10 +33,14 @@ def cache_checkout_data(request):
             "username": request.user.username if request.user.is_authenticated else "guest",
         })
         return HttpResponse(status=200)
+
     except Exception as e:
         return HttpResponse(content=e, status=400)
 
 
+# -------------------------------------------------------------------
+# MAIN CHECKOUT PAGE
+# -------------------------------------------------------------------
 def checkout(request):
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
     stripe_secret_key = settings.STRIPE_SECRET_KEY
@@ -103,6 +109,9 @@ def checkout(request):
     })
 
 
+# -------------------------------------------------------------------
+# PROCESS ORDER (POST)
+# -------------------------------------------------------------------
 def process_order(request):
 
     if request.method != "POST":
@@ -129,7 +138,7 @@ def process_order(request):
     use_shipping = request.POST.get("use_different_shipping") == "on"
 
     if not use_shipping:
-        # User wants billing == shipping → copy values
+        # COPY billing to shipping
         order.shipping_full_name = order.full_name
         order.shipping_phone_number = order.phone_number
         order.shipping_address1 = order.address1
@@ -137,13 +146,10 @@ def process_order(request):
         order.shipping_city = order.city
         order.shipping_postcode = order.postcode
         order.shipping_country = order.country
-    # else: use the shipping fields already in the form
 
-    # Add system fields
     order.delivery_cost = cart["delivery"]
     order.stripe_pid = request.POST.get("client_secret").split("_secret")[0]
     order.original_cart = json.dumps(request.session.get("cart", {}))
-
     order.save()
 
     # --------------------------------------------
@@ -205,7 +211,6 @@ def process_order(request):
 # -------------------------------------------------------------------
 # SUCCESS PAGE
 # -------------------------------------------------------------------
-
 def checkout_success(request, order_number):
     """ Handle successful checkout """
     save_info = request.session.get("save_info")

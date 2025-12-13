@@ -1,105 +1,125 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block page_header %}
 <div class="container header-container">
-  <div class="row">
-    <div class="col text-center"></div>
-  </div>
+    <div class="row">
+        <div class="col text-center"></div>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
 <div class="overlay"></div>
 
-<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}">
 
 <section class="container my-5">
 
-  <!-- PAGE TITLE -->
-  <h2 class="text-center mb-4 text-black">Subscription Plans</h2>
-  <hr class="mx-auto" style="width:150px;">
+    <!-- =========================
+         PAGE TITLE
+    ========================== -->
+    <h2 class="text-center mb-4 text-black">Subscription Plans</h2>
+    <hr class="mx-auto" style="width:150px;">
 
-  <!-- PLANS CARDS -->
-  <div class="row text-center">
-    {% for plan in plans %}
-    <div class="col-12 col-md-4 mb-4">
-      <div class="card rounded shadow-sm {% if plan.highlight_status %}border-primary{% endif %}">
+    <!-- =========================
+         PLANS GRID
+    ========================== -->
+    <div class="row text-center">
 
-        {% if plan.highlight_status %}
-        <div class="card-header py-3 text-white bg-primary border-primary">
-        {% else %}
-        <div class="card-header py-3 bg-light">
-        {% endif %}
-          <h4 class="my-0">{{ plan.title }}</h4>
+        {% for plan in plans %}
+        <div class="col-12 col-md-4 mb-4">
+
+            <div class="card rounded shadow-sm {% if plan.is_selected %}border-primary{% endif %}">
+
+                <!-- HEADER -->
+                <div class="card-header py-3 {% if plan.is_selected %}bg-primary text-white border-primary{% else %}bg-light{% endif %}">
+                    <h4 class="my-0">{{ plan.title }}</h4>
+                </div>
+
+                <!-- BODY -->
+                <div class="card-body">
+
+                    <h1 class="card-title pricing-card-title">
+                        £{{ plan.price }}
+                        <small class="text-muted">/ {{ plan.validity_days }} Days</small>
+                    </h1>
+
+                    <p class="text-success mt-2">
+                        Member Capacity: {{ plan.max_member }}
+                    </p>
+
+                    <ul class="list-unstyled mt-3 mb-4">
+                        {% for feature in plan.subplanfeature_set.all %}
+                            <li>{{ feature.title }}</li>
+                        {% empty %}
+                            <li class="text-muted">No features listed</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- =========================
+                         BUTTON LOGIC
+                    ========================== -->
+                    {% if request.user.is_authenticated %}
+
+                        {% if plan.is_selected %}
+                            <button class="btn btn-secondary btn-lg btn-block" disabled>
+                                ✓ Already Selected
+                            </button>
+                        {% else %}
+                            <a href="{% url 'sub_checkout' plan.id %}"
+                               class="btn btn-primary btn-lg btn-block">
+                                Get Started
+                            </a>
+                        {% endif %}
+
+                    {% else %}
+                        <a href="{% url 'account_login' %}"
+                           class="btn btn-primary btn-lg btn-block">
+                            Login to Get Started
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
         </div>
-
-        <div class="card-body">
-
-          <h1 class="card-title pricing-card-title">
-            £{{ plan.price }}
-            <small class="text-muted">/ {{ plan.validity_days }} Days</small>
-          </h1>
-
-          <p class="text-success mt-2">Member Capacity: {{ plan.max_member }}</p>
-
-          <ul class="list-unstyled mt-3 mb-4">
-            {% for feature in plan.subplanfeature_set.all %}
-            <li>{{ feature.title }}</li>
-            {% endfor %}
-          </ul>
-
-          {% if request.user.is_authenticated %}
-              {% if request.session.subscriptions and plan.id|stringformat:"s" in request.session.subscriptions %}
-                  <button class="btn btn-secondary btn-lg btn-block" disabled>Already Selected</button>
-              {% else %}
-                  <a href="{% url 'sub_checkout' plan.id %}" class="btn btn-outline-primary btn-lg btn-block">Get Started</a>
-              {% endif %}
-          {% else %}
-              <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-lg btn-block">Get Started</a>
-          {% endif %}
-
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  <!-- COMPARISON TABLE -->
-  <h2 class="text-center mb-4 text-black">Compare Plans</h2>
-
-  <div class="table-responsive">
-    <table class="table table-bordered text-center">
-      <thead class="thead-light">
-        <tr>
-          <th style="width:34%;">Feature</th>
-          {% for plan in plans %}
-            <th style="width:22%;">{{ plan.title }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for feature in dfeatures %}
-        <tr>
-          <th scope="row" class="text-left">{{ feature.title }}</th>
-
-          {% for plan in plans %}
-          <td class="text-center">
-            {% if plan in feature.subplan.all %}
-              <span class="text-success font-weight-bold">✔</span>
-            {% else %}
-              <span class="text-danger font-weight-bold">✖</span>
-            {% endif %}
-          </td>
-          {% endfor %}
-        </tr>
         {% endfor %}
-      </tbody>
 
-    </table>
-  </div>
+    </div>
+
+    <!-- =========================
+         COMPARISON TABLE
+    ========================== -->
+    <h2 class="text-center mt-5 mb-4 text-black">Compare Plans</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="thead-light">
+                <tr>
+                    <th>Feature</th>
+                    {% for plan in plans %}
+                        <th>{{ plan.title }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for feature in dfeatures %}
+                <tr>
+                    <td class="text-left">{{ feature.title }}</td>
+                    {% for plan in plans %}
+                        <td>
+                            {% if plan in feature.subplan.all %}
+                                <span class="text-success font-weight-bold">✔</span>
+                            {% else %}
+                                <span class="text-danger font-weight-bold">✖</span>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </section>
-
 {% endblock %}

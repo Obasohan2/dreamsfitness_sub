@@ -12,14 +12,11 @@ class OrderLineItemAdminInline(admin.TabularInline):
     extra = 0
 
     def display_name(self, obj):
-        """
-        Show product name + quantity in bold large font.
-        Example: Kettlebells (x3)
-        """
+        """Show product name + quantity in bold."""
         return format_html(
-            '<span style="font-size:16px; font-weight:bold;">{} (x{})</span>',
+            '<strong style="font-size:15px;">{} (x{})</strong>',
             obj.product.name,
-            obj.quantity,
+            obj.quantity
         )
 
     display_name.short_description = "Product"
@@ -34,14 +31,11 @@ class SubscriptionLineItemAdminInline(admin.TabularInline):
     extra = 0
 
     def display_name(self, obj):
-        """
-        Shows subscription plan title and months.
-        Example: Elite Plan (3 months)
-        """
+        """Show subscription plan title and duration."""
         return format_html(
-            '<span style="font-size:16px; font-weight:bold;">{} ({} months)</span>',
+            '<strong style="font-size:15px;">{} ({} months)</strong>',
             obj.subscription_plan.title,
-            obj.months,
+            obj.months
         )
 
     display_name.short_description = "Subscription"
@@ -62,7 +56,7 @@ class OrderAdmin(admin.ModelAdmin):
         "display_subscription_total",
         "display_delivery_cost",
         "display_grand_total",
-        "readable_cart",   # SHOWS PRODUCT NAMES HERE
+        "readable_cart",
         "stripe_pid",
     )
 
@@ -75,10 +69,11 @@ class OrderAdmin(admin.ModelAdmin):
     )
 
     fieldsets = (
-        ("Order Info", {
+        ("Order Information", {
             "fields": (
                 "order_number",
                 "date",
+                "user_profile",
                 "full_name",
                 "email",
                 "phone_number",
@@ -107,16 +102,16 @@ class OrderAdmin(admin.ModelAdmin):
             )
         }),
 
-        ("Totals", {
+        ("Totals & Payment", {
             "fields": (
                 "display_order_total",
                 "display_subscription_total",
                 "display_delivery_cost",
                 "display_grand_total",
-                "readable_cart",   #  ADDED THIS
+                "readable_cart",
                 "stripe_pid",
             )
         }),
     )
-    
+
     ordering = ("-date",)

@@ -21,7 +21,7 @@ class Order(models.Model):
     address2 = models.CharField(max_length=80, blank=True, null=True)
     city = models.CharField(max_length=40)
     postcode = models.CharField(max_length=20)
-    country = CountryField(blank_label='Country *', null=False, blank=False)
+    country = CountryField(blank_label='Country', null=False, blank=False)
 
     # ---------------- Shipping fields ----------------
     shipping_full_name = models.CharField(max_length=50, blank=True, null=True)
@@ -30,7 +30,7 @@ class Order(models.Model):
     shipping_address2 = models.CharField(max_length=80, blank=True, null=True)
     shipping_city = models.CharField(max_length=40, blank=True, null=True)
     shipping_postcode = models.CharField(max_length=20, blank=True, null=True)
-    shipping_country = CountryField(blank=True, null=True)
+    shipping_country = CountryField(blank_label='Country', null=False, blank=False)
 
     # ---------------- Totals ----------------
     order_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)

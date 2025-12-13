@@ -33,7 +33,6 @@
                 </div>
 
                 <div class="p-4">
-
                     <form action="{% url 'process_order' %}" method="POST" id="payment-form">
                         {% csrf_token %}
 
@@ -126,13 +125,12 @@
                         </div>
 
                     </form>
-
                 </div>
 
             </div>
         </div>
 
-        <!-- RIGHT SIDE (SUMMARY) -->
+        <!-- RIGHT SIDE — ORDER SUMMARY -->
         <div class="col-lg-6 col-xl-5">
             <div class="card shadow-sm border-0">
 
@@ -142,26 +140,29 @@
 
                 <div class="card-body">
 
+                    <!-- PRODUCTS -->
                     {% if products %}
-                    <h5 class="text-primary">Products</h5>
+                    <h5 class="text-primary font-weight-bold mb-3">Products</h5>
 
                     {% for item in products %}
                     <div class="d-flex align-items-center py-2 border-bottom">
 
                         {% if item.product.images %}
-                            <img src="{{ item.product.images.url }}" class="mr-3 rounded"
+                            <img src="{{ item.product.images.url }}" class="rounded mr-3"
                                  style="width: 60px; height: 60px; object-fit: cover;">
                         {% else %}
-                            <img src="{% static 'images/noimage.png' %}" class="mr-3 rounded"
+                            <img src="{% static 'images/noimage.png' %}" class="rounded mr-3"
                                  style="width: 60px; height: 60px; object-fit: cover;">
                         {% endif %}
 
                         <div class="flex-fill">
-                            <strong>{{ item.product.name }}</strong><br>
-                            <small>£{{ item.product.price|floatformat:2 }} each</small>
+                            <strong class="text-dark">{{ item.product.name }}</strong><br>
+                            <small class="text-muted">
+                                £{{ item.product.price|floatformat:2 }} × {{ item.quantity }}
+                            </small>
                         </div>
 
-                        <strong>
+                        <strong class="text-dark">
                             £{{ item.product.price|mul:item.quantity|floatformat:2 }}
                         </strong>
 
@@ -169,47 +170,57 @@
                     {% endfor %}
                     {% endif %}
 
+                    <!-- SUBSCRIPTION -->
                     {% if subscription %}
-                        <h5 class="text-primary mt-3">Subscription</h5>
+                        <h5 class="text-primary font-weight-bold mt-4 mb-3">Subscription</h5>
 
                         <div class="d-flex justify-content-between py-2 border-bottom">
-                            <span>
-                                {{ subscription.plan.title }} ({{ subscription.months }} months)
+                            <div>
+                                <strong class="text-dark">{{ subscription.plan.title }}</strong><br>
+                                <small class="text-muted">
+                                    {{ subscription.months }} month{{ subscription.months|pluralize }}
+                                </small>
+
                                 {% if subscription.discount %}
-                                    <br><small class="text-success">
-                                        Discount: {{ subscription.discount.total_discount }}%
-                                    </small>
+                                <div class="badge badge-success mt-1">
+                                    {{ subscription.discount.total_discount }}% OFF
+                                </div>
                                 {% endif %}
-                            </span>
-                            <strong>£{{ subscription.total|floatformat:2 }}</strong>
+                            </div>
+
+                            <strong class="text-dark">
+                                £{{ subscription.total|floatformat:2 }}
+                            </strong>
                         </div>
                     {% endif %}
 
                     <hr>
 
+                    <!-- SUBTOTALS -->
                     {% if products %}
                     <div class="d-flex justify-content-between mb-2">
-                        <span><strong>Products Total:</strong></span>
+                        <span class="font-weight-bold text-dark">Products Total:</span>
                         <span>£{{ product_total|floatformat:2 }}</span>
                     </div>
                     {% endif %}
 
                     {% if delivery > 0 %}
                     <div class="d-flex justify-content-between mb-2">
-                        <span><strong>Delivery:</strong></span>
+                        <span class="font-weight-bold text-dark">Delivery:</span>
                         <span>£{{ delivery|floatformat:2 }}</span>
                     </div>
                     {% endif %}
 
                     {% if subscription %}
                     <div class="d-flex justify-content-between mb-2">
-                        <span><strong>Subscription Total:</strong></span>
+                        <span class="font-weight-bold text-dark">Subscription Total:</span>
                         <span>£{{ subscription.total|floatformat:2 }}</span>
                     </div>
                     {% endif %}
 
                     <hr>
 
+                    <!-- GRAND TOTAL -->
                     <div class="d-flex justify-content-between h4 text-primary">
                         <span>Grand Total:</span>
                         <strong>£{{ final_total|floatformat:2 }}</strong>

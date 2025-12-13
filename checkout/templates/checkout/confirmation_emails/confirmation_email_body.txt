@@ -1,0 +1,46 @@
+Hello {{ order.full_name }},
+
+Thank you for your purchase! This email confirms your order at Dreams Fitness.
+Below are your order details:
+
+---------------------------------------
+ORDER SUMMARY
+---------------------------------------
+Order Number: {{ order.order_number }}
+Order Date: {{ order.date }}
+
+Order Total: £{{ order.order_total }}
+Delivery: £{{ order.delivery_cost }}
+Subscription Total: £{{ order.subscription_total }}
+Grand Total: £{{ order.grand_total }}
+
+{% if subscription_items %}
+---------------------------------------
+SUBSCRIPTION DETAILS
+---------------------------------------
+{% for sub in subscription_items %}
+Plan: {{ sub.subscription_plan.name }}
+Months: {{ sub.months }}
+Price: £{{ sub.lineitem_total }}
+
+{% endfor %}
+{% endif %}
+
+---------------------------------------
+SHIPPING INFORMATION
+---------------------------------------
+Name: {{ order.full_name }}
+Address: {{ order.address1 }}
+{% if order.address2 %}{{ order.address2 }}{% endif %}
+{{ order.city }}, {{ order.postcode }}
+{{ order.country.name }}
+Phone: {{ order.phone_number }}
+
+If you have any questions or need help with your order, you can contact us anytime at {{ contact_email }}.
+
+Thank you again for choosing Dreams Fitness!
+Stay strong and keep pushing forward 💪
+
+Sincerely,
+Dreams Fitness Team
+
