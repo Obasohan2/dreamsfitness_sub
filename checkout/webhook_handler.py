@@ -83,7 +83,6 @@ class StripeWH_Handler:
                 profile.default_town_or_city = shipping.address.city
                 profile.default_street_address1 = shipping.address.line1
                 profile.default_street_address2 = shipping.address.line2
-                profile.default_county = shipping.address.state
                 profile.save()
 
         # ---------------------------------------------------------
@@ -105,7 +104,6 @@ class StripeWH_Handler:
                     town_or_city__iexact=shipping.address.city,
                     street_address1__iexact=shipping.address.line1,
                     street_address2__iexact=shipping.address.line2,
-                    county__iexact=shipping.address.state,
                     grand_total=grand_total,
                     stripe_pid=pid,
                 )

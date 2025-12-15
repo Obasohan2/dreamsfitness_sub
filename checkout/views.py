@@ -108,6 +108,15 @@ def checkout(request):
         "client_secret": client_secret,
     })
 
+@require_POST
+def add_subscription_to_cart(request):
+    request.session["subscription_cart"] = {
+        "plan_id": request.POST.get("plan_id"),
+        "months": int(request.POST.get("months", 1)),
+        "discount_id": request.POST.get("discount_id") or None,
+    }
+    return redirect("checkout")
+
 
 # -------------------------------------------------------------------
 # PROCESS ORDER (POST)

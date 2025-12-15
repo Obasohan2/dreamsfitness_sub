@@ -44,6 +44,20 @@ class OrderForm(forms.ModelForm):
         # Autofocus first field
         self.fields["full_name"].widget.attrs["autofocus"] = True
 
+        # 🔧 MAKE SHIPPING FIELDS OPTIONAL (CRITICAL FIX)
+        shipping_fields = [
+            "shipping_full_name",
+            "shipping_phone_number",
+            "shipping_address1",
+            "shipping_address2",
+            "shipping_city",
+            "shipping_postcode",
+            "shipping_country",
+        ]
+
+        for field in shipping_fields:
+            self.fields[field].required = False
+
         # Apply placeholders + styling
         for field in self.fields:
             if field not in ("country", "shipping_country"):

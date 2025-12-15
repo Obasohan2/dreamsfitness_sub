@@ -21,90 +21,82 @@
 {% if has_products or has_subscription %}
 
 <div class="table-responsive">
-<table class="table table-sm">
+<table class="table table-sm align-middle">
 
     <!-- TABLE HEAD -->
     <thead class="text-black border-bottom">
         <tr>
-            <th class="d-none d-sm-table-cell pl-3">Product</th>
-            <th></th>
+            <th class="pl-3">Product</th>
             <th class="pl-3">Price</th>
-            <th class="pl-3" style="width:140px;">Qty</th>
+            <th class="pl-2 text-center" style="width:180px;">Qty</th>
             <th class="text-right pr-5" style="width:160px;">Subtotal</th>
         </tr>
     </thead>
 
-    <!-- TABLE BODY -->
     <tbody>
 
+    <!-- PRODUCTS -->
     {% for item in cart_items %}
     <tr>
 
-        <!-- Image -->
-        <td class="d-none d-sm-table-cell pl-3">
-            <img src="{{ item.product.images.url }}"
-                 alt="{{ item.product.name }}"
-                 class="rounded img-fluid"
-                 style="height:110px;width:110px;object-fit:cover;">
+        <!-- PRODUCT -->
+        <td class="pl-3">
+            <div class="d-flex align-items-center">
+                <img src="{{ item.product.images.url }}"
+                     alt="{{ item.product.name }}"
+                     class="rounded mr-3"
+                     style="width:90px;height:90px;object-fit:cover;">
+                <strong class="text-black">{{ item.product.name }}</strong>
+            </div>
         </td>
 
-        <!-- Name -->
-        <td>
-            <strong class="text-black">{{ item.product.name }}</strong>
-        </td>
-
-        <!-- Price -->
-        <td class="text-black pl-3">
+        <!-- PRICE -->
+        <td class="pl-3">
             £{{ item.product.price|floatformat:2 }}
         </td>
 
-        <!-- Quantity -->
-        <td class="pl-3">
+        <!-- QTY -->
+        <td class="text-center">
             <form method="POST"
                   action="{% url 'adjust_cart' item.item_id %}"
-                  class="update-form">
+                  class="update-form d-inline-block">
                 {% csrf_token %}
 
-                <div class="input-group input-group-sm">
-                    <div class="input-group-prepend">
-                        <button type="button"
-                                class="btn btn-dark decrement-qty"
-                                data-item_id="{{ item.item_id }}">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                    </div>
+                <div class="d-flex justify-content-center align-items-center">
+                    <button type="button"
+                            class="btn btn-dark btn-sm decrement-qty mr-2"
+                            data-item_id="{{ item.item_id }}">
+                        −
+                    </button>
 
                     <input type="number"
                            name="quantity"
                            value="{{ item.quantity }}"
                            min="1" max="99"
-                           class="form-control text-center qty_input"
-                           id="id_qty_{{ item.item_id }}"
-                           data-item_id="{{ item.item_id }}">
+                           class="form-control form-control-sm text-center"
+                           style="width:55px;"
+                           id="id_qty_{{ item.item_id }}">
 
-                    <div class="input-group-append">
-                        <button type="button"
-                                class="btn btn-dark increment-qty"
-                                data-item_id="{{ item.item_id }}">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
+                    <button type="button"
+                            class="btn btn-dark btn-sm increment-qty ml-2"
+                            data-item_id="{{ item.item_id }}">
+                        +
+                    </button>
                 </div>
             </form>
 
-            <!-- Update / Remove -->
-            <div class="d-flex align-items-center mt-2">
-                <a class="update-link text-info small">Update</a>
-
-                <a class="remove-item text-danger small ml-auto d-flex align-items-center"
+            <!-- UPDATE / REMOVE -->
+            <div class="d-flex justify-content-center mt-2">
+                <a class="update-link text-info small mr-4">Update</a>
+                <a class="remove-item text-danger small"
                    id="remove_{{ item.item_id }}">
-                    <i class="fas fa-trash-alt mr-1"></i> Remove
+                    <i class="fas fa-trash-alt mr-1"></i>Remove
                 </a>
             </div>
         </td>
 
-        <!-- Subtotal -->
-        <td class="text-black text-right pr-3">
+        <!-- SUBTOTAL -->
+        <td class="text-right pr-5">
             <strong>
                 £{{ item.product.price|calc_subtotal:item.quantity|floatformat:2 }}
             </strong>
@@ -117,12 +109,10 @@
     {% if has_subscription %}
     <tr class="table-info">
 
-        <td colspan="2" class="pl-3">
-            <strong class="text-black">
-                {{ subscription_item.plan.title }}
-            </strong>
+        <td class="pl-3">
+            <strong class="text-black">{{ subscription_item.plan.title }}</strong>
             <div class="small text-muted">
-                {{ subscription_item.months }} month{% if subscription_item.months > 1 %}s{% endif %} subscription
+                {{ subscription_item.months }} month{{ subscription_item.months|pluralize }} subscription
             </div>
         </td>
 
@@ -131,23 +121,19 @@
             <span class="text-muted small">/ month</span>
         </td>
 
-        <td class="pl-3">
+        <td class="text-center">
             <strong>{{ subscription_item.months }} mo</strong>
         </td>
 
-        <!-- TABLE SUBTOTAL = BEFORE DISCOUNT -->
-        <td class="text-right pr-3">
+        <td class="text-right pr-2">
             <div class="d-flex justify-content-end align-items-center">
-                <strong class="text-black mr-3">
+                <strong class="mr-3">
                     £{{ subscription_pre_discount_total|floatformat:2 }}
                 </strong>
-
-                <button type="button"
-                        class="btn btn-link p-0 text-danger"
-                        onclick="location.href='{% url 'remove_subscription_from_cart' %}'"
-                        aria-label="Remove subscription">
+                <a href="{% url 'remove_subscription_from_cart' %}"
+                   class="text-danger">
                     <i class="fas fa-trash-alt"></i>
-                </button>
+                </a>
             </div>
         </td>
 
@@ -159,37 +145,28 @@
     <!-- FOOTER -->
     <tfoot>
         <tr>
-            <td colspan="5" class="text-right pt-4">
+            <td colspan="4" class="text-right pt-4">
 
                 {% if has_products %}
-                <h6 class="text-black">
-                    Product Cart Total: £{{ total|floatformat:2 }}
-                </h6>
-
-                <h6 class="text-black">
-                    Delivery: £{{ delivery|floatformat:2 }}
-                </h6>
-
-                <h6 class="text-black">
-                    Product Subtotal: £{{ product_grand_total|floatformat:2 }}
-                </h6>
+                <h6>Product Cart Total: £{{ total|floatformat:2 }}</h6>
+                <h6>Delivery: £{{ delivery|floatformat:2 }}</h6>
+                <h6>Product Subtotal: £{{ product_grand_total|floatformat:2 }}</h6>
                 {% endif %}
 
                 {% if has_subscription %}
-                <h6 class="text-black mt-2">
+                <h6 class="mt-2">
                     Subscription (before discount):
                     £{{ subscription_pre_discount_total|floatformat:2 }}
                 </h6>
 
                 {% if subscription_discount_amount > 0 %}
                 <h6 class="text-success">
-                    Discount:
-                    −£{{ subscription_discount_amount|floatformat:2 }}
+                    Discount −£{{ subscription_discount_amount|floatformat:2 }}
                     ({{ subscription_item.discount.total_discount }}%)
                 </h6>
                 {% endif %}
 
-                <h6 class="text-black">
+                <h6>
                     Subscription (after discount):
                     £{{ subscription_after_discount|floatformat:2 }}
                 </h6>
@@ -197,7 +174,7 @@
 
                 <hr>
 
-                <h4 class="mt-2 text-black">
+                <h4 class="mt-2">
                     <strong>Grand Total: £{{ grand_total|floatformat:2 }}</strong>
                 </h4>
 
@@ -205,13 +182,12 @@
         </tr>
 
         <tr>
-            <td colspan="5" class="text-right">
+            <td colspan="4" class="text-right">
                 <a href="{% url 'products' %}" class="btn btn-outline-dark mr-2">
-                    <i class="fas fa-chevron-left mr-1"></i> Continue Shopping
+                    <i class="fas fa-chevron-left mr-1"></i>Continue Shopping
                 </a>
-
                 <a href="{% url 'checkout' %}" class="btn btn-dark">
-                    <i class="fas fa-lock mr-1"></i> Secure Checkout
+                    <i class="fas fa-lock mr-1"></i>Secure Checkout
                 </a>
             </td>
         </tr>
@@ -222,45 +198,33 @@
 
 {% else %}
 
-<div class="d-flex flex-column align-items-center justify-content-center py-5 text-center">
+<div class="text-center py-5">
     <i class="fas fa-shopping-cart fa-4x text-muted"></i>
-    <p class="lead text-black mt-3">Your cart is empty.</p>
+    <p class="lead mt-3">Your cart is empty.</p>
     <a href="{% url 'products' %}" class="btn btn-outline-dark mt-2">
-        <i class="fas fa-chevron-left mr-1"></i> Visit Shop
+        <i class="fas fa-chevron-left mr-1"></i>Visit Shop
     </a>
 </div>
 
 {% endif %}
-
 </div>
 {% endblock %}
-
-
 
 {% block postloadjs %}
 {{ block.super }}
 {% include 'products/includes/quantity_input_script.html' %}
 
 <script>
-/* =========================
-   UPDATE PRODUCT QTY
-========================= */
 $('.update-link').on('click', function () {
     $(this).closest('td').find('form').submit();
 });
 
-/* =========================
-   REMOVE PRODUCT FROM CART
-========================= */
 $('.remove-item').on('click', function () {
     const csrfToken = "{{ csrf_token }}";
     const itemId = this.id.replace('remove_', '');
     const url = "{% url 'remove_from_cart' 'ITEM_ID' %}".replace('ITEM_ID', itemId);
 
-    $.post(url, { csrfmiddlewaretoken: csrfToken })
-        .done(function () {
-            location.reload();
-        });
+    $.post(url, { csrfmiddlewaretoken: csrfToken }).done(() => location.reload());
 });
 </script>
 {% endblock %}
