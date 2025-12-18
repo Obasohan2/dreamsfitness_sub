@@ -51,7 +51,7 @@
                             {% else %}
                                 <img
                                     class="w-100 rounded"
-                                    src="{% static 'images/noimage.png' %}"
+                                    src="{{ MEDIA_URL }}noimage.png }}"
                                     alt="{{ item.product.name }}"
                                 >
                             {% endif %}

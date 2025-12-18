@@ -14,14 +14,20 @@
     {% block extra_meta %}{% endblock %}
 
     {% block corecss %}
-        <link rel="stylesheet"
-              href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-              crossorigin="anonymous">
-        <link rel="stylesheet"
-              href="https://fonts.googleapis.com/css?family=Lato&display=swap">
-        <link rel="stylesheet"
-              href="{% static 'css/base.css' %}">
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
+        >
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Lato&display=swap"
+        >
+        <link
+            rel="stylesheet"
+            href="{% static 'css/base.css' %}"
+        >
     {% endblock %}
 
     {% block extra_css %}{% endblock %}
@@ -29,17 +35,23 @@
     {% block corejs %}
         <script src="https://kit.fontawesome.com/c38cb811c0.js" crossorigin="anonymous"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
-                integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
-                crossorigin="anonymous"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
+            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+            crossorigin="anonymous">
+        </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-                integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-                crossorigin="anonymous"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous">
+        </script>
 
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-                integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-                crossorigin="anonymous"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous">
+        </script>
 
         <!-- Stripe -->
         <script src="https://js.stripe.com/v3/"></script>
@@ -57,7 +69,7 @@
 
 <header class="container-fluid fixed-top">
 
-    <!-- Desktop Navigation -->
+    <!-- ================= DESKTOP NAV ================= -->
     <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
 
         <!-- Logo -->
@@ -75,13 +87,16 @@
             <form method="GET" action="{% url 'products' %}">
                 {% csrf_token %}
                 <div class="input-group w-100">
-                    <input class="form-control border border-black rounded-0"
-                           type="text"
-                           name="q"
-                           placeholder="Search our site">
+                    <input
+                        class="form-control border border-black rounded-0"
+                        type="text"
+                        name="q"
+                        placeholder="Search our site"
+                    >
                     <div class="input-group-append">
-                        <button class="form-control btn btn-black border border-black rounded-0"
-                                type="submit">
+                        <button
+                            class="form-control btn btn-black border border-black rounded-0"
+                            type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
@@ -89,59 +104,65 @@
             </form>
         </div>
 
-        <!-- User + Cart -->
+        <!-- User & Cart -->
         <div class="col-12 col-lg-4 my-auto py-1">
             <ul class="list-inline list-unstyled text-center text-lg-right my-0">
 
                 <!-- User Dropdown -->
                 <li class="list-inline-item dropdown">
-                    <a class="nav-link text-black"
-                       href="#"
-                       id="user-options"
-                       data-toggle="dropdown">
+                    <a
+                        class="nav-link text-black"
+                        href="#"
+                        id="user-options"
+                        data-toggle="dropdown">
                         <div class="text-center">
                             <i class="fas fa-user fa-lg"></i>
                             <p class="my-0">Membership</p>
                         </div>
                     </a>
 
-                    <div class="dropdown-menu border-0"
-                         aria-labelledby="user-options">
+                    <div class="dropdown-menu border-0" aria-labelledby="user-options">
 
                         {% if request.user.is_authenticated %}
+                            {% if request.user.is_superuser %}
+                                <a href="{% url 'add_product' %}" class="dropdown-item">
+                                    Product Management
+                                </a>
+                            {% endif %}
+
                             <a href="{% url 'profile' %}" class="dropdown-item">
                                 My Profile
                             </a>
 
                             {% if request.user.is_superuser %}
                                 <div class="dropdown-divider"></div>
-                                <a href="{% url 'admin:index' %}"
-                                   class="dropdown-item text-danger">
+                                <a
+                                    href="{% url 'admin:index' %}"
+                                    class="dropdown-item text-danger">
                                     Admin Panel
                                 </a>
                             {% endif %}
 
-                            <a href="{% url 'account_logout' %}"
-                               class="dropdown-item">
+                            <a href="{% url 'account_logout' %}" class="dropdown-item">
                                 Logout
                             </a>
                         {% else %}
-                            <a href="{% url 'account_signup' %}"
-                               class="dropdown-item">
+                            <a href="{% url 'account_signup' %}" class="dropdown-item">
                                 Register
                             </a>
-                            <a href="{% url 'account_login' %}"
-                               class="dropdown-item">
+                            <a href="{% url 'account_login' %}" class="dropdown-item">
                                 Login
                             </a>
                         {% endif %}
+
                     </div>
                 </li>
 
                 <!-- Cart -->
                 <li class="list-inline-item position-relative">
-                    <a href="{% url 'view_cart' %}"
-                       class="nav-link text-black {% if grand_total %}font-weight-bold{% endif %}">
+                    <a
+                        href="{% url 'view_cart' %}"
+                        class="nav-link text-black {% if grand_total %}font-weight-bold{% endif %}">
                         <div class="text-center position-relative">
                             <i class="fas fa-shopping-bag fa-lg"></i>
 
@@ -162,13 +183,14 @@
         </div>
     </div>
 
-    <!-- Mobile Navigation -->
+    <!-- ================= MOBILE NAV ================= -->
     <div class="row bg-white">
         <nav class="navbar navbar-expand-lg navbar-light w-100">
-            <button class="navbar-toggler"
-                    type="button"
-                    data-toggle="collapse"
-                    data-target="#main-nav">
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#main-nav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -177,7 +199,7 @@
         </nav>
     </div>
 
-    <!-- Delivery Banner -->
+    <!-- ================= DELIVERY BANNER ================= -->
     <div id="delivery-banner" class="row text-center">
         <div class="col bg-black text-white">
             <h5 class="logo-font my-1">
@@ -190,7 +212,7 @@
 
 </header>
 
-<!-- Toast Messages -->
+<!-- ================= TOAST MESSAGES ================= -->
 {% if messages %}
     <div class="message-container">
         {% for message in messages %}

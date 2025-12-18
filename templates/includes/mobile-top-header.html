@@ -1,18 +1,34 @@
-<!-- Mobile Search -->
+<!-- ================= MOBILE SEARCH ================= -->
 <li class="list-inline-item">
-    <a class="text-black nav-link d-block d-lg-none" href="#" id="mobile-search" data-toggle="dropdown"
-       aria-haspopup="true" aria-expanded="false">
+    <a
+        class="text-black nav-link d-block d-lg-none"
+        href="#"
+        id="mobile-search"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false">
+
         <div class="text-center">
-            <div><i class="fas fa-search fa-lg"></i></div>
+            <i class="fas fa-search fa-lg"></i>
             <p class="my-0">Search</p>
         </div>
     </a>
-    <div class="dropdown-menu border-0 w-100 p-3 rounded-0 my-0" aria-labelledby="mobile-search">
-        <form class="form" method="GET" action="{% url 'products' %}">
+
+    <div
+        class="dropdown-menu border-0 w-100 p-3 rounded-0 my-0"
+        aria-labelledby="mobile-search">
+
+        <form method="GET" action="{% url 'products' %}">
             <div class="input-group w-100">
-                <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
+                <input
+                    class="form-control border border-black rounded-0"
+                    type="text"
+                    name="q"
+                    placeholder="Search our site">
                 <div class="input-group-append">
-                    <button class="form-control btn btn-black border border-black rounded-0" type="submit">
+                    <button
+                        class="form-control btn btn-black border border-black rounded-0"
+                        type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -21,41 +37,67 @@
     </div>
 </li>
 
-<!-- Mobile User -->
+<!-- ================= MOBILE USER ================= -->
 <li class="list-inline-item dropdown">
-    <a class="text-black nav-link d-block d-lg-none" href="#" id="mobile-user-options" data-toggle="dropdown"
-       aria-haspopup="true" aria-expanded="false">
+    <a
+        class="text-black nav-link d-block d-lg-none"
+        href="#"
+        id="mobile-user-options"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false">
+
         <div class="text-center">
-            <div><i class="fas fa-user fa-lg"></i></div>
+            <i class="fas fa-user fa-lg"></i>
             <p class="my-0">Membership</p>
         </div>
     </a>
+
     <div class="dropdown-menu border-0" aria-labelledby="mobile-user-options">
+
         {% if request.user.is_authenticated %}
+
             {% if request.user.is_superuser %}
-                <a href="#" class="dropdown-item">My Profile</a>
+                <a href="{% url 'add_product' %}" class="dropdown-item">
+                    Product Management
+                </a>
+                <div class="dropdown-divider"></div>
             {% endif %}
-            <a href="#" class="dropdown-item">Enroll</a>
-            <a href="#" class="dropdown-item">Logout</a>
+
+            <a href="{% url 'profile' %}" class="dropdown-item">
+                My Profile
+            </a>
+
+            <a href="{% url 'account_logout' %}" class="dropdown-item">
+                Logout
+            </a>
+
         {% else %}
-            <a href="#" class="dropdown-item">Register</a>
-            <a href="#" class="dropdown-item">Login</a>
+
+            <a href="{% url 'account_signup' %}" class="dropdown-item">
+                Register
+            </a>
+
+            <a href="{% url 'account_login' %}" class="dropdown-item">
+                Login
+            </a>
+
         {% endif %}
+
     </div>
 </li>
 
-<!-- Mobile Cart -->
+<!-- ================= MOBILE CART ================= -->
 <li class="list-inline-item">
-    <a class="{% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %} nav-link d-block d-lg-none"
-       href="{% url 'view_cart' %}">
+    <a
+        class="nav-link d-block d-lg-none
+               {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
+        href="{% url 'view_cart' %}">
+
         <div class="text-center">
-            <div><i class="fas fa-shopping-bag fa-lg"></i></div>
+            <i class="fas fa-shopping-bag fa-lg"></i>
             <p class="my-0">
-                {% if grand_total %}
-                    £{{ grand_total|floatformat:2 }}
-                {% else %}
-                    £0.00
-                {% endif %}
+                £{{ grand_total|default:0|floatformat:2 }}
             </p>
         </div>
     </a>
