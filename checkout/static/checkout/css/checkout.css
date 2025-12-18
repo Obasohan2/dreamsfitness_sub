@@ -36,7 +36,6 @@
     border: 1px solid #000;
 }
 
-
 select, 
 select option {
     color: #000000;
@@ -47,43 +46,6 @@ select option[value=""] {
     color: #aab7c4 !important;
 }
 
-
-/* Background dim overlay (always present) */
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.05);
-    z-index: 1;
-    pointer-events: none; /* IMPORTANT */
-}
-
-/* Checkout content */
-.container,
-.card {
-    position: relative;
-    z-index: 2;
-}
-
-/* Loading overlay (shown only during payment) */
-#loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-
-
-
-
-
-/* 
 
 #loading-overlay {
 	display: none;
@@ -102,4 +64,5 @@ select option[value=""] {
     justify-content: center;
     margin: 0;
     height: 100%;
-}  */
+}
+

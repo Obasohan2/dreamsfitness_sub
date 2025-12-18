@@ -44,7 +44,7 @@ class OrderForm(forms.ModelForm):
         # Autofocus first field
         self.fields["full_name"].widget.attrs["autofocus"] = True
 
-        # 🔧 MAKE SHIPPING FIELDS OPTIONAL (CRITICAL FIX)
+        #  MAKE SHIPPING FIELDS OPTIONAL (CRITICAL FIX)
         shipping_fields = [
             "shipping_full_name",
             "shipping_phone_number",

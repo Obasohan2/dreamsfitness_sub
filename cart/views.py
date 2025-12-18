@@ -1,15 +1,58 @@
+
+from decimal import Decimal
 from django.shortcuts import render, redirect, reverse, HttpResponse, get_object_or_404
 from django.contrib import messages
 from products.models import Product
-from subscriptions.models import SubPlan
+from subscriptions.models import SubPlan, PlanDiscount
 
 
 # -----------------------------
 # VIEW CART
 # -----------------------------
 def view_cart(request):
-    """ Render the shopping cart page """
-    return render(request, 'cart/cart.html')
+    """Render the shopping cart page."""
+
+    subscription_data = request.session.get("subscription_cart")
+    subscription_context = {}
+
+    if subscription_data:
+        plan = get_object_or_404(
+            SubPlan,
+            id=subscription_data["plan_id"]
+        )
+
+        months = int(subscription_data["months"])
+        discount_id = subscription_data.get("discount_id")
+
+        total_before = plan.price * months
+        total_after = total_before
+        discount = None
+
+        if discount_id:
+            discount = get_object_or_404(
+                PlanDiscount,
+                id=discount_id
+            )
+
+            discount_rate = (
+                Decimal(discount.total_discount) / Decimal("100")
+            )
+
+            total_after -= total_before * discount_rate
+
+        subscription_context = {
+            "subscription_plan": plan,
+            "subscription_months": months,
+            "subscription_total_before": total_before,
+            "subscription_total_after": total_after,
+            "subscription_discount": discount,
+        }
+
+    context = {
+        "subscription": subscription_context,
+    }
+
+    return render(request, "cart/cart.html", context)
 
 
 # -----------------------------
@@ -84,12 +127,15 @@ def remove_from_cart(request, item_id):
 # -----------------------------
 # SUBSCRIPTION CART FUNCTIONS
 # -----------------------------
+
 def add_subscription_to_cart(request, plan_id):
     """Add a subscription plan to the cart (only one at a time)."""
 
     plan = get_object_or_404(SubPlan, pk=plan_id)
 
     months_raw = request.POST.get("months", 1)
+    discount_id = request.POST.get("discount_id")
+
     try:
         months = int(months_raw)
     except ValueError:
@@ -97,15 +143,21 @@ def add_subscription_to_cart(request, plan_id):
 
     months = max(1, months)
 
+    discount = None
+    if discount_id:
+        discount = get_object_or_404(PlanDiscount, id=discount_id)
+
     request.session["subscription_cart"] = {
         "plan_id": plan.id,
         "months": months,
+        "discount_id": discount.id if discount else None,
     }
+
+    request.session.modified = True
 
     messages.success(request, f"Added subscription: {plan.title}")
 
-    redirect_url = request.POST.get("redirect_url") or reverse("pricing")
-    return redirect(redirect_url)
+    return redirect("view_cart")
 
 
 # -----------------------------

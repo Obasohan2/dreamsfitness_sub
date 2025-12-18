@@ -109,12 +109,27 @@
     {% if has_subscription %}
     <tr class="table-info">
 
-        <td class="pl-3">
-            <strong class="text-black">{{ subscription_item.plan.title }}</strong>
+       <td class="pl-3">
+    <div class="d-flex align-items-center">
+        <!-- ICON -->
+        <span class="mr-3 text-primary">
+            <i class="fas fa-dumbbell fa-2x"></i>
+        </span>
+
+        <!-- TEXT -->
+        <div>
+            <strong class="text-black">
+                {{ subscription_item.plan.title }}
+            </strong>
+
             <div class="small text-muted">
-                {{ subscription_item.months }} month{{ subscription_item.months|pluralize }} subscription
+                {{ subscription_item.months }}
+                month{{ subscription_item.months|pluralize }} subscription
             </div>
-        </td>
+        </div>
+    </div>
+</td>
+
 
         <td class="pl-3">
             £{{ subscription_item.plan.price|floatformat:2 }}

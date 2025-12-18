@@ -1,16 +1,24 @@
+{% load static %}
+{% load cart_tools %}
+
 <div class="toast custom-toast rounded-0 border-top-0" data-autohide="false">
+
     <div class="arrow-up arrow-success"></div>
     <div class="w-100 toast-capper bg-success"></div>
 
     <div class="toast-header bg-white text-dark">
         <strong class="mr-auto">Success!</strong>
-        <button type="button" class="ml-2 mb-1 close text-dark" data-dismiss="toast" aria-label="Close">
+        <button type="button"
+                class="ml-2 mb-1 close text-dark"
+                data-dismiss="toast"
+                aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
 
     <div class="toast-body bg-white text-black">
-        <!-- Message -->
+
+        <!-- MESSAGE -->
         <div class="row">
             <div class="col">
                 {{ message }}
@@ -19,47 +27,102 @@
         </div>
 
         {% if grand_total and not on_profile_page %}
-            <!-- Header -->
-            <p class="logo-font bg-white text-black py-1">Your Cart ({{ cart_count }})</p>
 
-            <!-- CART ITEMS -->
+            <p class="logo-font bg-white text-black py-1">
+                Your Cart ({{ cart_count }})
+            </p>
+
             <div class="cart-notification-wrapper">
+
+                <!-- PRODUCTS -->
                 {% for item in cart_items %}
-                    <div class="row mb-1">
+                    <div class="row mb-2">
                         <div class="col-3">
-                            <img class="w-100 rounded" src="{{ item.product.images.url }}">
+                            {% if item.product.images %}
+                                <img class="w-100 rounded"
+                                     src="{{ item.product.images.url }}"
+                                     alt="{{ item.product.name }}">
+                            {% else %}
+                                <img class="w-100 rounded"
+                                     src="{% static 'images/noimage.png' %}"
+                                     alt="{{ item.product.name }}">
+                            {% endif %}
                         </div>
+
                         <div class="col-9">
-                            <p class="my-0"><strong>{{ item.product.name }}</strong></p>
-                            <p class="my-0 small text-muted">Qty: {{ item.quantity }}</p>
+                            <p class="my-0">
+                                <strong>{{ item.product.name }}</strong>
+                            </p>
+
+                            <p class="my-0 small text-muted">
+                                {{ item.quantity }} × £{{ item.product.price|floatformat:2 }}
+                            </p>
+
+                            <p class="my-0 small font-weight-bold">
+                                £{{ item.product.price|calc_subtotal:item.quantity|floatformat:2 }}
+                            </p>
                         </div>
                     </div>
                 {% endfor %}
+
+                <!-- PRODUCTS TOTAL -->
+                <hr>
+                <p class="mb-2">
+                    <strong>Products total:</strong>
+                    <span class="float-right">
+                        £{{ total|floatformat:2 }}
+                    </span>
+                </p>
+
+                <!-- SUBSCRIPTION -->
+                {% if subscription_item %}
+                    <hr>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-dumbbell text-primary mr-2"></i>
+
+                        <div>
+                            <strong>{{ subscription_item.plan.title }}</strong><br>
+                            <small class="text-muted">
+                                {{ subscription_item.months }}
+                                month{{ subscription_item.months|pluralize }}
+                                subscription
+                            </small>
+                        </div>
+
+                        <strong class="ml-auto">
+                            £{{ subscription_after_discount|floatformat:2 }}
+                        </strong>
+                    </div>
+                {% endif %}
+
             </div>
 
-            <!-- TOTALS -->
-            <div class="row">
-                <div class="col">
-                    <strong>
-                        <p class="mt-3 mb-1 text-black">
-                            Total{% if free_delivery_delta > 0 %} (excl. delivery){% endif %}: 
-                            <span class="float-right">£{{ total|floatformat:2 }}</span>
-                        </p>
-                    </strong>
+            <!-- GRAND TOTAL -->
+            <strong>
+                <p class="mt-3 mb-1 text-black">
+                    Total:
+                    <span class="float-right">
+                        £{{ grand_total|floatformat:2 }}
+                    </span>
+                </p>
+            </strong>
 
-                    {% if free_delivery_delta > 0 %}
-                        <p class="mb-0 p-2 bg-warning shadow-sm text-black text-center">
-                            Spend <strong>£{{ free_delivery_delta }}</strong> more for free delivery!
-                        </p>
-                    {% endif %}
+            {% if free_delivery_delta > 0 %}
+                <p class="mb-0 p-2 bg-warning shadow-sm text-black text-center">
+                    Spend <strong>£{{ free_delivery_delta }}</strong>
+                    more for free delivery!
+                </p>
+            {% endif %}
 
-                    <!-- Go to cart -->
-                    <a href="{% url 'view_cart' %}" class="btn btn-black btn-block rounded-0 mt-3">
-                        <span class="text-uppercase">Go To Secure Checkout</span>
-                        <span class="icon"><i class="fas fa-lock"></i></span>
-                    </a>
-                </div>
-            </div>
+            <a href="{% url 'view_cart' %}"
+               class="btn btn-black btn-block rounded-0 mt-3">
+                <span class="text-uppercase">Go To Secure Checkout</span>
+                <span class="icon">
+                    <i class="fas fa-lock"></i>
+                </span>
+            </a>
+
         {% endif %}
+
     </div>
 </div>
