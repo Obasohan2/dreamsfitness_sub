@@ -27,7 +27,7 @@
                 <div class="card h-100 shadow-sm border-0">
 
                     <!-- Product Image -->
-                    <a href="{% url 'product_detail' product.slug %}">
+                    <a href="{% url 'product_detail' product.id %}">
                         {% if product.images %}
                             <img src="{{ product.images.url }}"
                                  class="card-img-top img-fluid"
@@ -64,7 +64,7 @@
                     <!-- Footer Buttons -->
                     <div class="card-footer bg-white border-0 d-flex justify-content-between">
 
-                        <a href="{% url 'product_detail' product.slug %}"
+                        <a href="{% url 'product_detail' product.id %}"
                            class="btn btn-outline-primary btn-sm w-50 mr-1">
                             View
                         </a>
