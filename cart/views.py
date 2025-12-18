@@ -4,23 +4,21 @@ from django.shortcuts import render, redirect, reverse, HttpResponse, get_object
 from django.contrib import messages
 from products.models import Product
 from subscriptions.models import SubPlan, PlanDiscount
+from cart.contexts import cart_contents
 
 
 # -----------------------------
 # VIEW CART
 # -----------------------------
+
 def view_cart(request):
-    """Render the shopping cart page."""
+    cart = cart_contents(request)
 
     subscription_data = request.session.get("subscription_cart")
-    subscription_context = {}
+    subscription_context = None
 
     if subscription_data:
-        plan = get_object_or_404(
-            SubPlan,
-            id=subscription_data["plan_id"]
-        )
-
+        plan = get_object_or_404(SubPlan, id=subscription_data["plan_id"])
         months = int(subscription_data["months"])
         discount_id = subscription_data.get("discount_id")
 
@@ -29,30 +27,19 @@ def view_cart(request):
         discount = None
 
         if discount_id:
-            discount = get_object_or_404(
-                PlanDiscount,
-                id=discount_id
-            )
-
-            discount_rate = (
-                Decimal(discount.total_discount) / Decimal("100")
-            )
-
-            total_after -= total_before * discount_rate
+            discount = get_object_or_404(PlanDiscount, id=discount_id)
+            total_after -= total_before * Decimal(discount.total_discount) / 100
 
         subscription_context = {
-            "subscription_plan": plan,
-            "subscription_months": months,
-            "subscription_total_before": total_before,
-            "subscription_total_after": total_after,
-            "subscription_discount": discount,
+            "plan": plan,
+            "months": months,
+            "total": total_after,
+            "discount": discount,
         }
 
-    context = {
-        "subscription": subscription_context,
-    }
+    cart["subscription"] = subscription_context
 
-    return render(request, "cart/cart.html", context)
+    return render(request, "cart/cart.html", cart)
 
 
 # -----------------------------

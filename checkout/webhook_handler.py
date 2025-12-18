@@ -1,15 +1,17 @@
+from decimal import Decimal
+import json
+import time
+
 from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
 
-from .models import Order, OrderLineItem, SubscriptionLineItem
+from .models import Order, OrderLineItem
 from products.models import Product
-from subscriptions.models import SubPlan, PlanDiscount
+from subscriptions.models import SubPlan
 from profiles.models import UserProfile
-
-import json
-import time
+from cart.contexts import cart_contents
 
 
 class StripeWH_Handler:
@@ -18,94 +20,115 @@ class StripeWH_Handler:
     def __init__(self, request):
         self.request = request
 
+    # ------------------------------------------------
+    # EMAIL
+    # ------------------------------------------------
     def _send_confirmation_email(self, order):
-        """Send confirmation email"""
-        cust_email = order.email
         subject = render_to_string(
             "checkout/confirmation_emails/confirmation_email_subject.txt",
             {"order": order},
         )
+
         body = render_to_string(
             "checkout/confirmation_emails/confirmation_email_body.txt",
-            {"order": order, "contact_email": settings.DEFAULT_FROM_EMAIL},
+            {
+                "order": order,
+                "contact_email": settings.DEFAULT_FROM_EMAIL,
+            },
         )
 
-        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [cust_email])
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [order.email],
+        )
 
-    # --------------------------------------------------------------------
-    # GENERIC WEBHOOK EVENT
-    # --------------------------------------------------------------------
+    # ------------------------------------------------
+    # DEFAULT HANDLER
+    # ------------------------------------------------
     def handle_event(self, event):
         return HttpResponse(
             content=f"Unhandled webhook received: {event['type']}",
-            status=200
+            status=200,
         )
 
-    # --------------------------------------------------------------------
-    # PAYMENT INTENT SUCCEEDED
-    # --------------------------------------------------------------------
+    # ------------------------------------------------
+    # PAYMENT SUCCESS
+    # ------------------------------------------------
     def handle_payment_intent_succeeded(self, event):
-        """
-        Handles successful payment webhook
-        Supports:
-        - Product orders
-        - Subscription orders
-        """
         intent = event.data.object
         pid = intent.id
 
-        # Metadata
-        cart_data = intent.metadata.cart
-        subscription_data = intent.metadata.subscription
-        save_info = intent.metadata.save_info
-        username = intent.metadata.username
+        metadata = intent.metadata
+        cart_json = metadata.get("cart", "{}")
+        username = metadata.get("username", "AnonymousUser")
 
-        # Billing + shipping
-        billing = intent.charges.data[0].billing_details
-        shipping = intent.shipping
-        grand_total = round(intent.charges.data[0].amount / 100, 2)
+        subscription_plan_id = metadata.get("subscription_plan_id")
+        subscription_months = metadata.get("subscription_months")
 
-        # Clean empty fields
-        for key, value in shipping.address.items():
-            if value == "":
-                shipping.address[key] = None
+        # ------------------------------------------------
+        # REBUILD CART FROM METADATA
+        # ------------------------------------------------
+        cart_data = json.loads(cart_json)
 
-        # ---------------------------------------------------------
-        # ATTACH PROFILE INFO IF USER LOGGED IN
-        # ---------------------------------------------------------
+        # Inject cart into session for cart_contents()
+        self.request.session["cart"] = cart_data
+
+        # Restore subscription cart if present
+        if subscription_plan_id:
+            self.request.session["subscription_cart"] = {
+                "plan_id": subscription_plan_id,
+                "months": subscription_months,
+                "discount_id": metadata.get("discount_id"),
+            }
+
+        cart_totals = cart_contents(self.request)
+        grand_total = cart_totals["grand_total"].quantize(Decimal("0.01"))
+
+        # ------------------------------------------------
+        # STRIPE AMOUNT VERIFICATION (SECURITY)
+        # ------------------------------------------------
+        stripe_amount = Decimal(intent.amount) / Decimal("100")
+
+        if stripe_amount != grand_total:
+            return HttpResponse(
+                content="Amount mismatch – possible tampering detected",
+                status=400,
+            )
+
+        # ------------------------------------------------
+        # BILLING / SHIPPING
+        # ------------------------------------------------
+        charge = intent.charges.data[0]
+        billing_details = charge.billing_details
+        shipping_details = intent.shipping
+
+        # Clean empty address fields
+        if shipping_details and shipping_details.address:
+            for field, value in shipping_details.address.items():
+                if value == "":
+                    shipping_details.address[field] = None
+
+        # ------------------------------------------------
+        # USER PROFILE
+        # ------------------------------------------------
         profile = None
-        if username != "guest" and username != "AnonymousUser":
+        if username != "AnonymousUser":
             profile = UserProfile.objects.get(user__username=username)
-            if save_info:
-                profile.default_phone_number = shipping.phone
-                profile.default_country = shipping.address.country
-                profile.default_postcode = shipping.address.postal_code
-                profile.default_town_or_city = shipping.address.city
-                profile.default_street_address1 = shipping.address.line1
-                profile.default_street_address2 = shipping.address.line2
-                profile.save()
 
-        # ---------------------------------------------------------
-        # CHECK IF ORDER EXISTS ALREADY
-        # (Stripe sometimes fires webhook before redirect)
-        # ---------------------------------------------------------
+        # ------------------------------------------------
+        # CHECK IF ORDER EXISTS (IDEMPOTENCY)
+        # ------------------------------------------------
         order_exists = False
         attempt = 1
-        order = None
 
         while attempt <= 5:
             try:
                 order = Order.objects.get(
-                    full_name__iexact=shipping.name,
-                    email__iexact=billing.email,
-                    phone_number__iexact=shipping.phone,
-                    country__iexact=shipping.address.country,
-                    postcode__iexact=shipping.address.postal_code,
-                    town_or_city__iexact=shipping.address.city,
-                    street_address1__iexact=shipping.address.line1,
-                    street_address2__iexact=shipping.address.line2,
-                    grand_total=grand_total,
                     stripe_pid=pid,
+                    original_cart=cart_json,
+                    grand_total=grand_total,
                 )
                 order_exists = True
                 break
@@ -113,109 +136,79 @@ class StripeWH_Handler:
                 attempt += 1
                 time.sleep(1)
 
-        # ---------------------------------------------------------
-        # ORDER EXISTS → SEND EMAIL ONLY
-        # ---------------------------------------------------------
         if order_exists:
             self._send_confirmation_email(order)
             return HttpResponse(
-                content=f"Webhook {event['type']} | SUCCESS (order already exists)",
-                status=200
+                content=f"Webhook received: {event['type']} | Order already exists",
+                status=200,
             )
 
-        # ---------------------------------------------------------
-        # CREATE NEW ORDER FROM WEBHOOK
-        # ---------------------------------------------------------
+        # ------------------------------------------------
+        # CREATE ORDER
+        # ------------------------------------------------
         try:
             order = Order.objects.create(
-                full_name=shipping.name,
+                full_name=shipping_details.name,
                 user_profile=profile,
-                email=billing.email,
-                phone_number=shipping.phone,
-                country=shipping.address.country,
-                postcode=shipping.address.postal_code,
-                town_or_city=shipping.address.city,
-                street_address1=shipping.address.line1,
-                street_address2=shipping.address.line2,
-                county=shipping.address.state,
+                email=billing_details.email,
+                phone_number=shipping_details.phone,
+                country=shipping_details.address.country,
+                postcode=shipping_details.address.postal_code,
+                town_or_city=shipping_details.address.city,
+                street_address1=shipping_details.address.line1,
+                street_address2=shipping_details.address.line2,
                 grand_total=grand_total,
-                original_cart=cart_data,
-                original_subscription=subscription_data,
+                original_cart=cart_json,
                 stripe_pid=pid,
             )
 
-            # ---------------------------------------------------------
-            # PRODUCT LINE ITEMS
-            # ---------------------------------------------------------
-            if cart_data:
-                cart = json.loads(cart_data)
-                for item_id, item_data in cart.items():
-                    product = Product.objects.get(id=item_id)
+            # ------------------------------------------------
+            # SUBSCRIPTION
+            # ------------------------------------------------
+            if subscription_plan_id:
+                plan = SubPlan.objects.get(id=subscription_plan_id)
+                order.subscription_plan = plan
+                order.subscription_months = int(subscription_months)
+                order.subscription_total = cart_totals[
+                    "subscription_after_discount_total"
+                ]
+                order.save()
 
-                    if isinstance(item_data, int):
-                        OrderLineItem.objects.create(
-                            order=order,
-                            product=product,
-                            quantity=item_data,
-                            lineitem_total=product.price * item_data,
-                        )
-                    else:
-                        for size, qty in item_data["items_by_size"].items():
-                            OrderLineItem.objects.create(
-                                order=order,
-                                product=product,
-                                quantity=qty,
-                                product_size=size,
-                                lineitem_total=product.price * qty,
-                            )
-
-            # ---------------------------------------------------------
-            # SUBSCRIPTION LINE ITEM
-            # ---------------------------------------------------------
-            if subscription_data:
-                subscription_json = json.loads(subscription_data)
-
-                plan = SubPlan.objects.get(id=subscription_json["plan_id"])
-                months = int(subscription_json["months"])
-
-                total_price = plan.price * months
-
-                # discount
-                if subscription_json.get("discount_id"):
-                    discount = PlanDiscount.objects.get(
-                        id=subscription_json["discount_id"],
-                        subplan=plan
-                    )
-                    total_price -= total_price * (discount.total_discount / 100)
-
-                SubscriptionLineItem.objects.create(
+            # ------------------------------------------------
+            # PRODUCTS
+            # ------------------------------------------------
+            for item_id, quantity in cart_data.items():
+                product = Product.objects.get(id=item_id)
+                OrderLineItem.objects.create(
                     order=order,
-                    subscription_plan=plan,
-                    months=months,
-                    lineitem_total=total_price,
+                    product=product,
+                    quantity=quantity,
                 )
 
         except Exception as e:
             if order:
                 order.delete()
+
             return HttpResponse(
-                content=f"Webhook {event['type']} | ERROR: {e}",
-                status=500
+                content=f"Webhook received: {event['type']} | ERROR: {e}",
+                status=500,
             )
 
-        # SEND EMAIL
+        # ------------------------------------------------
+        # CONFIRMATION EMAIL
+        # ------------------------------------------------
         self._send_confirmation_email(order)
 
         return HttpResponse(
-            content=f"Webhook {event['type']} | SUCCESS (order created)",
-            status=200
+            content=f"Webhook received: {event['type']} | Order created successfully",
+            status=200,
         )
 
-    # --------------------------------------------------------------------
+    # ------------------------------------------------
     # PAYMENT FAILED
-    # --------------------------------------------------------------------
+    # ------------------------------------------------
     def handle_payment_intent_payment_failed(self, event):
         return HttpResponse(
             content=f"Webhook received: {event['type']}",
-            status=200
+            status=200,
         )

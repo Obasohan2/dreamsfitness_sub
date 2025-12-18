@@ -18,7 +18,7 @@
 
 <div class="container mb-5">
 
-{% if has_products or has_subscription %}
+{% if cart_items or subscription_item %}
 
 <div class="table-responsive">
 <table class="table table-sm align-middle">
@@ -38,36 +38,31 @@
     <!-- PRODUCTS -->
     {% for item in cart_items %}
     <tr>
-
-        <!-- PRODUCT -->
         <td class="pl-3">
             <div class="d-flex align-items-center">
+                {% if item.product.images %}
                 <img src="{{ item.product.images.url }}"
                      alt="{{ item.product.name }}"
                      class="rounded mr-3"
                      style="width:90px;height:90px;object-fit:cover;">
+                {% endif %}
                 <strong class="text-black">{{ item.product.name }}</strong>
             </div>
         </td>
 
-        <!-- PRICE -->
         <td class="pl-3">
             £{{ item.product.price|floatformat:2 }}
         </td>
 
-        <!-- QTY -->
         <td class="text-center">
             <form method="POST"
                   action="{% url 'adjust_cart' item.item_id %}"
                   class="update-form d-inline-block">
                 {% csrf_token %}
-
                 <div class="d-flex justify-content-center align-items-center">
                     <button type="button"
                             class="btn btn-dark btn-sm decrement-qty mr-2"
-                            data-item_id="{{ item.item_id }}">
-                        −
-                    </button>
+                            data-item_id="{{ item.item_id }}">−</button>
 
                     <input type="number"
                            name="quantity"
@@ -79,13 +74,10 @@
 
                     <button type="button"
                             class="btn btn-dark btn-sm increment-qty ml-2"
-                            data-item_id="{{ item.item_id }}">
-                        +
-                    </button>
+                            data-item_id="{{ item.item_id }}">+</button>
                 </div>
             </form>
 
-            <!-- UPDATE / REMOVE -->
             <div class="d-flex justify-content-center mt-2">
                 <a class="update-link text-info small mr-4">Update</a>
                 <a class="remove-item text-danger small"
@@ -95,41 +87,33 @@
             </div>
         </td>
 
-        <!-- SUBTOTAL -->
         <td class="text-right pr-5">
             <strong>
                 £{{ item.product.price|calc_subtotal:item.quantity|floatformat:2 }}
             </strong>
         </td>
-
     </tr>
     {% endfor %}
 
     <!-- SUBSCRIPTION -->
-    {% if has_subscription %}
+    {% if subscription_item %}
     <tr class="table-info">
-
-       <td class="pl-3">
-    <div class="d-flex align-items-center">
-        <!-- ICON -->
-        <span class="mr-3 text-primary">
-            <i class="fas fa-dumbbell fa-2x"></i>
-        </span>
-
-        <!-- TEXT -->
-        <div>
-            <strong class="text-black">
-                {{ subscription_item.plan.title }}
-            </strong>
-
-            <div class="small text-muted">
-                {{ subscription_item.months }}
-                month{{ subscription_item.months|pluralize }} subscription
+        <td class="pl-3">
+            <div class="d-flex align-items-center">
+                <span class="mr-3 text-primary">
+                    <i class="fas fa-dumbbell fa-2x"></i>
+                </span>
+                <div>
+                    <strong class="text-black">
+                        {{ subscription_item.plan.title }}
+                    </strong>
+                    <div class="small text-muted">
+                        {{ subscription_item.months }}
+                        month{{ subscription_item.months|pluralize }} subscription
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</td>
-
+        </td>
 
         <td class="pl-3">
             £{{ subscription_item.plan.price|floatformat:2 }}
@@ -151,7 +135,6 @@
                 </a>
             </div>
         </td>
-
     </tr>
     {% endif %}
 
@@ -162,13 +145,13 @@
         <tr>
             <td colspan="4" class="text-right pt-4">
 
-                {% if has_products %}
-                <h6>Product Cart Total: £{{ total|floatformat:2 }}</h6>
+                {% if cart_items %}
+                <h6>Product Total: £{{ product_total|floatformat:2 }}</h6>
                 <h6>Delivery: £{{ delivery|floatformat:2 }}</h6>
                 <h6>Product Subtotal: £{{ product_grand_total|floatformat:2 }}</h6>
                 {% endif %}
 
-                {% if has_subscription %}
+                {% if subscription_item %}
                 <h6 class="mt-2">
                     Subscription (before discount):
                     £{{ subscription_pre_discount_total|floatformat:2 }}
@@ -177,13 +160,15 @@
                 {% if subscription_discount_amount > 0 %}
                 <h6 class="text-success">
                     Discount −£{{ subscription_discount_amount|floatformat:2 }}
-                    ({{ subscription_item.discount.total_discount }}%)
+                    {% if subscription_item.discount %}
+                        ({{ subscription_item.discount.total_discount }}%)
+                    {% endif %}
                 </h6>
                 {% endif %}
 
                 <h6>
                     Subscription (after discount):
-                    £{{ subscription_after_discount|floatformat:2 }}
+                    £{{ subscription_after_discount_total|floatformat:2 }}
                 </h6>
                 {% endif %}
 
@@ -239,7 +224,8 @@ $('.remove-item').on('click', function () {
     const itemId = this.id.replace('remove_', '');
     const url = "{% url 'remove_from_cart' 'ITEM_ID' %}".replace('ITEM_ID', itemId);
 
-    $.post(url, { csrfmiddlewaretoken: csrfToken }).done(() => location.reload());
+    $.post(url, { csrfmiddlewaretoken: csrfToken })
+     .done(() => location.reload());
 });
 </script>
 {% endblock %}

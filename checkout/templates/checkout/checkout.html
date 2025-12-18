@@ -6,8 +6,9 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'checkout/css/checkout.css' %}">
 {% endblock %}
+
 {% block page_header %}
-<div class="container header-container mb-4">
+<div class="container header-container mb-5">
     <div class="row">
         <div class="col text-center">
             <h2 class="logo-font mt-3 text-black">Checkout</h2>
@@ -18,12 +19,12 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="overlay"></div>
+
 <div class="container py-4">
     <div class="row">
 
-        <!-- LEFT SIDE -->
+        <!-- ================= LEFT: FORM ================= -->
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm border-0">
 
@@ -32,16 +33,21 @@
                 </div>
 
                 <div class="p-4">
-                    <form action="{% url 'process_order' %}" method="POST" id="payment-form">
+                    <form action="{% url 'process_order' %}"
+                          method="POST"
+                          id="payment-form">
+
                         {% csrf_token %}
 
                         <p class="text-muted">
-                            Please fill out your billing information. Optional shipping details may also be entered.
+                            Please fill out your billing information.
                         </p>
 
                         <!-- CONTACT -->
                         <fieldset class="rounded px-3 mb-4">
-                            <legend class="fieldset-label small text-black px-2 w-auto">Contact</legend>
+                            <legend class="fieldset-label small text-black px-2 w-auto">
+                                Contact
+                            </legend>
                             {{ order_form.full_name|as_crispy_field }}
                             {{ order_form.email|as_crispy_field }}
                             {{ order_form.phone_number|as_crispy_field }}
@@ -49,7 +55,9 @@
 
                         <!-- BILLING -->
                         <fieldset class="rounded px-3 mb-4">
-                            <legend class="fieldset-label small text-black px-2 w-auto">Billing Address</legend>
+                            <legend class="fieldset-label small text-black px-2 w-auto">
+                                Billing Address
+                            </legend>
 
                             {{ order_form.address1|as_crispy_field }}
                             {{ order_form.address2|as_crispy_field }}
@@ -59,7 +67,11 @@
 
                             {% if user.is_authenticated %}
                             <div class="form-check mt-3">
-                                <input type="checkbox" class="form-check-input" id="save-info" name="save-info" checked>
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="save-info"
+                                       name="save_info"
+                                       checked>
                                 <label class="form-check-label" for="save-info">
                                     Save billing information to profile
                                 </label>
@@ -67,16 +79,23 @@
                             {% endif %}
 
                             <div class="form-check mt-3">
-                                <input type="checkbox" class="form-check-input" id="use-different-shipping">
-                                <label class="form-check-label" for="use-different-shipping">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="use-different-shipping"
+                                       name="use_different_shipping">
+                                <label class="form-check-label"
+                                       for="use-different-shipping">
                                     Ship to a different address
                                 </label>
                             </div>
                         </fieldset>
 
                         <!-- SHIPPING -->
-                        <fieldset class="rounded px-3 mb-4 d-none" id="shipping-fields">
-                            <legend class="fieldset-label small text-black px-2 w-auto">Shipping Address</legend>
+                        <fieldset class="rounded px-3 mb-4 d-none"
+                                  id="shipping-fields">
+                            <legend class="fieldset-label small text-black px-2 w-auto">
+                                Shipping Address
+                            </legend>
 
                             {{ order_form.shipping_full_name|as_crispy_field }}
                             {{ order_form.shipping_phone_number|as_crispy_field }}
@@ -89,35 +108,44 @@
 
                         <!-- PAYMENT -->
                         <fieldset class="rounded px-3 mb-4">
-                            <legend class="fieldset-label small text-black px-2 w-auto">Payment</legend>
+                            <legend class="fieldset-label small text-black px-2 w-auto">
+                                Payment
+                            </legend>
 
                             <div id="card-element" class="mb-3"></div>
                             <div id="card-errors" class="text-danger mb-2"></div>
 
-                            <input type="hidden" name="client_secret" value="{{ client_secret }}">
+                            <input type="hidden"
+                                   name="client_secret"
+                                   value="{{ client_secret }}">
                         </fieldset>
 
-                        <!-- SUBSCRIPTION FIELDS -->
+                        <!-- SUBSCRIPTION META -->
                         {% if subscription %}
                             <input type="hidden" name="plan_id" value="{{ subscription.plan.id }}">
                             <input type="hidden" name="months" value="{{ subscription.months }}">
                             {% if subscription.discount %}
-                                <input type="hidden" name="discount_id" value="{{ subscription.discount.id }}">
+                                <input type="hidden"
+                                       name="discount_id"
+                                       value="{{ subscription.discount.id }}">
                             {% endif %}
                         {% endif %}
 
-                        <!-- SUBMIT BUTTON -->
+                        <!-- ACTIONS -->
                         <div class="text-right mt-4">
-                            <a href="{% url 'view_cart' %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-chevron-left"></i> Adjust Cart
+                            <a href="{% url 'view_cart' %}"
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-chevron-left"></i>
+                                Adjust Cart
                             </a>
 
-                            <button id="submit-button" class="btn btn-primary">
-                                Complete Order <i class="bi bi-lock-fill"></i>
+                            <button id="submit-button"
+                                    class="btn btn-primary">
+                                Complete Order
+                                <i class="fas fa-lock"></i>
                             </button>
 
                             <p class="small text-danger mt-2">
-                                <i class="bi bi-exclamation-circle"></i>
                                 Your card will be charged
                                 <strong>£{{ final_total|floatformat:2 }}</strong>
                             </p>
@@ -125,69 +153,76 @@
 
                     </form>
                 </div>
-
             </div>
         </div>
 
-        <!-- RIGHT SIDE — ORDER SUMMARY -->
+        <!-- ================= RIGHT: SUMMARY ================= -->
         <div class="col-lg-6 col-xl-5">
             <div class="card shadow-sm border-0">
 
                 <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Order Summary ({{ cart_count }})</h4>
+                    <h4 class="mb-0">
+                        Order Summary ({{ cart_count }})
+                    </h4>
                 </div>
 
                 <div class="card-body">
 
                     <!-- PRODUCTS -->
                     {% if products %}
-                    <h5 class="text-primary font-weight-bold mb-3">Products</h5>
+                        <h5 class="text-primary font-weight-bold mb-3">
+                            Products
+                        </h5>
 
-                    {% for item in products %}
-                    <div class="d-flex align-items-center py-2 border-bottom">
+                        {% for item in products %}
+                            <div class="d-flex align-items-center py-2 border-bottom">
 
-                        {% if item.product.images %}
-                            <img src="{{ item.product.images.url }}" class="rounded mr-3"
-                                 style="width: 60px; height: 60px; object-fit: cover;">
-                        {% else %}
-                            <img src="{% static 'images/noimage.png' %}" class="rounded mr-3"
-                                 style="width: 60px; height: 60px; object-fit: cover;">
-                        {% endif %}
+                                {% if item.product.images %}
+                                    <img src="{{ item.product.images.url }}"
+                                         class="rounded mr-3"
+                                         style="width:60px;height:60px;object-fit:cover;">
+                                {% else %}
+                                    <img src="{% static 'img/default-product.png' %}"
+                                         class="rounded mr-3"
+                                         style="width:60px;height:60px;object-fit:cover;">
+                                {% endif %}
 
-                        <div class="flex-fill">
-                            <strong class="text-dark">{{ item.product.name }}</strong><br>
-                            <small class="text-muted">
-                                £{{ item.product.price|floatformat:2 }} × {{ item.quantity }}
-                            </small>
-                        </div>
+                                <div class="flex-fill">
+                                    <strong>{{ item.product.name }}</strong><br>
+                                    <small class="text-muted">
+                                        £{{ item.product.price|floatformat:2 }}
+                                        × {{ item.quantity }}
+                                    </small>
+                                </div>
 
-                        <strong class="text-dark">
-                            £{{ item.product.price|mul:item.quantity|floatformat:2 }}
-                        </strong>
-
-                    </div>
-                    {% endfor %}
+                                <strong>
+                                    £{{ item.line_total|floatformat:2 }}
+                                </strong>
+                            </div>
+                        {% endfor %}
                     {% endif %}
 
                     <!-- SUBSCRIPTION -->
                     {% if subscription %}
-                        <h5 class="text-primary font-weight-bold mt-4 mb-3">Subscription</h5>
+                        <h5 class="text-primary font-weight-bold mt-4 mb-3">
+                            Subscription
+                        </h5>
 
                         <div class="d-flex justify-content-between py-2 border-bottom">
                             <div>
-                                <strong class="text-dark">{{ subscription.plan.title }}</strong><br>
+                                <strong>{{ subscription.plan.title }}</strong><br>
                                 <small class="text-muted">
-                                    {{ subscription.months }} month{{ subscription.months|pluralize }}
+                                    {{ subscription.months }}
+                                    month{{ subscription.months|pluralize }}
                                 </small>
-
                                 {% if subscription.discount %}
-                                <div class="badge badge-success mt-1">
-                                    {{ subscription.discount.total_discount }}% OFF
-                                </div>
+                                    <div class="badge badge-success mt-1">
+                                        {{ subscription.discount.total_discount }}% OFF
+                                    </div>
                                 {% endif %}
                             </div>
 
-                            <strong class="text-dark">
+                            <strong>
                                 £{{ subscription.total|floatformat:2 }}
                             </strong>
                         </div>
@@ -195,31 +230,30 @@
 
                     <hr>
 
-                    <!-- SUBTOTALS -->
+                    <!-- TOTALS -->
                     {% if products %}
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="font-weight-bold text-dark">Products Total:</span>
-                        <span>£{{ product_total|floatformat:2 }}</span>
-                    </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Products Total:</span>
+                            <span>£{{ product_total|floatformat:2 }}</span>
+                        </div>
                     {% endif %}
 
-                    {% if delivery > 0 %}
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="font-weight-bold text-dark">Delivery:</span>
-                        <span>£{{ delivery|floatformat:2 }}</span>
-                    </div>
+                    {% if products and delivery > 0 %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery:</span>
+                            <span>£{{ delivery|floatformat:2 }}</span>
+                        </div>
                     {% endif %}
 
                     {% if subscription %}
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="font-weight-bold text-dark">Subscription Total:</span>
-                        <span>£{{ subscription.total|floatformat:2 }}</span>
-                    </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subscription Total:</span>
+                            <span>£{{ subscription.total|floatformat:2 }}</span>
+                        </div>
                     {% endif %}
 
                     <hr>
 
-                    <!-- GRAND TOTAL -->
                     <div class="d-flex justify-content-between h4 text-primary">
                         <span>Grand Total:</span>
                         <strong>£{{ final_total|floatformat:2 }}</strong>
@@ -231,23 +265,21 @@
 
     </div>
 </div>
- <div id="loading-overlay">
-        <h1 class="text-light logo-font loading-spinner">
-            <span class="icon">
-                <i class="fas fa-3x fa-sync-alt fa-spin"></i>
-            </span>
-        </h1>
-    </div>
+
+<div id="loading-overlay">
+    <h1 class="text-light logo-font loading-spinner">
+        <i class="fas fa-3x fa-sync-alt fa-spin"></i>
+    </h1>
+</div>
 {% endblock %}
 
 {% block postloadjs %}
 {{ block.super }}
 {{ stripe_public_key|json_script:"id_stripe_public_key" }}
 {{ client_secret|json_script:"id_client_secret" }}
+
 <script src="{% static 'checkout/js/stripe_elements.js' %}"></script>
-<script>
-const cacheCheckoutUrl = "{% url 'cache_checkout_data' %}";
-</script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const toggle = document.getElementById("use-different-shipping");
@@ -258,5 +290,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
-
 {% endblock %}

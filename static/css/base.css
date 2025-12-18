@@ -56,9 +56,10 @@ body {
 .btn-black:hover,
 .btn-black:active,
 .btn-black:focus {
-    background: #222;
+    background: black;
     color: white;
 }
+
 
 .text-black {
     color: #000 !important;
@@ -69,8 +70,8 @@ body {
 }
 
 .bg-black {
-    background: #000 !important;
-}
+    background: #ff0000 !important;
+} 
 
 .overlay {
 	height: 100%;

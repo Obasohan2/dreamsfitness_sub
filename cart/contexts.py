@@ -41,15 +41,15 @@ def cart_contents(request):
     subscription_data = request.session.get("subscription_cart")
     subscription_item = None
 
-    subscription_pre_discount = Decimal("0.00")
+    subscription_pre_discount_total = Decimal("0.00")
     subscription_discount_amount = Decimal("0.00")
-    subscription_after_discount = Decimal("0.00")
+    subscription_after_discount_total = Decimal("0.00")
 
     if subscription_data:
         plan = get_object_or_404(SubPlan, pk=subscription_data["plan_id"])
         months = int(subscription_data["months"])
 
-        subscription_pre_discount = plan.price * Decimal(months)
+        subscription_pre_discount_total = plan.price * Decimal(months)
 
         discount = None
         if subscription_data.get("discount_id"):
@@ -59,12 +59,12 @@ def cart_contents(request):
                 subplan=plan
             )
             subscription_discount_amount = (
-                subscription_pre_discount *
+                subscription_pre_discount_total *
                 Decimal(discount.total_discount) / Decimal("100")
             )
 
-        subscription_after_discount = (
-            subscription_pre_discount - subscription_discount_amount
+        subscription_after_discount_total = (
+            subscription_pre_discount_total - subscription_discount_amount
         )
 
         subscription_item = {
@@ -91,33 +91,25 @@ def cart_contents(request):
         free_delivery_delta = None
 
     # ======================
-    # FLAGS
-    # ======================
-    has_products = product_count > 0
-    has_subscription = subscription_item is not None
-
-    # ======================
     # TOTALS
     # ======================
     product_grand_total = product_total + delivery
-    grand_total = product_grand_total + subscription_after_discount
+    grand_total = product_grand_total + subscription_after_discount_total
 
     return {
         # Products
         "cart_items": cart_items,
-        "total": product_total,
+        "product_total": product_total,
         "product_count": product_count,
-        "has_products": has_products,
 
         # Subscription
         "subscription_item": subscription_item,
-        "subscription_pre_discount_total": subscription_pre_discount,
+        "subscription_pre_discount_total": subscription_pre_discount_total,
         "subscription_discount_amount": subscription_discount_amount,
-        "subscription_after_discount": subscription_after_discount,
-        "has_subscription": has_subscription,
+        "subscription_after_discount_total": subscription_after_discount_total,
 
         # Counts
-        "cart_count": product_count + (1 if has_subscription else 0),
+        "cart_count": product_count + (1 if subscription_item else 0),
 
         # Delivery
         "delivery": delivery,
