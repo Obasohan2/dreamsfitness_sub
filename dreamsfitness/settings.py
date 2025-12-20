@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'checkout.apps.CheckoutConfig',  # our app
     'profiles',  # our app
     'dashboard',  # our app
-
+    'blog',  # our app
 ]
 
 MIDDLEWARE = [
