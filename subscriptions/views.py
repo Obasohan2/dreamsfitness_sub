@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from decimal import Decimal
 
@@ -82,3 +83,14 @@ def sub_checkout(request, plan_id):
         "features": features,
         "discounts": discounts,
     })
+
+
+@staff_member_required
+def subscription_admin_dashboard(request):
+    context = {
+        "plans": SubPlan.objects.all(),
+        "features": SubPlanFeature.objects.all(),
+        "discounts": PlanDiscount.objects.all(),
+        "highlighted_plan": SubPlan.objects.filter(highlight_status=True).first(),
+    }
+    return render(request, "admin/subscriptions_dashboard.html", context)

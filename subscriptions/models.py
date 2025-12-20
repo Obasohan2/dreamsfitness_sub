@@ -13,8 +13,8 @@ class SubPlan(models.Model):
 
     def __str__(self):
         return self.title
-    
- 
+
+
 # ---------------------------
 # Subscription Plan Features
 # ---------------------------
@@ -42,4 +42,23 @@ class PlanDiscount(models.Model):
         return str(self.total_months)
 
 
+# ---------------------------
+# PURCHASED SUBSCRIPTION
+# ---------------------------
+class Subscription(models.Model):
+    order = models.ForeignKey(
+        "checkout.Order",
+        related_name="subscriptions",
+        on_delete=models.CASCADE
+    )
+    subscription_plan = models.ForeignKey(
+        SubPlan,
+        on_delete=models.CASCADE
+    )
+    months = models.PositiveIntegerField()
+    lineitem_total = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField(auto_now_add=True)
+    end_date = models.DateField(blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.subscription_plan.title} ({self.months} months)"

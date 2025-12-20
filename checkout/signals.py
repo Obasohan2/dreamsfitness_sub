@@ -11,7 +11,7 @@ def update_order_totals_on_product_change(sender, instance, **kwargs):
     Whenever a product line item is added/updated/deleted,
     recalculate the parent order totals.
     """
-    instance.order.update_totals()
+    instance.order.update_total() 
 
 
 @receiver(post_save, sender=SubscriptionLineItem)
@@ -21,4 +21,4 @@ def update_order_totals_on_subscription_change(sender, instance, **kwargs):
     Whenever a subscription line item is added/updated/deleted,
     recalculate totals.
     """
-    instance.order.update_totals()
+    instance.order.update_total()

@@ -23,6 +23,18 @@
     <hr class="mx-auto" style="width:150px;">
 
     <!-- =========================
+         ADMIN QUICK ACTION
+    ========================== -->
+    {% if request.user.is_authenticated and request.user.is_superuser %}
+    <div class="text-center mb-4">
+        <a href="/admin/subscriptions/subplan/add/"
+           class="btn btn-dark rounded-0">
+             Add New Subscription Plan
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- =========================
          PLANS GRID
     ========================== -->
     <div class="row text-center">
@@ -33,8 +45,19 @@
             <div class="card rounded shadow-sm {% if plan.is_selected %}border-primary{% endif %}">
 
                 <!-- HEADER -->
-                <div class="card-header py-3 {% if plan.is_selected %}bg-primary text-white border-primary{% else %}bg-light{% endif %}">
-                    <h4 class="my-0">{{ plan.title }}</h4>
+                <div class="card-header py-3
+                    {% if plan.is_selected %}
+                        bg-primary text-white border-primary
+                    {% else %}
+                        bg-light
+                    {% endif %}
+                ">
+                    <h4 class="my-0">
+                        {{ plan.title }}
+                        {% if request.user.is_authenticated and request.user.is_superuser %}
+                            <span class="badge badge-warning ml-2">Admin</span>
+                        {% endif %}
+                    </h4>
                 </div>
 
                 <!-- BODY -->
@@ -46,7 +69,7 @@
                     </h1>
 
                     <p class="text-success mt-2">
-                        Member Capacity: {{ plan.max_member }}
+                        Member Capacity: {{ plan.max_member|default:"Unlimited" }}
                     </p>
 
                     <ul class="list-unstyled mt-3 mb-4">
@@ -60,7 +83,23 @@
                     <!-- =========================
                          BUTTON LOGIC
                     ========================== -->
-                    {% if request.user.is_authenticated %}
+
+                    {% if request.user.is_authenticated and request.user.is_superuser %}
+
+                        <!-- ADMIN CONTROLS -->
+                        <div class="btn-group btn-group-sm d-flex">
+                            <a href="/admin/subscriptions/subplan/{{ plan.id }}/change/"
+                               class="btn btn-outline-dark">
+                                <i class="bi bi-pencil-square"></i> Edit Plan
+                            </a>
+
+                            <a href="/admin/subscriptions/subplanfeature/"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-list-check"></i> Features
+                            </a>
+                        </div>
+
+                    {% elif request.user.is_authenticated %}
 
                         {% if plan.is_selected %}
                             <button class="btn btn-secondary btn-lg btn-block" disabled>
@@ -74,10 +113,12 @@
                         {% endif %}
 
                     {% else %}
+
                         <a href="{% url 'account_login' %}"
                            class="btn btn-primary btn-lg btn-block">
                             Login to Get Started
                         </a>
+
                     {% endif %}
 
                 </div>

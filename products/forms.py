@@ -2,6 +2,7 @@ from django import forms
 from .models import Product, Category
 from .widgets import CustomClearableFileInput
 
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product

@@ -1,19 +1,26 @@
 from django.db import models
 from products.models import Product
-from subscriptions.models import SubPlan
 from django_countries.fields import CountryField
-from django.db.models import Sum
 from decimal import Decimal
 import uuid
 import json
 from profiles.models import UserProfile
 
 
+# ====================================================
+# ORDER
+# ====================================================
 class Order(models.Model):
+
     # ---------------- Billing fields ----------------
     order_number = models.CharField(max_length=32, editable=False)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
-                                     null=True, blank=True, related_name='orders')
+    user_profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
     full_name = models.CharField(max_length=50)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
@@ -38,51 +45,32 @@ class Order(models.Model):
     delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    # ---------------- Meta Info ----------------
+    # ---------------- Meta ----------------
     original_cart = models.TextField(default='', blank=True)
     stripe_pid = models.CharField(max_length=254, default='', blank=True)
     date = models.DateTimeField(auto_now_add=True)
 
-    # ---------------- Admin Display Helper (Formatter) ----------------
-    def _currency(self, value):
-        """Formats any numeric value as £XX.XX"""
-        return f"£{value:.2f}"
-
-    # Mapping used to generate helper methods dynamically
-    _DISPLAY_FIELDS = {
-        "display_order_total": ("order_total", "Order Total"),
-        "display_subscription_total": ("subscription_total", "Subscription Total"),
-        "display_delivery_cost": ("delivery_cost", "Delivery Cost"),
-        "display_grand_total": ("grand_total", "Grand Total"),
-    }
-
-    # Create the display methods dynamically
-    for method_name, (field_name, label) in _DISPLAY_FIELDS.items():
-        def make_display(field):
-            return lambda self: self._currency(getattr(self, field))
-        func = make_display(field_name)
-        func.short_description = label
-        locals()[method_name] = func
-
-    # ---------------- Methods ----------------
+    # ---------------- Helpers ----------------
     def _generate_order_number(self):
         return uuid.uuid4().hex.upper()
 
-    def update_totals(self):
-        product_total = (
-            self.lineitems.aggregate(total=Sum("lineitem_total"))["total"]
-            or Decimal("0.00")
-        )
+    @property
+    def has_subscription(self):
+        return self.subscription_total > Decimal("0.00")
 
-        subscription_total = (
-            self.subscription_items.aggregate(total=Sum("lineitem_total"))["total"]
-            or Decimal("0.00")
-        )
+    def update_total(self):
+        self.order_total = sum(
+            item.lineitem_total for item in self.lineitems.all()
+        ) or Decimal("0.00")
 
-        self.order_total = product_total
-        self.subscription_total = subscription_total
+        self.subscription_total = sum(
+            sub.lineitem_total for sub in self.subscription_items.all()
+        ) or Decimal("0.00")
+
         self.grand_total = (
-            product_total + subscription_total + Decimal(self.delivery_cost)
+            self.order_total +
+            self.subscription_total +
+            self.delivery_cost
         )
 
         self.save(update_fields=[
@@ -99,11 +87,7 @@ class Order(models.Model):
     def __str__(self):
         return self.order_number
 
-    # ---------------- Readable Cart ----------------
     def readable_cart(self):
-        """
-        Convert original_cart JSON into readable product names + quantities.
-        """
         try:
             cart = json.loads(self.original_cart)
         except Exception:
@@ -122,41 +106,46 @@ class Order(models.Model):
     readable_cart.short_description = "Original Cart"
 
 
-# ----------------------------------------------------
+# ====================================================
 # PRODUCT LINE ITEMS
-# ----------------------------------------------------
+# ====================================================
 class OrderLineItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name='lineitems'
+        Order,
+        on_delete=models.CASCADE,
+        related_name='lineitems'
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-    quantity = models.IntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
         self.lineitem_total = self.product.price * self.quantity
         super().save(*args, **kwargs)
-        self.order.update_totals()
+        self.order.update_total()
 
     def __str__(self):
         return f"{self.product.name} (x{self.quantity})"
 
 
-# ----------------------------------------------------
+# ====================================================
 # SUBSCRIPTION LINE ITEMS
-# ----------------------------------------------------
+# ====================================================
 class SubscriptionLineItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name="subscription_items"
+        Order,
+        on_delete=models.CASCADE,
+        related_name="subscription_items"
     )
-    subscription_plan = models.ForeignKey(SubPlan, on_delete=models.CASCADE)
-
-    months = models.IntegerField(default=1)
+    subscription_plan = models.ForeignKey(
+        "subscriptions.SubPlan",
+        on_delete=models.CASCADE
+    )
+    months = models.PositiveIntegerField(default=1)
     lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        monthly_cost = self.subscription_plan.price  
+        monthly_cost = self.subscription_plan.price
         total = monthly_cost * self.months
 
         discount = self.subscription_plan.discounts.filter(
@@ -164,14 +153,11 @@ class SubscriptionLineItem(models.Model):
         ).first()
 
         if discount:
-            discount_amount = (total * discount.total_discount) / 100
-            total -= discount_amount
+            total -= (total * Decimal(discount.total_discount) / 100)
 
         self.lineitem_total = total
-
         super().save(*args, **kwargs)
-        self.order.update_totals()
+        self.order.update_total()
 
     def __str__(self):
         return f"{self.subscription_plan.title} ({self.months} months)"
-

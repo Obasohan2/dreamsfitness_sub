@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'profiles/css/profile.css' %}">
@@ -18,7 +19,7 @@
 
 <div class="container my-4">
 
-    <!-- PAGE TITLE -->
+    <!-- ================= PAGE TITLE ================= -->
     <div class="row">
         <div class="col text-center">
             <h2 class="logo-font text-black">My Profile</h2>
@@ -28,11 +29,15 @@
 
     <div class="row mt-4">
 
-        <!-- LEFT COLUMN – PROFILE FORM -->
+        <!-- ================= LEFT COLUMN – PROFILE FORM ================= -->
         <div class="col-12 col-lg-6 mb-4">
             <p class="text-muted mb-2">Default Delivery Information</p>
 
-            <form action="{% url 'profile' %}" method="POST" id="profile-update-form">
+            <form
+                action="{% url 'profile' %}"
+                method="POST"
+                id="profile-update-form"
+            >
                 {% csrf_token %}
                 {{ form|crispy }}
 
@@ -42,7 +47,7 @@
             </form>
         </div>
 
-        <!-- RIGHT COLUMN – ORDER HISTORY -->
+        <!-- ================= RIGHT COLUMN – ORDER HISTORY ================= -->
         <div class="col-12 col-lg-6 mb-4">
             <p class="text-muted mb-2">Order History</p>
 
@@ -51,78 +56,84 @@
 
                     <thead class="thead-light">
                         <tr>
-                            <th>Order Number</th>
+                            <th>Order</th>
                             <th>Date</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for order in orders %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'order_history' order.order_number %}"
-                                   class="text-primary"
-                                   title="{{ order.order_number }}">
-                                   {{ order.order_number|truncatechars:6 }}
-                                </a>
-                            </td>
-
-                            <td>{{ order.date|date:"Y-m-d H:i" }}</td>
-
-                            <td>
-                                <ul class="list-unstyled mb-0">
-                                    {% for item in order.lineitems.all %}
-                                        <li class="small">
-                                            {{ item.product.name }} × {{ item.quantity }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </td>
-
-                            <td>£{{ order.grand_total|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
-            </div>
-        </div>
-
-        <!-- SUBSCRIPTION HISTORY -->
-        <div class="col-12 mt-4">
-            <p class="text-muted mb-2">Subscription History</p>
-
-            <div class="table-responsive">
-                <table class="table table-sm table-striped table-bordered">
-
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Plan</th>
-                            <th>Months</th>
+                            <th>Contents</th>
                             <th>Total</th>
                             <th>View</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {% for sub in subscriptions %}
+                        {% for order in orders %}
                         <tr>
-                            <td>{{ sub.subscription_plan.title }}</td>
-                            <td>{{ sub.months }}</td>
-                            <td>£{{ sub.lineitem_total|floatformat:2 }}</td>
+
+                            <!-- ORDER NUMBER -->
                             <td>
-                                <a href="{% url 'subscription_history' sub.id %}"
-                                   class="btn btn-sm btn-outline-primary">
-                                   View
+                                {{ order.order_number|truncatechars:6 }}
+                            </td>
+
+                            <!-- DATE -->
+                            <td>
+                                {{ order.date|date:"Y-m-d H:i" }}
+                            </td>
+
+                            <!-- CONTENTS -->
+                            <td>
+                                <ul class="list-unstyled mb-0 small">
+
+                                    {% if order.lineitems.exists %}
+                                        <li class="font-weight-bold text-muted">
+                                            Products
+                                        </li>
+                                        {% for item in order.lineitems.all %}
+                                            <li class="ml-2">
+                                                🛒 {{ item.product.name }} × {{ item.quantity }}
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+
+                                    {% if order.subscription_items.exists %}
+                                        <li class="font-weight-bold text-muted mt-2">
+                                            Subscriptions
+                                        </li>
+                                        {% for sub in order.subscription_items.all %}
+                                            <li class="ml-2">
+                                                📦 {{ sub.subscription_plan.title }}
+                                                ({{ sub.months }} months)
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+
+                                    {% if not order.lineitems.exists and not order.subscription_items.exists %}
+                                        <li class="text-muted">
+                                            No items
+                                        </li>
+                                    {% endif %}
+
+                                </ul>
+                            </td>
+
+                            <!-- TOTAL -->
+                            <td>
+                                £{{ order.grand_total|floatformat:2 }}
+                            </td>
+
+                            <!-- VIEW -->
+                            <td>
+                                <a
+                                    href="{% url 'order_history' order.order_number %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    View
                                 </a>
                             </td>
+
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-muted text-center">
-                                No subscriptions yet.
+                            <td colspan="5" class="text-muted text-center">
+                                No orders yet.
                             </td>
                         </tr>
                         {% endfor %}

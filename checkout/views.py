@@ -193,7 +193,7 @@ def process_order(request):
         order.subscription_total = Decimal("0.00")
 
     # ---------------- FINAL TOTALS ----------------
-    order.update_totals()
+    order.update_total()
 
     # ---------------- CLEAR CART ----------------
     request.session.pop("cart", None)
