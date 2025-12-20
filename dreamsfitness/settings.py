@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'subscriptions',  # our app
     'checkout.apps.CheckoutConfig',  # our app
     'profiles',  # our app
+    'dashboard',  # our app
 
 ]
 

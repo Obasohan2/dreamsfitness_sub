@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -10,10 +10,22 @@ from checkout.models import Order, SubscriptionLineItem
 
 @login_required
 def profile(request):
-    """ Display user profile + orders + subscriptions """
+    """
+    Display user profile + order history + subscription history
+    """
+
+    # ================= ADMIN SAFETY GUARD =================
+    if request.user.is_superuser:
+        messages.info(
+            request,
+            "Admin accounts do not have user profiles."
+        )
+        return redirect("home")
+
+    # ================= CUSTOMER PROFILE =================
     profile = get_object_or_404(UserProfile, user=request.user)
 
-    # --- Update profile form ---
+    # ---------- Update profile form ----------
     if request.method == "POST":
         form = UserProfileForm(request.POST, instance=profile)
         if form.is_valid():
@@ -24,11 +36,13 @@ def profile(request):
     else:
         form = UserProfileForm(instance=profile)
 
-    # --- Order history ---
+    # ---------- Order history ----------
     orders = profile.orders.all().order_by("-date")
 
-    # --- Subscription history ---
-    subscriptions = SubscriptionLineItem.objects.filter(order__user_profile=profile)
+    # ---------- Subscription history ----------
+    subscriptions = SubscriptionLineItem.objects.filter(
+        order__user_profile=profile
+    )
 
     context = {
         "form": form,
@@ -42,8 +56,15 @@ def profile(request):
 
 @login_required
 def order_history(request, order_number):
-    """ View a past order inside profile """
-    order = get_object_or_404(Order, order_number=order_number)
+    """
+    View a past order (profile only)
+    """
+
+    order = get_object_or_404(
+        Order,
+        order_number=order_number,
+        user_profile__user=request.user
+    )
 
     messages.info(request, f"Viewing past order {order_number}")
 
@@ -55,8 +76,15 @@ def order_history(request, order_number):
 
 @login_required
 def subscription_history(request, sub_id):
-    """ View a past subscription inside profile """
-    subscription = get_object_or_404(SubscriptionLineItem, id=sub_id)
+    """
+    View a past subscription (profile only)
+    """
+
+    subscription = get_object_or_404(
+        SubscriptionLineItem,
+        id=sub_id,
+        order__user_profile__user=request.user
+    )
 
     messages.info(request, "Viewing your subscription details")
 

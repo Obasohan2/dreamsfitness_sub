@@ -4,7 +4,8 @@ from django.contrib import messages
 from decimal import Decimal
 
 from .models import SubPlan, SubPlanFeature, PlanDiscount
-
+from .models import SubPlan
+from .forms import SubPlanForm
 
 # -------------------------------------------------
 # PRICING PAGE
@@ -94,3 +95,44 @@ def subscription_admin_dashboard(request):
         "highlighted_plan": SubPlan.objects.filter(highlight_status=True).first(),
     }
     return render(request, "admin/subscriptions_dashboard.html", context)
+
+
+@staff_member_required
+def add_subscription_plan(request):
+    if request.method == "POST":
+        form = SubPlanForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Subscription plan added.")
+            return redirect("admin_dashboard")
+    else:
+        form = SubPlanForm()
+
+    return render(request, "subscriptions/add_plan.html", {"form": form})
+
+
+@staff_member_required
+def edit_subscription_plan(request, plan_id):
+    plan = get_object_or_404(SubPlan, id=plan_id)
+
+    if request.method == "POST":
+        form = SubPlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Subscription plan updated.")
+            return redirect("admin_dashboard")
+    else:
+        form = SubPlanForm(instance=plan)
+
+    return render(request, "subscriptions/edit_plan.html", {
+        "form": form,
+        "plan": plan
+    })
+
+
+@staff_member_required
+def delete_subscription_plan(request, plan_id):
+    plan = get_object_or_404(SubPlan, id=plan_id)
+    plan.delete()
+    messages.success(request, "Subscription plan deleted.")
+    return redirect("admin_dashboard")

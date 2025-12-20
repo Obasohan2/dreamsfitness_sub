@@ -58,8 +58,8 @@
         {% if request.user.is_authenticated %}
 
             {% if request.user.is_superuser %}
-                <a href="{% url 'add_product' %}" class="dropdown-item">
-                    Product Management
+                <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                    Admin Dashboard
                 </a>
                 <div class="dropdown-divider"></div>
             {% endif %}
@@ -91,7 +91,7 @@
 <li class="list-inline-item">
     <a
         class="nav-link d-block d-lg-none
-               {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
+            {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
         href="{% url 'view_cart' %}">
 
         <div class="text-center">

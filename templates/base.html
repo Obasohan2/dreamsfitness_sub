@@ -94,11 +94,8 @@
                         {% if request.user.is_authenticated %}
 
                             {% if request.user.is_superuser %}
-                                <a href="{% url 'add_product' %}" class="dropdown-item">
-                                    Product Management
-                                </a>
-                                <a href="{% url 'subscription_admin_dashboard' %}" class="dropdown-item">
-                                    Subscription Management
+                                 <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                                    Admin Dashboard
                                 </a>
                             {% else %}
                                 <!-- NORMAL USER ONLY -->

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block page_header %}
 <div class="container header-container">
@@ -21,17 +22,15 @@
         <div class="col-md-6 mb-4">
             <div class="card border-0">
                 {% if product.images %}
-                    <img
-                        src="{{ product.images.url }}"
-                        class="img-fluid rounded shadow-sm w-100"
-                        alt="{{ product.name }}"
-                        style="object-fit: cover; max-height: 400px;">
+                    <img src="{{ product.images.url }}"
+                         class="img-fluid rounded shadow-sm w-100"
+                         alt="{{ product.name }}"
+                         style="object-fit: cover; max-height: 400px;">
                 {% else %}
-                    <img
-                        src="{{ MEDIA_URL }}photos/noimage.png"
-                        class="img-fluid rounded shadow-sm w-100"
-                        alt="No image available"
-                        style="object-fit: cover; max-height: 400px;">
+                    <img src="{{ MEDIA_URL }}photos/noimage.png"
+                         class="img-fluid rounded shadow-sm w-100"
+                         alt="No image available"
+                         style="object-fit: cover; max-height: 400px;">
                 {% endif %}
             </div>
         </div>
@@ -39,197 +38,209 @@
         <!-- DETAILS -->
         <div class="col-md-6">
 
-            <h1 class="mb-3">{{ product.name }}</h1>
+            <h1 class="mb-2">{{ product.name }}</h1>
 
             <!-- CATEGORY + RATING + ADMIN -->
             <div class="d-flex justify-content-between align-items-center mb-3">
 
                 <p class="text-muted mb-0">
                     {% if product.category %}
-                        <a
-                            href="{% url 'products' %}?category={{ product.category.name }}"
-                            class="text-decoration-none">
+                        <a href="{% url 'products' %}?category={{ product.category.name }}"
+                           class="text-decoration-none">
                             {{ product.category.name }}
                         </a>
                     {% endif %}
-                    • <strong>{{ product.name }}</strong>
                 </p>
 
                 <div class="d-flex align-items-center">
-
                     {% if product.rating %}
-                        <span class="badge bg-warning text-dark mr-2">
+                        <span class="badge badge-warning text-dark mr-2">
                             {{ product.rating|floatformat:1 }}
                             <i class="fas fa-star"></i>
                         </span>
                     {% endif %}
 
-                    {% if request.user.is_superuser %}
+                    {% if request.user.is_staff %}
                         <small>
                             <a href="{% url 'edit_product' product.id %}">Edit</a> |
-                            <a href="{% url 'delete_product' product.id %}"
-                               class="text-danger">
+                            <a href="{% url 'delete_product' product.id %}" class="text-danger">
                                 Delete
                             </a>
                         </small>
                     {% endif %}
-
                 </div>
             </div>
 
             <!-- DESCRIPTION -->
-            <p class="mb-4">
-                {{ product.description }}
-            </p>
+            <p class="mb-4">{{ product.description }}</p>
 
             <!-- PRICE & CART -->
             <div class="border-top border-bottom py-3 mb-4">
 
-                <h3 class="text-primary">
+                <h3 class="text-primary mb-3">
                     £{{ product.price|floatformat:2 }}
                 </h3>
 
-                <!-- ADD TO CART FORM -->
-                <form method="POST" action="{% url 'add_to_cart' product.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="redirect_url" value="{{ request.path }}">
+                {% if product.stock > 0 %}
+                    {% if not request.user.is_staff %}
+                        <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_url" value="{{ request.path }}">
 
-                    <div class="d-flex align-items-center mb-3"
-                         style="max-width: 400px;">
+                            <p class="mb-2"><strong>Quantity:</strong></p>
 
-                        <!-- QUANTITY -->
-                        <div class="input-group mr-2" style="max-width: 150px;">
+                            <div class="d-flex align-items-center mb-3">
 
-                            <div class="input-group-prepend">
-                                <button
-                                    class="btn btn-outline-secondary decrement-qty"
-                                    type="button"
-                                    data-item_id="{{ product.id }}"
-                                    id="decrement-qty_{{ product.id }}">
-                                    <i class="fas fa-minus"></i>
+                                <button type="button"
+                                        class="btn btn-dark btn-sm decrement-qty mr-2"
+                                        data-item_id="{{ product.id }}"
+                                        disabled>
+                                    −
+                                </button>
+
+                                <input type="number"
+                                       name="quantity"
+                                       value="1"
+                                       min="1"
+                                       max="{{ product.stock }}"
+                                       class="form-control form-control-sm text-center qty_input"
+                                       style="width:100px;"
+                                       id="id_qty_{{ product.id }}"
+                                       data-item_id="{{ product.id }}">
+
+                                <button type="button"
+                                        class="btn btn-dark btn-sm increment-qty ml-2"
+                                        data-item_id="{{ product.id }}">
+                                    +
                                 </button>
                             </div>
 
-                            <input
-                                class="form-control text-center qty_input"
-                                type="number"
-                                name="quantity"
-                                value="1"
-                                min="1"
-                                max="99"
-                                data-item_id="{{ product.id }}"
-                                id="id_qty_{{ product.id }}">
-
-                            <div class="input-group-append">
-                                <button
-                                    class="btn btn-outline-secondary increment-qty"
-                                    type="button"
-                                    data-item_id="{{ product.id }}"
-                                    id="increment-qty_{{ product.id }}">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-
-                        </div>
-
-                        <!-- SUBMIT -->
-                        {% if product.stock <= 0 %}
-                            <button class="btn btn-danger" disabled>
-                                Out of Stock
-                            </button>
-                        {% else %}
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-shopping-cart"></i>
-                                Add to Cart
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
-                        {% endif %}
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Admin accounts cannot add items to cart.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-danger">
+                        This product is currently out of stock.
                     </div>
-                </form>
+                {% endif %}
 
                 <!-- NAVIGATION -->
-                <div class="d-flex gap-2">
-                    <a href="{% url 'products' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Keep Shopping
+                <div class="mt-3">
+                    <a href="{% url 'products' %}" class="btn btn-outline-secondary mr-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Keep Shopping
                     </a>
                     <a href="{% url 'view_cart' %}" class="btn btn-primary">
-                        View Cart
-                        <i class="fas fa-arrow-right ml-2"></i>
+                        View Cart <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
 
             </div>
+        </div>
+    </div>
+
+    <!-- ================= REVIEWS ================= -->
+    <div class="row mt-5">
+        <div class="col-12">
+
+            <h3 class="mb-4">Customer Reviews</h3>
+
+            {% for review in product.reviews.all %}
+                <div class="card mb-3">
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between">
+                            <h5>{{ review.user.username }}</h5>
+                            <div class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <small class="text-muted">
+                            {{ review.created|date:"F j, Y, g:i A" }}
+                        </small>
+
+                        <h6 class="font-weight-bold mt-2">{{ review.title }}</h6>
+                        <p>{{ review.comment }}</p>
+
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-info text-center">
+                    No reviews yet. Be the first to review!
+                </div>
+            {% endfor %}
+
+            {% if request.user.is_authenticated %}
+                {% if not has_reviewed %}
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h4 class="mb-3">Write a Review</h4>
+                            <form method="POST">
+                                {% csrf_token %}
+                                {{ review_form|crispy }}
+                                <button type="submit" class="btn btn-primary mt-3">
+                                    Submit Review
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary mt-4">
+                        You have already reviewed this product.
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-warning mt-4">
+                    <a href="{% url 'account_login' %}?next={{ request.path }}"
+                       class="alert-link">Sign in</a>
+                    to leave a review.
+                </div>
+            {% endif %}
 
         </div>
     </div>
 
-  
-    <!-- ================= REVIEWS ================= -->
-<div class="row mt-5">
-    <div class="col-12">
-
-        <h3 class="mb-4">Customer Reviews</h3>
-
-        {% for review in product.reviews.all %}
-            <div class="card mb-3">
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-                        <h5>{{ review.user.username }}</h5>
-
-                        <div class="text-warning">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= review.rating %}
-                                    <i class="fas fa-star"></i>
-                                {% else %}
-                                    <i class="far fa-star"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <small class="text-muted">
-                        {{ review.created|date:"F j, Y, g:i A" }}
-                    </small>
-
-                    <h6 class="font-weight-bold mt-2">
-                        {{ review.title }}
-                    </h6>
-
-                    <p>{{ review.comment }}</p>
-
-                </div>
-            </div>
-        {% empty %}
-            <div class="alert alert-info text-center">
-                No reviews yet. Be the first to review!
-            </div>
-        {% endfor %}
-
-        {% if request.user.is_authenticated %}
-            <div class="card mt-4">
-                <div class="card-body">
-                    <h4 class="mb-3">Write a Review</h4>
-
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ review_form|crispy }}
-                        <button type="submit" class="btn btn-primary mt-3">
-                            Submit Review
-                        </button>
-                    </form>
-                </div>
-            </div>
-        {% else %}
-            <div class="alert alert-warning mt-4">
-                <a href="{% url 'account_login' %}?next={{ request.path }}"
-                   class="alert-link">
-                    Sign in
-                </a>
-                to leave a review.
-            </div>
-        {% endif %}
-
-    </div>
 </div>
+{% endblock %}
+
+{% block postloadjs %}
+{{ block.super }}
+{% include 'products/includes/quantity_input_script.html' %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".qty_input").forEach(input => {
+        const itemId = input.dataset.item_id;
+        const max = parseInt(input.max);
+
+        const inc = document.querySelector(`.increment-qty[data-item_id="${itemId}"]`);
+        const dec = document.querySelector(`.decrement-qty[data-item_id="${itemId}"]`);
+
+        function toggleButtons() {
+            const val = parseInt(input.value);
+
+            dec.disabled = val <= 1;
+            inc.disabled = val >= max;
+
+            inc.classList.toggle("disabled", inc.disabled);
+            dec.classList.toggle("disabled", dec.disabled);
+        }
+
+        input.addEventListener("change", toggleButtons);
+        toggleButtons();
+    });
+});
+</script>
 {% endblock %}
