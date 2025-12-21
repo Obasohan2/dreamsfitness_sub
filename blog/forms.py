@@ -1,5 +1,6 @@
 from django import forms
 from .models import BlogPost
+from django_summernote.widgets import SummernoteWidget
 
 
 class PostForm(forms.ModelForm):
