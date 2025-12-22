@@ -1,12 +1,9 @@
 {% extends "base.html" %}
-{% load static %}
-
-{% block extra_title %} Fitness Feeds {% endblock %}
 
 {% block page_header %}
 <div class="container header-container">
     <div class="row">
-        <div class="col"></div>
+        <div class="col text-center"></div>
     </div>
 </div>
 {% endblock %}
@@ -14,58 +11,8 @@
 {% block content %}
 <div class="overlay"></div>
 
-<div class="container-fluid d-flex flex-column">
-    <div class="row">
-        <div class="col text-center">
-            <hr class="w-50 mb-1">
-            <h1 class="logo-font">Fitness Feeds</h1>
-            <hr class="w-50 mb-1">
-        </div>
-    </div>
-    <div class="row">
-        {% for post in object_list %}
-        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
-            <div class="card h-100 border-0">
-
-                {% if post.image %}
-                <a href="{% url 'post_detail' post.slug %}">
-                    <img class="card-img-top" src="{{ post.image.url  }}" alt="{{ post.title }}">
-                </a>
-                {% else %}
-                <a href="{% url 'post_detail' post.slug %}">
-                    <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ post.title }}">
-                </a>
-                {% endif %}
-                <div class="card-body pb-0"></div>
-                <div class="card-footer bg-white pt-0 border-0 ">
-                    <h2 class="title"><strong>{{ post.title }}</strong></h2>
-                    <p class="card-text small">{{ post.created_on}}
-                </div>
-            </div>
-        </div>
-        {% if forloop.counter|divisibleby:1 %}
-        <div class="col-12 d-sm-none mb-5">
-            <hr>
-        </div>
-        {% endif %}
-        {% if forloop.counter|divisibleby:2 %}
-        <div class="col-12 d-none d-sm-block d-md-block d-lg-none mb-5">
-            <hr>
-        </div>
-        {% endif %}
-        {% if forloop.counter|divisibleby:3 %}
-        <div class="col-12 d-none d-lg-block d-xl-none mb-5">
-            <hr>
-        </div>
-        {% endif %}
-        {% if forloop.counter|divisibleby:4 %}
-        <div class="col-12 d-none d-xl-block mb-5">
-            <hr>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </div>
+<div class="container py-5 text-center">
+  <h1>Blog is back 🎉</h1>
+  <p>This page is loading correctly.</p>
 </div>
-
 {% endblock %}
-
