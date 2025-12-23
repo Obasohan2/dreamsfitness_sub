@@ -3,24 +3,24 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from .models import Product, Category
-from .forms import ProductForm
+from .forms import ProductForm, ReviewForm
+from django.db.models.functions import Lower
+
 
 # Create your views here.
 
-
 def all_products(request):
-    """A view to show all products, including sorting and search queries"""
-
     products = Product.objects.all()
     query = None
     categories = None
     sort = None
     direction = None
-    
+
     if request.GET:
         if 'sort' in request.GET:
             sortkey = request.GET['sort']
             sort = sortkey
+
             if sortkey == 'name':
                 sortkey = 'lower_name'
                 products = products.annotate(lower_name=Lower('name'))
@@ -29,9 +29,9 @@ def all_products(request):
                 direction = request.GET['direction']
                 if direction == 'desc':
                     sortkey = f'-{sortkey}'
+
             products = products.order_by(sortkey)
 
-    if request.GET:
         if 'category' in request.GET:
             categories = request.GET['category'].split(',')
             products = products.filter(category__name__in=categories)
@@ -45,29 +45,50 @@ def all_products(request):
 
             queries = Q(name__icontains=query) | Q(description__icontains=query)
             products = products.filter(queries)
-            
+
     current_sorting = f'{sort}_{direction}'
 
-    context = {
+    return render(request, 'products/products.html', {
         'products': products,
         'search_term': query,
         'current_categories': categories,
         'current_sorting': current_sorting,
-    }
+    })
 
-    return render(request, 'products/products.html', context)
 
 
 def product_detail(request, product_id):
-    """A view to show individual product details"""
-
     product = get_object_or_404(Product, id=product_id)
+    review_form = ReviewForm()
+    has_reviewed = False
 
-    context = {
-        'product': product,
-    }
+    if request.user.is_authenticated:
+        has_reviewed = product.reviews.filter(user=request.user).exists()
 
-    return render(request, 'products/product_detail.html', context)
+        if request.method == 'POST' and not has_reviewed:
+            review_form = ReviewForm(request.POST)
+            if review_form.is_valid():
+                review = review_form.save(commit=False)
+                review.product = product
+                review.user = request.user
+                review.save()
+                messages.success(request, "Review added successfully.")
+                return redirect('product_detail', product_id=product.id)
+
+    return render(request, "products/product_detail.html", {
+        "product": product,
+        "review_form": review_form,
+        "has_reviewed": has_reviewed,
+    })
+    
+
+@login_required
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    product_id = review.product.id
+    review.delete()
+    messages.success(request, "Review deleted.")
+    return redirect('product_detail', product_id=product_id)
 
 
 @login_required
