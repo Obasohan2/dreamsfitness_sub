@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Category
+from .models import Product, Category, Review
 from .widgets import CustomClearableFileInput
 
 
@@ -20,3 +20,17 @@ class ProductForm(forms.ModelForm):
 
         for field in self.fields.values():
             field.widget.attrs["class"] = "border-black rounded-0"
+            
+            
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'title', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(choices=[(i, i) for i in range(1, 6)]),
+            'title': forms.TextInput(attrs={'placeholder': 'Review title'}),
+            'comment': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Write your review here...',
+            }),
+        }

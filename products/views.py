@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from .models import Product, Category
+from .models import Product, Category, Review
 from .forms import ProductForm, ReviewForm
 from django.db.models.functions import Lower
 
@@ -56,31 +56,35 @@ def all_products(request):
     })
 
 
-
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    review_form = ReviewForm()
+
+    review_form = None
     has_reviewed = False
 
     if request.user.is_authenticated:
         has_reviewed = product.reviews.filter(user=request.user).exists()
 
-        if request.method == 'POST' and not has_reviewed:
+        if request.method == "POST" and not has_reviewed:
             review_form = ReviewForm(request.POST)
             if review_form.is_valid():
                 review = review_form.save(commit=False)
                 review.product = product
                 review.user = request.user
                 review.save()
-                messages.success(request, "Review added successfully.")
-                return redirect('product_detail', product_id=product.id)
+                messages.success(request, "Thank you for your review!")
+                return redirect("product_detail", product_id=product.id)
+        elif not has_reviewed:
+            review_form = ReviewForm()
 
-    return render(request, "products/product_detail.html", {
+    context = {
         "product": product,
         "review_form": review_form,
         "has_reviewed": has_reviewed,
-    })
-    
+    }
+
+    return render(request, "products/product_detail.html", context)
+
 
 @login_required
 def delete_review(request, review_id):
@@ -89,6 +93,26 @@ def delete_review(request, review_id):
     review.delete()
     messages.success(request, "Review deleted.")
     return redirect('product_detail', product_id=product_id)
+
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your review has been updated.")
+            return redirect("product_detail", product_id=review.product.id)
+    else:
+        form = ReviewForm(instance=review)
+
+    return render(request, "products/edit_review.html", {
+        "form": form,
+        "review": review,
+        "product": review.product,
+    })
 
 
 @login_required
