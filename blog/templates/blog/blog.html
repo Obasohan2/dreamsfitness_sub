@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
-{% block extra_title %}Blog{% endblock %}
+{% block extra_title %}Testimonies{% endblock %}
 
 {% block page_header %}
 <div class="container header-container">
@@ -46,7 +46,7 @@
         </div>
         {% endif %}
 
-        <!-- Blog Posts -->
+        <!-- Posts -->
         <div class="row">
             {% for post in posts %}
             <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
@@ -77,6 +77,19 @@
                         <h2 class="h5 mb-2">
                             <strong>{{ post.title }}</strong>
                         </h2>
+
+                        <!-- 40-word preview -->
+                        <p class="small text-muted mb-1">
+                            {{ post.body|striptags|truncatewords:40 }}
+                        </p>
+
+                        <!-- Read more -->
+                        <a
+                            href="{% url 'post_detail' post.slug %}"
+                            class="small font-weight-bold text-dark"
+                        >
+                            Read more →
+                        </a>
                     </div>
 
                     <!-- Footer -->
@@ -96,7 +109,7 @@
                             </a>
                         </p>
 
-                        <!-- Reactions (logged-in users ONLY) -->
+                        <!-- Reactions (logged-in users only) -->
                         {% if request.user.is_authenticated %}
                         <div class="reaction-bar d-flex align-items-center">
 
@@ -136,7 +149,7 @@
             </div>
             {% empty %}
             <div class="col text-center mt-5">
-                <p>No blog posts yet.</p>
+                <p>No testimonies yet.</p>
             </div>
             {% endfor %}
         </div>
@@ -146,13 +159,13 @@
         <div class="row mt-4">
             <div class="col text-center">
                 {% if posts.has_previous %}
-                    <a href="?page={{ posts.previous_page_number }}">← Previous</a>
+                    <a href="?page={{ posts.previous_page_number }}">Previous</a>
                 {% endif %}
                 <span class="mx-3">
                     Page {{ posts.number }} of {{ posts.paginator.num_pages }}
                 </span>
                 {% if posts.has_next %}
-                    <a href="?page={{ posts.next_page_number }}">Next →</a>
+                    <a href="?page={{ posts.next_page_number }}">Next</a>
                 {% endif %}
             </div>
         </div>
@@ -162,9 +175,10 @@
 </div>
 {% endblock %}
 
-{% if request.user.is_authenticated %}
 {% block postloadjs %}
 {{ block.super }}
+
+{% if request.user.is_authenticated %}
 <script>
 document.querySelectorAll(".reaction-icon").forEach(icon => {
     icon.addEventListener("click", function () {
@@ -185,5 +199,5 @@ document.querySelectorAll(".reaction-icon").forEach(icon => {
     });
 });
 </script>
-{% endblock %}
 {% endif %}
+{% endblock %}

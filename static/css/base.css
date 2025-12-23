@@ -290,3 +290,23 @@ input[name='q']::placeholder {
         height: calc(100vh - 116px);
     }
 }
+
+
+
+/* ================= QUANTITY BUTTON STATES ================= */
+
+/* Disabled quantity buttons (cart + product) */
+.increment-qty:disabled,
+.decrement-qty:disabled {
+    opacity: 0.4;
+    background-color: #6c757d !important; /* Bootstrap secondary grey */
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Optional: smooth visual transition */
+.increment-qty,
+.decrement-qty {
+    transition: opacity 0.15s ease-in-out;
+}

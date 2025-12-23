@@ -93,8 +93,7 @@
 
                                 <button type="button"
                                         class="btn btn-dark btn-sm decrement-qty mr-2"
-                                        data-item_id="{{ product.id }}"
-                                        disabled>
+                                        data-item_id="{{ product.id }}">
                                     −
                                 </button>
 
@@ -182,33 +181,6 @@
                 </div>
             {% endfor %}
 
-            {% if request.user.is_authenticated %}
-                {% if not has_reviewed %}
-                    <div class="card mt-4">
-                        <div class="card-body">
-                            <h4 class="mb-3">Write a Review</h4>
-                            <form method="POST">
-                                {% csrf_token %}
-                                {{ review_form|crispy }}
-                                <button type="submit" class="btn btn-primary mt-3">
-                                    Submit Review
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="alert alert-secondary mt-4">
-                        You have already reviewed this product.
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="alert alert-warning mt-4">
-                    <a href="{% url 'account_login' %}?next={{ request.path }}"
-                       class="alert-link">Sign in</a>
-                    to leave a review.
-                </div>
-            {% endif %}
-
         </div>
     </div>
 
@@ -217,30 +189,47 @@
 
 {% block postloadjs %}
 {{ block.super }}
-{% include 'products/includes/quantity_input_script.html' %}
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".qty_input").forEach(input => {
-        const itemId = input.dataset.item_id;
-        const max = parseInt(input.max);
 
+    document.querySelectorAll(".increment-qty").forEach(button => {
+        button.addEventListener("click", function () {
+            const itemId = this.dataset.item_id;
+            const input = document.getElementById(`id_qty_${itemId}`);
+            const max = parseInt(input.max);
+            let value = parseInt(input.value);
+
+            if (value < max) {
+                input.value = value + 1;
+            }
+            toggleButtons(input, itemId);
+        });
+    });
+
+    document.querySelectorAll(".decrement-qty").forEach(button => {
+        button.addEventListener("click", function () {
+            const itemId = this.dataset.item_id;
+            const input = document.getElementById(`id_qty_${itemId}`);
+            let value = parseInt(input.value);
+
+            if (value > 1) {
+                input.value = value - 1;
+            }
+            toggleButtons(input, itemId);
+        });
+    });
+
+    function toggleButtons(input, itemId) {
         const inc = document.querySelector(`.increment-qty[data-item_id="${itemId}"]`);
         const dec = document.querySelector(`.decrement-qty[data-item_id="${itemId}"]`);
+        const max = parseInt(input.max);
+        const value = parseInt(input.value);
 
-        function toggleButtons() {
-            const val = parseInt(input.value);
+        dec.disabled = value <= 1;
+        inc.disabled = value >= max;
+    }
 
-            dec.disabled = val <= 1;
-            inc.disabled = val >= max;
-
-            inc.classList.toggle("disabled", inc.disabled);
-            dec.classList.toggle("disabled", dec.disabled);
-        }
-
-        input.addEventListener("change", toggleButtons);
-        toggleButtons();
-    });
 });
 </script>
 {% endblock %}

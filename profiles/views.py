@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -55,6 +56,7 @@ def profile(request):
 
 
 def public_profile(request, username):
+    User = get_user_model()
     user = get_object_or_404(User, username=username)
 
     if user.is_superuser:
@@ -62,7 +64,8 @@ def public_profile(request, username):
         return redirect("home")
 
     profile = get_object_or_404(UserProfile, user=user)
-    posts = user.blog_posts.all()  
+
+    posts = user.blog_posts.exclude(slug="").exclude(slug__isnull=True)
 
     return render(request, "profiles/public_profile.html", {
         "profile_user": user,

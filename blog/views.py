@@ -56,37 +56,34 @@ def add_post(request):
             post.save()
             messages.success(request, "Post created successfully.")
             return redirect("blog")
+        
     else:
         form = AddPostForm()
 
     return render(request, "blog/add_post.html", {"form": form})
 
 
-
 @login_required
 def edit_post(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
 
-    if request.user != post.author and not request.user.is_superuser:
+    if request.user != post.author:
         messages.error(request, "You are not allowed to edit this post.")
         return redirect("post_detail", slug=slug)
 
-    form = PostForm(
-        request.POST or None,
-        request.FILES or None,
-        instance=post
-    )
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Post updated successfully.")
+            return redirect("post_detail", slug=slug)
+    else:
+        form = PostForm(instance=post)
 
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Post updated successfully.")
-        return redirect("post_detail", slug=slug)
-
-    return render(
-        request,
-        "blog/edit_post.html",
-        {"form": form, "post": post},
-    )
+    return render(request, "blog/edit_post.html", {
+        "form": form,
+        "post": post,
+    })
 
 
 @login_required

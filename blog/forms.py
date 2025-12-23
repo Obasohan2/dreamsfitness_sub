@@ -10,9 +10,18 @@ class AddPostForm(forms.ModelForm):
     """
     class Meta:
         model = BlogPost
-        fields = ['title', 'slug', 'body', 'image']
+        fields = ['title', 'body', 'image']
         widgets = {
-            'body': SummernoteWidget(),
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Post title',
+            }),
+            'body': SummernoteWidget(attrs={
+                'placeholder': 'Write your post content here...',
+            }),
+        }
+        labels = {
+            'title': '',
+            'body': '',
         }
 
     image = forms.ImageField(
@@ -24,7 +33,10 @@ class AddPostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'border-black rounded-0'
+            field.widget.attrs.setdefault(
+                'class',
+                'form-control border-black rounded-0'
+            )
 
 
 class PostForm(forms.ModelForm):
@@ -33,9 +45,18 @@ class PostForm(forms.ModelForm):
     """
     class Meta:
         model = BlogPost
-        fields = ['title', 'slug', 'body', 'image']
+        fields = ['title', 'body', 'image']
         widgets = {
-            'body': SummernoteWidget(),
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Post title',
+            }),
+            'body': SummernoteWidget(attrs={
+                'placeholder': 'Update your post content...',
+            }),
+        }
+        labels = {
+            'title': '',
+            'body': '',
         }
 
     image = forms.ImageField(

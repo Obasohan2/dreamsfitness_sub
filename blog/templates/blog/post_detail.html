@@ -23,17 +23,13 @@
             <!-- Image -->
             <div class="col-md-5 mb-4 mb-md-0">
                 {% if post.image %}
-                    <img
-                        class="img-fluid rounded shadow-sm"
-                        src="{{ post.image.url }}"
-                        alt="{{ post.title }}"
-                    >
+                    <img class="img-fluid rounded shadow-sm"
+                         src="{{ post.image.url }}"
+                         alt="{{ post.title }}">
                 {% else %}
-                    <img
-                        class="img-fluid rounded shadow-sm"
-                        src="{{ MEDIA_URL }}photos/products/noimage.png"
-                        alt=""
-                    >
+                    <img class="img-fluid rounded shadow-sm"
+                         src="{{ MEDIA_URL }}photos/products/noimage.png"
+                         alt="">
                 {% endif %}
             </div>
 
@@ -44,10 +40,8 @@
 
                 <p class="text-muted small mb-3">
                     By
-                    <a
-                        href="{% url 'profile' post.author.username %}"
-                        class="text-muted font-weight-bold"
-                    >
+                    <a href="{% url 'profile' post.author.username %}"
+                       class="text-muted font-weight-bold">
                         {{ post.author.username }}
                     </a>
                     · {{ post.created_on|date:"M d, Y" }}
@@ -57,36 +51,38 @@
                     {{ post.body|safe }}
                 </div>
 
-                <!-- Reactions -->
+                <!-- Reactions + Comment Count -->
                 <div class="mb-3">
                     {% if user.is_authenticated %}
                     <div class="reaction-bar d-flex align-items-center">
 
-                        <span
-                            class="reaction-icon heart-like mr-3"
-                            data-post-id="{{ post.id }}"
-                            data-reaction="like"
-                        >
+                        <!-- Like -->
+                        <span class="reaction-icon heart-like mr-3"
+                              data-post-id="{{ post.id }}"
+                              data-reaction="like">
                             ❤️
-                            <span
-                                id="likes-count-{{ post.id }}"
-                                class="badge badge-light ml-1"
-                            >
+                            <span id="likes-count-{{ post.id }}"
+                                  class="badge badge-light ml-1">
                                 {{ post.total_likes }}
                             </span>
                         </span>
 
-                        <span
-                            class="reaction-icon heart-unlike"
-                            data-post-id="{{ post.id }}"
-                            data-reaction="unlike"
-                        >
+                        <!-- Unlike -->
+                        <span class="reaction-icon heart-unlike mr-3"
+                              data-post-id="{{ post.id }}"
+                              data-reaction="unlike">
                             🤍
-                            <span
-                                id="unlikes-count-{{ post.id }}"
-                                class="badge badge-light ml-1"
-                            >
+                            <span id="unlikes-count-{{ post.id }}"
+                                  class="badge badge-light ml-1">
                                 {{ post.total_unlikes }}
+                            </span>
+                        </span>
+
+                        <!-- Comments -->
+                        <span class="reaction-icon text-muted">
+                            💬
+                            <span class="badge badge-light ml-1">
+                                {{ comments.count }}
                             </span>
                         </span>
 
@@ -96,6 +92,8 @@
                         ❤️ {{ post.total_likes }}
                         <span class="mx-2">|</span>
                         🤍 {{ post.total_unlikes }}
+                        <span class="mx-2">|</span>
+                        💬 {{ comments.count }}
                     </p>
                     {% endif %}
                 </div>
@@ -103,39 +101,17 @@
                 <!-- Author controls -->
                 {% if user.is_authenticated and user == post.author %}
                 <div class="mb-3">
-
-                    <!-- Edit -->
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary mr-2"
-                        data-toggle="modal"
-                        data-target="#editPostModal"
-                    >
+                    <button class="btn btn-sm btn-outline-primary mr-2"
+                            data-toggle="modal"
+                            data-target="#editPostModal">
                         Edit
                     </button>
 
-                    <!-- Delete -->
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        data-toggle="modal"
-                        data-target="#deletePostModal"
-                    >
+                    <button class="btn btn-sm btn-outline-danger"
+                            data-toggle="modal"
+                            data-target="#deletePostModal">
                         Delete
                     </button>
-
-                </div>
-                {% endif %}
-
-                <!-- Add new post -->
-                {% if user.is_authenticated %}
-                <div class="mb-3">
-                    <a
-                        href="{% url 'add_post' %}"
-                        class="btn btn-sm btn-dark"
-                    >
-                        + Add Post
-                    </a>
                 </div>
                 {% endif %}
 
@@ -159,18 +135,13 @@
             {% for comment in comments %}
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">
-
                     <p class="mb-1">
                         <strong>{{ comment.name }}</strong>
                         <span class="text-muted small">
                             · {{ comment.created_on|date:"M d, Y H:i" }}
                         </span>
                     </p>
-
-                    <p class="mb-0">
-                        {{ comment.body }}
-                    </p>
-
+                    <p class="mb-0">{{ comment.body }}</p>
                 </div>
             </div>
             {% empty %}
@@ -198,9 +169,7 @@
             </form>
             {% else %}
             <p>
-                <a href="{% url 'account_login' %}">
-                    Log in
-                </a>
+                <a href="{% url 'account_login' %}">Log in</a>
                 to leave a comment.
             </p>
             {% endif %}
@@ -210,135 +179,21 @@
 
     <!-- Back -->
     <div class="mt-5">
-        <a
-            href="{% url 'blog' %}"
-            class="btn btn-outline-secondary"
-        >
-            ← Back to blog
+        <a href="{% url 'blog' %}"
+           class="btn btn-outline-secondary">
+            Back to Testimonies
         </a>
     </div>
 
 </div>
 
-<!-- ================= MODALS ================= -->
-
 {% if user.is_authenticated and user == post.author %}
-
-<!-- Edit Modal -->
-<div
-    class="modal fade"
-    id="editPostModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="editPostModalLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="editPostModalLabel">
-                    Edit Post
-                </h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <p>
-                    You are about to edit
-                    <strong>"{{ post.title }}"</strong>.
-                </p>
-                <p class="text-muted small">
-                    Any unsaved changes on this page will be lost.
-                </p>
-            </div>
-
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
-                    Cancel
-                </button>
-                <a
-                    href="{% url 'edit_post' post.slug %}"
-                    class="btn btn-primary"
-                >
-                    Continue Editing
-                </a>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- Delete Modal -->
-<div
-    class="modal fade"
-    id="deletePostModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="deletePostModalLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="deletePostModalLabel">
-                    Confirm Delete
-                </h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <p>
-                    Are you sure you want to permanently delete
-                    <strong>"{{ post.title }}"</strong>?
-                </p>
-                <p class="text-danger small mb-0">
-                    This action cannot be undone.
-                </p>
-            </div>
-
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
-                    Cancel
-                </button>
-
-                <form
-                    method="POST"
-                    action="{% url 'delete_post' post.slug %}"
-                >
-                    {% csrf_token %}
-                    <button
-                        type="submit"
-                        class="btn btn-danger"
-                    >
-                        Yes, delete
-                    </button>
-                </form>
-            </div>
-
-        </div>
-    </div>
-</div>
-
+{% include "blog/includes/post_modals.html" %}
 {% endif %}
 {% endblock %}
 
 {% block postloadjs %}
 {{ block.super }}
-
 {% if user.is_authenticated %}
 <script>
 document.querySelectorAll(".reaction-icon").forEach(icon => {
@@ -348,11 +203,9 @@ document.querySelectorAll(".reaction-icon").forEach(icon => {
 
         fetch(`/blog/react/${postId}/${reaction}/`, {
             method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-            },
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             document.getElementById(`likes-count-${postId}`).innerText = data.likes_count;
             document.getElementById(`unlikes-count-${postId}`).innerText = data.unlikes_count;
