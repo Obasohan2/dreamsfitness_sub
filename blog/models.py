@@ -1,10 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
+
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=250, unique=True)
-    slug = models.SlugField(max_length=130, unique=True)
+    slug = models.SlugField(max_length=130, unique=True, blank=True)
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -15,9 +22,17 @@ class BlogPost(models.Model):
     image = models.ImageField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
 
+    # Likes
     likes = models.ManyToManyField(
         User,
         related_name="liked_blog_posts",
+        blank=True
+    )
+
+    # Unlikes
+    unlikes = models.ManyToManyField(
+        User,
+        related_name="unliked_blog_posts",
         blank=True
     )
 
@@ -29,6 +44,23 @@ class BlogPost(models.Model):
 
     def total_likes(self):
         return self.likes.count()
+
+    def total_unlikes(self):
+        return self.unlikes.count()
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+
+            while BlogPost.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
 
 
 class Comment(models.Model):

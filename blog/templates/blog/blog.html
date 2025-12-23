@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 
-{% block extra_title %} Blog {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/reactions.css' %}">
+<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+{% endblock %}
+
+{% block extra_title %}Blog{% endblock %}
 
 {% block page_header %}
 <div class="container header-container">
@@ -14,139 +20,170 @@
 {% block content %}
 <div class="overlay"></div>
 
-<div class="container-fluid d-flex flex-column">
-    <div class="row">
-        <div class="col text-center">
-            <hr class="w-50 mb-1">
-            <h1 class="logo-font">The Blog</h1>
-            <hr class="w-50 mb-1">
-        </div>
-    </div>
+<!-- FULL-WIDTH BACKGROUND -->
+<div class="container-fluid bg-light">
 
-    <div class="row">
-        {% for post in posts %}
-        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
-            <div class="card h-100 border-0">
+    <!-- CENTERED CONTENT WITH ALL-SIDE SPACING -->
+    <div class="container py-5">
 
-                <!-- Post image -->
-                <a href="{% url 'post_detail' post.slug %}">
-                    {% if post.image %}
-                        <img class="card-img-top img-fluid"
-                             src="{{ post.image.url }}"
-                             alt="{{ post.title }}">
-                    {% else %}
-                        <img class="card-img-top img-fluid"
-                             src="{{ MEDIA_URL }}noimage.png"
-                             alt="{{ post.title }}">
-                    {% endif %}
-                </a>
-
-                <!-- Post title -->
-                <div class="card-body pb-0">
-                    <h2 class="title h5 mb-2">
-                        <strong>{{ post.title }}</strong>
-                    </h2>
-                </div>
-
-                <!-- Footer -->
-                <div class="card-footer bg-white pt-0 border-0">
-                    <p class="card-text small text-muted mb-1">
-                        {{ post.created_on|date:"M d, Y" }}
-                    </p>
-
-                    <!-- Author profile link -->
-                    <p class="card-text small mb-1">
-                        By
-                        <a href="{% url 'profile' post.author.username %}"
-                           class="text-muted">
-                            {{ post.author.username }}
-                        </a>
-                    </p>
-
-                    <!-- AJAX like button -->
-                    {% if user.is_authenticated %}
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-link like-btn p-0"
-                            data-post-id="{{ post.id }}">
-                            ❤️
-                            <span id="likes-count-{{ post.id }}">
-                                {{ post.total_likes }}
-                            </span>
-                        </button>
-                    {% else %}
-                        <p class="small text-muted">
-                            ❤️ {{ post.total_likes }}
-                        </p>
-                    {% endif %}
-                </div>
-
+        <!-- Page Title -->
+        <div class="row">
+            <div class="col text-center">
+                <hr class="w-50 mb-1">
+                <h1 class="logo-font">Testimonies</h1>
+                <hr class="w-50 mb-4">
             </div>
         </div>
 
-        <!-- Responsive grid breaks -->
-        {% if forloop.counter|divisibleby:4 %}
-            <div class="col-12 d-none d-xl-block mb-4"><hr></div>
-        {% elif forloop.counter|divisibleby:3 %}
-            <div class="col-12 d-none d-lg-block d-xl-none mb-4"><hr></div>
-        {% elif forloop.counter|divisibleby:2 %}
-            <div class="col-12 d-none d-sm-block d-md-block d-lg-none mb-4"><hr></div>
+        <!-- Add Post (logged-in users only) -->
+        {% if request.user.is_authenticated %}
+        <div class="row mb-4">
+            <div class="col text-center">
+                <a href="{% url 'add_post' %}" class="btn btn-dark">
+                    Add Post
+                </a>
+            </div>
+        </div>
         {% endif %}
 
-        {% empty %}
-        <div class="col text-center mt-5">
-            <p>No blog posts yet.</p>
+        <!-- Blog Posts -->
+        <div class="row">
+            {% for post in posts %}
+            <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+
+                <div class="card h-100 border-0 shadow-sm">
+
+                    <!-- Image -->
+                    <a href="{% url 'post_detail' post.slug %}">
+                        <div class="post-image-wrapper">
+                            {% if post.image %}
+                                <img
+                                    src="{{ post.image.url }}"
+                                    alt="{{ post.title }}"
+                                    loading="lazy"
+                                >
+                            {% else %}
+                                <img
+                                    src="{{ MEDIA_URL }}photos/products/noimage.png"
+                                    alt=""
+                                    loading="lazy"
+                                >
+                            {% endif %}
+                        </div>
+                    </a>
+
+                    <!-- Body -->
+                    <div class="card-body pb-0">
+                        <h2 class="h5 mb-2">
+                            <strong>{{ post.title }}</strong>
+                        </h2>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="card-footer bg-white pt-0 border-0">
+
+                        <p class="small text-muted mb-1">
+                            {{ post.created_on|date:"M d, Y" }}
+                        </p>
+
+                        <p class="small mb-2">
+                            By
+                            <a
+                                href="{% url 'profile' post.author.username %}"
+                                class="text-muted font-weight-bold"
+                            >
+                                {{ post.author.username }}
+                            </a>
+                        </p>
+
+                        <!-- Reactions (logged-in users ONLY) -->
+                        {% if request.user.is_authenticated %}
+                        <div class="reaction-bar d-flex align-items-center">
+
+                            <span
+                                class="reaction-icon heart-like mr-3"
+                                data-post-id="{{ post.id }}"
+                                data-reaction="like"
+                            >
+                                ❤️
+                                <span
+                                    id="likes-count-{{ post.id }}"
+                                    class="badge badge-light ml-1"
+                                >
+                                    {{ post.total_likes }}
+                                </span>
+                            </span>
+
+                            <span
+                                class="reaction-icon heart-unlike"
+                                data-post-id="{{ post.id }}"
+                                data-reaction="unlike"
+                            >
+                                🤍
+                                <span
+                                    id="unlikes-count-{{ post.id }}"
+                                    class="badge badge-light ml-1"
+                                >
+                                    {{ post.total_unlikes }}
+                                </span>
+                            </span>
+
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col text-center mt-5">
+                <p>No blog posts yet.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 
-    <!-- Pagination -->
-    {% if posts.paginator.num_pages > 1 %}
-    <div class="row mt-4">
-        <div class="col text-center">
-            {% if posts.has_previous %}
-                <a href="?page={{ posts.previous_page_number }}">← Previous</a>
-            {% endif %}
-
-            <span class="mx-3">
-                Page {{ posts.number }} of {{ posts.paginator.num_pages }}
-            </span>
-
-            {% if posts.has_next %}
-                <a href="?page={{ posts.next_page_number }}">Next →</a>
-            {% endif %}
+        <!-- Pagination -->
+        {% if posts.paginator.num_pages > 1 %}
+        <div class="row mt-4">
+            <div class="col text-center">
+                {% if posts.has_previous %}
+                    <a href="?page={{ posts.previous_page_number }}">← Previous</a>
+                {% endif %}
+                <span class="mx-3">
+                    Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+                </span>
+                {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}">Next →</a>
+                {% endif %}
+            </div>
         </div>
+        {% endif %}
+
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
+{% if request.user.is_authenticated %}
 {% block postloadjs %}
 {{ block.super }}
 <script>
-    // Back to top
-    $('.btt-link').click(function () {
-        window.scrollTo(0, 0);
-    });
+document.querySelectorAll(".reaction-icon").forEach(icon => {
+    icon.addEventListener("click", function () {
+        const postId = this.dataset.postId;
+        const reaction = this.dataset.reaction;
 
-    // AJAX likes
-    document.querySelectorAll(".like-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            const postId = this.dataset.postId;
-
-            fetch(`/blog/like/${postId}/`, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById(
-                    `likes-count-${postId}`
-                ).innerText = data.likes_count;
-            });
+        fetch(`/blog/react/${postId}/${reaction}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById(`likes-count-${postId}`).innerText = data.likes_count;
+            document.getElementById(`unlikes-count-${postId}`).innerText = data.unlikes_count;
         });
     });
+});
 </script>
 {% endblock %}
+{% endif %}

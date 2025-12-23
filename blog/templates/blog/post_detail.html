@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block extra_title %} {{ post.title }} {% endblock %}
+{% block extra_title %}{{ post.title }}{% endblock %}
 
 {% block page_header %}
 <div class="container header-container">
@@ -13,36 +13,127 @@
 
 {% block content %}
 <div class="overlay"></div>
-<div class="container my-5">
 
+<div class="container my-5">
+    <div class="m-4">
+
+    <!-- Post -->
     <div class="row">
+
         <!-- Image -->
-        <div class="col-md-5">
+        <div class="col-md-5 mb-4 mb-md-0">
             {% if post.image %}
-                <img class="img-fluid rounded" src="{{ post.image.url }}" alt="{{ post.title }}">
+                <img
+                    class="img-fluid rounded shadow-sm"
+                    src="{{ post.image.url }}"
+                    alt="{{ post.title }}"
+                >
             {% else %}
-                <img class="img-fluid rounded" src="{{ MEDIA_URL }}noimage.png" alt="{{ post.title }}">
+                <img
+                    class="img-fluid rounded shadow-sm"
+                    src="{{ MEDIA_URL }}photos/products/noimage.png"
+                    alt="{{ post.title }}"
+                >
             {% endif %}
         </div>
 
         <!-- Content -->
         <div class="col-md-7">
-            <h1 class="mb-3">{{ post.title }}</h1>
-            <p class="text-muted small">
-                By {{ post.author.username }} • {{ post.created_on|date:"M d, Y" }}
+
+            <h1 class="mb-2">{{ post.title }}</h1>
+
+            <p class="text-muted small mb-3">
+                By
+                <a
+                    href="{% url 'profile' post.author.username %}"
+                    class="text-muted font-weight-bold"
+                >
+                    {{ post.author.username }}
+                </a>
+                · {{ post.created_on|date:"M d, Y" }}
             </p>
 
-            <div class="mt-4">
+            <div class="mb-4">
                 {{ post.body|safe }}
             </div>
 
-            {% if request.user.is_superuser %}
-            <div class="mt-3">
-                <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                <a href="{% url 'delete_post' post.slug %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            <!-- Reactions -->
+            <div class="mb-3">
+                {% if user.is_authenticated %}
+                <div class="reaction-bar d-flex align-items-center">
+
+                    <!-- Like -->
+                    <span
+                        class="reaction-icon heart-like mr-3"
+                        data-post-id="{{ post.id }}"
+                        data-reaction="like"
+                    >
+                        ❤️
+                        <span
+                            id="likes-count-{{ post.id }}"
+                            class="badge badge-light ml-1"
+                        >
+                            {{ post.total_likes }}
+                        </span>
+                    </span>
+
+                    <!-- Unlike -->
+                    <span
+                        class="reaction-icon heart-unlike"
+                        data-post-id="{{ post.id }}"
+                        data-reaction="unlike"
+                    >
+                        🤍
+                        <span
+                            id="unlikes-count-{{ post.id }}"
+                            class="badge badge-light ml-1"
+                        >
+                            {{ post.total_unlikes }}
+                        </span>
+                    </span>
+
+                </div>
+                {% else %}
+                <p class="small text-muted">
+                    ❤️ {{ post.total_likes }}
+                    <span class="mx-2">|</span>
+                    🤍 {{ post.total_unlikes }}
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Author / Admin controls -->
+            {% if user == post.author or user.is_superuser %}
+            <div class="mb-3">
+                <a
+                    href="{% url 'edit_post' post.slug %}"
+                    class="btn btn-sm btn-outline-primary mr-2"
+                >
+                    Edit
+                </a>
+                <a
+                    href="{% url 'delete_post' post.slug %}"
+                    class="btn btn-sm btn-outline-danger"
+                >
+                    Delete
+                </a>
             </div>
             {% endif %}
+
+            <!-- Add new post -->
+            {% if user.is_authenticated %}
+            <div class="mb-3">
+                <a
+                    href="{% url 'add_post' %}"
+                    class="btn btn-sm btn-dark"
+                >
+                    + Add Post
+                </a>
+            </div>
+            {% endif %}
+
         </div>
+    </div>
     </div>
 
     <hr class="my-5">
@@ -51,22 +142,32 @@
     <div class="row">
         <div class="col-md-8">
 
-            <h3>Comments ({{ comments.count }})</h3>
+            <h4 class="mb-4">
+                Comments
+                <span class="badge badge-secondary">
+                    {{ comments.count }}
+                </span>
+            </h4>
 
             {% for comment in comments %}
-            <div class="card mb-3">
+            <div class="card mb-3 shadow-sm">
                 <div class="card-body">
+
                     <p class="mb-1">
                         <strong>{{ comment.name }}</strong>
                         <span class="text-muted small">
-                            • {{ comment.created_on|date:"M d, Y H:i" }}
+                            · {{ comment.created_on|date:"M d, Y H:i" }}
                         </span>
                     </p>
-                    <p class="mb-0">{{ comment.body }}</p>
+
+                    <p class="mb-0">
+                        {{ comment.body }}
+                    </p>
+
                 </div>
             </div>
             {% empty %}
-            <p>No comments yet.</p>
+            <p class="text-muted">No comments yet.</p>
             {% endfor %}
 
         </div>
@@ -78,28 +179,67 @@
     <div class="row">
         <div class="col-md-8">
 
-            <h4>Add a Comment</h4>
+            <h5 class="mb-3">Add a Comment</h5>
 
             {% if user.is_authenticated %}
             <form method="POST">
                 {% csrf_token %}
                 {{ comment_form.as_p }}
-                <button type="submit" class="btn btn-dark">Submit</button>
+                <button type="submit" class="btn btn-dark">
+                    Submit
+                </button>
             </form>
             {% else %}
             <p>
-                <a href="{% url 'account_login' %}">Log in</a> to leave a comment.
+                <a href="{% url 'account_login' %}">
+                    Log in
+                </a>
+                to leave a comment.
             </p>
             {% endif %}
 
         </div>
     </div>
 
+    <!-- Back -->
     <div class="mt-5">
-        <a href="{% url 'blog' %}" class="btn btn-outline-secondary">
+        <a
+            href="{% url 'blog' %}"
+            class="btn btn-outline-secondary"
+        >
             ← Back to blog
         </a>
     </div>
 
 </div>
+{% endblock %}
+
+{% block postloadjs %}
+{{ block.super }}
+
+<script>
+document.querySelectorAll(".reaction-icon").forEach(icon => {
+    icon.addEventListener("click", function () {
+        const postId = this.dataset.postId;
+        const reaction = this.dataset.reaction;
+
+        fetch(`/blog/react/${postId}/${reaction}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(
+                `likes-count-${postId}`
+            ).innerText = data.likes_count;
+
+            document.getElementById(
+                `unlikes-count-${postId}`
+            ).innerText = data.unlikes_count;
+        });
+    });
+});
+</script>
 {% endblock %}

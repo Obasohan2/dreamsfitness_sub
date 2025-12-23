@@ -1,24 +1,23 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
 
 from .models import BlogPost
-from .forms import CommentForm, BlogPostForm
+from .forms import AddPostForm, PostForm, CommentForm
 
 
 class PostList(ListView):
-    """View to list blog posts"""
     model = BlogPost
     template_name = "blog/blog.html"
     context_object_name = "posts"
 
+    def get_queryset(self):
+        return BlogPost.objects.exclude(slug="").exclude(slug__isnull=True)
+    
 
 def post_detail(request, slug):
-    """View to show a single blog post in detail"""
-
     post = get_object_or_404(BlogPost, slug=slug)
     comments = post.comments.all()
     comment_form = CommentForm()
@@ -26,7 +25,7 @@ def post_detail(request, slug):
     if request.method == "POST":
         if not request.user.is_authenticated:
             messages.error(request, "You must be logged in to comment.")
-            return redirect("account_login")  # allauth-safe
+            return redirect("account_login")
 
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
@@ -50,32 +49,29 @@ def post_detail(request, slug):
 @login_required
 def add_post(request):
     if request.method == "POST":
-        form = BlogPostForm(request.POST, request.FILES)
+        form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
             messages.success(request, "Post created successfully.")
-            return redirect("blog") 
+            return redirect("blog")
     else:
-        form = BlogPostForm()
+        form = AddPostForm()
 
-    return render(
-        request,
-        "blog/add_post.html",
-        {"form": form},
-    )
+    return render(request, "blog/add_post.html", {"form": form})
+
 
 
 @login_required
 def edit_post(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
 
-    if not request.user.is_superuser:
-        messages.error(request, "Not authorized.")
+    if request.user != post.author and not request.user.is_superuser:
+        messages.error(request, "You are not allowed to edit this post.")
         return redirect("post_detail", slug=slug)
 
-    form = BlogPostForm(
+    form = PostForm(
         request.POST or None,
         request.FILES or None,
         instance=post
@@ -89,10 +85,7 @@ def edit_post(request, slug):
     return render(
         request,
         "blog/edit_post.html",
-        {
-            "form": form,
-            "post": post,  
-        },
+        {"form": form, "post": post},
     )
 
 
@@ -100,8 +93,8 @@ def edit_post(request, slug):
 def delete_post(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
 
-    if not request.user.is_superuser:
-        messages.error(request, "Not authorized.")
+    if request.user != post.author and not request.user.is_superuser:
+        messages.error(request, "You are not allowed to delete this post.")
         return redirect("post_detail", slug=slug)
 
     post.delete()
@@ -109,18 +102,26 @@ def delete_post(request, slug):
     return redirect("blog")
 
 
+
 @login_required
-def toggle_like(request, post_id):
+def toggle_reaction(request, post_id, reaction):
     post = get_object_or_404(BlogPost, id=post_id)
 
-    if request.user in post.likes.all():
+    if reaction == "like":
+        post.unlikes.remove(request.user)
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+        else:
+            post.likes.add(request.user)
+
+    elif reaction == "unlike":
         post.likes.remove(request.user)
-        liked = False
-    else:
-        post.likes.add(request.user)
-        liked = True
+        if request.user in post.unlikes.all():
+            post.unlikes.remove(request.user)
+        else:
+            post.unlikes.add(request.user)
 
     return JsonResponse({
-        "liked": liked,
         "likes_count": post.total_likes(),
+        "unlikes_count": post.total_unlikes(),
     })
