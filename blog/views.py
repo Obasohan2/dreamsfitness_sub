@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.http import JsonResponse
 from django.views.generic import ListView
 
 from .models import BlogPost
@@ -106,3 +107,20 @@ def delete_post(request, slug):
     post.delete()
     messages.success(request, "Post deleted.")
     return redirect("blog")
+
+
+@login_required
+def toggle_like(request, post_id):
+    post = get_object_or_404(BlogPost, id=post_id)
+
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        liked = False
+    else:
+        post.likes.add(request.user)
+        liked = True
+
+    return JsonResponse({
+        "liked": liked,
+        "likes_count": post.total_likes(),
+    })

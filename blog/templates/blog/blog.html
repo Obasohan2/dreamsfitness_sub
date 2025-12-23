@@ -10,8 +10,10 @@
     </div>
 </div>
 {% endblock %}
+
 {% block content %}
 <div class="overlay"></div>
+
 <div class="container-fluid d-flex flex-column">
     <div class="row">
         <div class="col text-center">
@@ -26,32 +28,63 @@
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
             <div class="card h-100 border-0">
 
+                <!-- Post image -->
                 <a href="{% url 'post_detail' post.slug %}">
                     {% if post.image %}
-                        <img class="card-img-top img-fluid" src="{{ post.image.url }}" alt="{{ post.title }}">
+                        <img class="card-img-top img-fluid"
+                             src="{{ post.image.url }}"
+                             alt="{{ post.title }}">
                     {% else %}
-                        <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ post.title }}">
+                        <img class="card-img-top img-fluid"
+                             src="{{ MEDIA_URL }}noimage.png"
+                             alt="{{ post.title }}">
                     {% endif %}
                 </a>
 
+                <!-- Post title -->
                 <div class="card-body pb-0">
                     <h2 class="title h5 mb-2">
                         <strong>{{ post.title }}</strong>
                     </h2>
                 </div>
 
+                <!-- Footer -->
                 <div class="card-footer bg-white pt-0 border-0">
                     <p class="card-text small text-muted mb-1">
                         {{ post.created_on|date:"M d, Y" }}
                     </p>
-                    <p class="card-text small">
-                        By {{ post.author.username }}
+
+                    <!-- Author profile link -->
+                    <p class="card-text small mb-1">
+                        By
+                        <a href="{% url 'profile' post.author.username %}"
+                           class="text-muted">
+                            {{ post.author.username }}
+                        </a>
                     </p>
+
+                    <!-- AJAX like button -->
+                    {% if user.is_authenticated %}
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-link like-btn p-0"
+                            data-post-id="{{ post.id }}">
+                            ❤️
+                            <span id="likes-count-{{ post.id }}">
+                                {{ post.total_likes }}
+                            </span>
+                        </button>
+                    {% else %}
+                        <p class="small text-muted">
+                            ❤️ {{ post.total_likes }}
+                        </p>
+                    {% endif %}
                 </div>
 
             </div>
         </div>
 
+        <!-- Responsive grid breaks -->
         {% if forloop.counter|divisibleby:4 %}
             <div class="col-12 d-none d-xl-block mb-4"><hr></div>
         {% elif forloop.counter|divisibleby:3 %}
@@ -66,14 +99,54 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    {% if posts.paginator.num_pages > 1 %}
+    <div class="row mt-4">
+        <div class="col text-center">
+            {% if posts.has_previous %}
+                <a href="?page={{ posts.previous_page_number }}">← Previous</a>
+            {% endif %}
+
+            <span class="mx-3">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+            </span>
+
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}">Next →</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block postloadjs %}
 {{ block.super }}
 <script>
+    // Back to top
     $('.btt-link').click(function () {
         window.scrollTo(0, 0);
+    });
+
+    // AJAX likes
+    document.querySelectorAll(".like-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const postId = this.dataset.postId;
+
+            fetch(`/blog/like/${postId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(
+                    `likes-count-${postId}`
+                ).innerText = data.likes_count;
+            });
+        });
     });
 </script>
 {% endblock %}

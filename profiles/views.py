@@ -55,23 +55,19 @@ def profile(request):
 
 
 def public_profile(request, username):
-    """
-    Public-facing user profile (read-only)
-    Used for authors & commenters
-    """
-
     user = get_object_or_404(User, username=username)
 
-    # Prevent admin profiles from being exposed
     if user.is_superuser:
         messages.info(request, "This user does not have a public profile.")
         return redirect("home")
 
     profile = get_object_or_404(UserProfile, user=user)
+    posts = user.blog_posts.all()  
 
     return render(request, "profiles/public_profile.html", {
         "profile_user": user,
         "profile": profile,
+        "posts": posts,
     })
 
 

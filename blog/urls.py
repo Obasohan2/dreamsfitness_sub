@@ -7,4 +7,5 @@ urlpatterns = [
     path("<slug:slug>/edit/", views.edit_post, name="edit_post"),
     path("<slug:slug>/delete/", views.delete_post, name="delete_post"),
     path("add/", views.add_post, name="add_post"),
+    path("like/<int:post_id>/", views.toggle_like, name="toggle_like"),
 ]
