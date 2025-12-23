@@ -47,7 +47,7 @@ def post_detail(request, slug):
 
 
 @login_required
-def blog_create(request):
+def add_post(request):
     if request.method == "POST":
         form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -61,6 +61,48 @@ def blog_create(request):
 
     return render(
         request,
-        "blog/blog_create.html",
+        "blog/add_post.html",
         {"form": form},
     )
+
+
+@login_required
+def edit_post(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug)
+
+    if not request.user.is_superuser:
+        messages.error(request, "Not authorized.")
+        return redirect("post_detail", slug=slug)
+
+    form = BlogPostForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=post
+    )
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Post updated successfully.")
+        return redirect("post_detail", slug=slug)
+
+    return render(
+        request,
+        "blog/edit_post.html",
+        {
+            "form": form,
+            "post": post,  
+        },
+    )
+
+
+@login_required
+def delete_post(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug)
+
+    if not request.user.is_superuser:
+        messages.error(request, "Not authorized.")
+        return redirect("post_detail", slug=slug)
+
+    post.delete()
+    messages.success(request, "Post deleted.")
+    return redirect("blog")

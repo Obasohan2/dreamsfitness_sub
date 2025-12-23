@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra_title %} Add Post {% endblock %}
+
+{% block page_header %}
+<div class="container header-container">
+    <div class="row">
+        <div class="col"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="overlay"></div>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <hr>
+            <h1 class="mb-2">Blog Management</h1>
+            <p class="text-muted">Add Post</p>
+            <hr>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+
+                <button type="submit" class="btn btn-dark mt-3">
+                    Save Post
+                </button>
+                <a href="{% url 'blog' %}" class="btn btn-outline-secondary mt-3 ml-2">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
