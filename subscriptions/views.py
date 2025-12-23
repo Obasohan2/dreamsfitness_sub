@@ -10,6 +10,8 @@ from .forms import SubPlanForm
 # -------------------------------------------------
 # PRICING PAGE
 # -------------------------------------------------
+
+
 def pricing(request):
     plans = SubPlan.objects.all()
     dfeatures = SubPlanFeature.objects.all()

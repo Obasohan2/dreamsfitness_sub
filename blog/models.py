@@ -10,6 +10,7 @@ class BlogPost(models.Model):
         on_delete=models.CASCADE,
         related_name="blog_posts"
     )
+
     body = models.TextField()
     image = models.ImageField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
