@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'profiles',  # our app
     'dashboard',  # our app
     'blog',
+    'contact',  # our app
 ]
 
 MIDDLEWARE = [

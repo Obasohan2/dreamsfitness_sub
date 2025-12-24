@@ -1,0 +1,10 @@
+from django.contrib import admin
+from .models import Contact
+# Register your models here.
+
+
+@admin.register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'subject', 'created_on', 'replied')
+    list_filter = ('replied', 'created_on')
+    search_fields = ('full_name', 'email', 'subject')
