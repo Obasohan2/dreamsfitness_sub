@@ -3,6 +3,7 @@
 
 <!doctype html>
 <html lang="en">
+<body class="bg-white text-black d-flex flex-column min-vh-100">
 <head>
 
     {% block meta %}
@@ -179,8 +180,17 @@
 </div>
 {% endif %}
 
-{% block page_header %}{% endblock %}
-{% block content %}{% endblock %}
+<!-- MAIN CONTENT -->
+<main class="flex-fill">
+
+    {% block page_header %}{% endblock %}
+    {% block content %}{% endblock %}
+
+</main>
+<!-- FOOTER -->
+<footer class="site-footer mt-auto">
+    {% include "includes/footer.html" %}
+</footer> 
 
 {% block postloadjs %}
 <script>
@@ -189,4 +199,5 @@
 {% endblock %}
 
 </body>
+
 </html>
