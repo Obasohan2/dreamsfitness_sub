@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'dashboard',  # our app
     'blog',
     'contact',  # our app
+    'newsletter',  # our app
 ]
 
 MIDDLEWARE = [

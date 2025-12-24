@@ -33,4 +33,5 @@ urlpatterns = [
     path("dashboard/", include("dashboard.urls")),
     path('blog/', include('blog.urls')),
     path('contact/', include('contact.urls')),
+    path('newsletter/', include('newsletter.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
