@@ -89,10 +89,17 @@ def product_detail(request, product_id):
 @login_required
 def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id, user=request.user)
-    product_id = review.product.id
-    review.delete()
-    messages.success(request, "Review deleted.")
-    return redirect('product_detail', product_id=product_id)
+    product = review.product
+
+    if request.method == "POST":
+        review.delete()
+        messages.success(request, "Review deleted.")
+        return redirect("product_detail", product_id=product.id)
+
+    return render(request, "products/delete_review.html", {
+        "review": review,
+        "product": product,
+    })
 
 
 @login_required

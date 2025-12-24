@@ -72,7 +72,7 @@ def cart_contents(request):
             "months": months,
             "discount": discount,
         }
-
+    
     # ======================
     # DELIVERY (PRODUCTS ONLY)
     # ======================

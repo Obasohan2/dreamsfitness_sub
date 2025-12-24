@@ -24,206 +24,192 @@
 <div class="table-responsive">
 <table class="table table-sm align-middle">
 
-    <!-- ================= TABLE HEAD ================= -->
-    <thead class="table-warning">
-        <tr>
-            <th class="pl-3">Product</th>
-            <th class="pl-3">Price</th>
-            <th class="text-center" style="width:180px;">Qty</th>
-            <th class="text-right pr-5" style="width:160px;">Subtotal</th>
-        </tr>
-    </thead>
+<thead class="table-warning">
+<tr>
+    <th class="pl-3">Product</th>
+    <th class="pl-3">Price</th>
+    <th class="text-center" style="width:180px;">Qty</th>
+    <th class="text-right pr-5" style="width:160px;">Subtotal</th>
+</tr>
+</thead>
 
-    <tbody>
+<tbody>
 
-        <!-- ================= PRODUCTS ================= -->
-        {% for item in cart_items %}
-        <tr>
+{% for item in cart_items %}
+<tr>
 
-            <!-- PRODUCT -->
-            <td class="pl-4">
-                <div class="d-flex align-items-center">
-                    {% if item.product.images %}
-                        <img src="{{ item.product.images.url }}"
-                             alt="{{ item.product.name }}"
-                             class="rounded mr-3"
-                             style="width:90px;height:90px;object-fit:cover;">
-                    {% else %}
-                        <img src="{{ MEDIA_URL }}noimage.png"
-                             alt="{{ item.product.name }}"
-                             class="rounded mr-3"
-                             style="width:90px;height:90px;object-fit:cover;">
-                    {% endif %}
-                    <strong class="text-black">{{ item.product.name }}</strong>
-                </div>
-            </td>
-
-            <!-- PRICE -->
-            <td class="pl-3">
-                £{{ item.product.price|floatformat:2 }}
-            </td>
-
-            <!-- QTY -->
-            <td class="text-center">
-                <form method="POST"
-                      action="{% url 'adjust_cart' item.item_id %}"
-                      class="update-form d-inline-block">
-                    {% csrf_token %}
-
-                    <div class="d-flex justify-content-center align-items-center">
-                        <button type="button"
-                                class="btn btn-dark btn-sm decrement-qty mr-2"
-                                data-item_id="{{ item.item_id }}">
-                            −
-                        </button>
-
-                        <input type="number"
-                               name="quantity"
-                               value="{{ item.quantity }}"
-                               min="1"
-                               max="99"
-                               class="form-control form-control-sm text-center"
-                               style="width:100px;"
-                               id="id_qty_{{ item.item_id }}">
-
-                        <button type="button"
-                                class="btn btn-dark btn-sm increment-qty ml-2"
-                                data-item_id="{{ item.item_id }}">
-                            +
-                        </button>
-                    </div>
-                </form>
-
-                <div class="d-flex justify-content-center mt-2">
-                    <a class="update-link text-info small mr-4">Update</a>
-                    <a class="remove-item text-danger small"
-                       id="remove_{{ item.item_id }}">
-                        <i class="fas fa-trash-alt mr-1"></i>Remove
-                    </a>
-                </div>
-            </td>
-
-            <!-- SUBTOTAL -->
-            <td class="text-right pr-5">
-                <strong>£{{ item.line_total|floatformat:2 }}</strong>
-            </td>
-
-        </tr>
-        {% endfor %}
-
-        <!-- ================= SUBSCRIPTION ================= -->
-        {% if subscription_item %}
-        <tr class="table-info">
-
-            <td class="pl-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-dumbbell fa-2x text-primary mr-3"></i>
-                    <div>
-                        <strong>{{ subscription_item.plan.title }}</strong>
-                        <div class="small text-muted">
-                            {{ subscription_item.months }}
-                            month{{ subscription_item.months|pluralize }}
-                        </div>
-                    </div>
-                </div>
-            </td>
-
-            <td class="pl-3">
-                £{{ subscription_item.plan.price|floatformat:2 }}
-                <span class="small text-muted">/ month</span>
-            </td>
-
-            <td class="text-center">
-                <strong>{{ subscription_item.months }} mo</strong>
-            </td>
-
-            <td class="text-right pr-5">
-                <div class="d-flex justify-content-end align-items-center">
-                    <strong class="mr-3">
-                        £{{ subscription_after_discount_total|floatformat:2 }}
-                    </strong>
-                    <a href="{% url 'remove_subscription_from_cart' %}"
-                       class="text-danger">
-                        <i class="fas fa-trash-alt"></i>
-                    </a>
-                </div>
-            </td>
-
-        </tr>
+<td class="pl-4">
+    <div class="d-flex align-items-center">
+        {% if item.product.images %}
+            <img src="{{ item.product.images.url }}"
+                 class="rounded mr-3"
+                 style="width:90px;height:90px;object-fit:cover;">
+        {% else %}
+            <img src="{{ MEDIA_URL }}photos/products/noimage.png"
+                 class="rounded mr-3"
+                 style="width:90px;height:90px;object-fit:cover;">
         {% endif %}
+        <strong class="text-black">{{ item.product.name }}</strong>
+    </div>
+</td>
 
-    </tbody>
+<td class="pl-3">
+    £{{ item.product.price|floatformat:2 }}
+</td>
 
-    <!-- ================= FOOTER ================= -->
-    <tfoot>
+<td class="text-center">
 
-        <tr>
-            <td colspan="4" class="text-right pt-4">
+<form method="POST"
+      action="{% url 'adjust_cart' item.item_id %}"
+      class="update-form d-inline-block">
+    {% csrf_token %}
 
-                {% if cart_items %}
-                    <h6>Products Total: £{{ product_total|floatformat:2 }}</h6>
-                    <h6>Delivery: £{{ delivery|floatformat:2 }}</h6>
-                    <h6>Products Subtotal: £{{ product_grand_total|floatformat:2 }}</h6>
-                {% endif %}
+    <div class="d-flex justify-content-center align-items-center">
 
-                {% if subscription_item %}
-                    <h6 class="mt-2">
-                        Subscription (before discount):
-                        £{{ subscription_pre_discount_total|floatformat:2 }}
-                    </h6>
+        <!-- FIXED MINUS BUTTON -->
+        <button type="button"
+                class="btn btn-dark btn-sm decrement-qty mr-2"
+                data-item_id="{{ item.item_id }}"
+                {% if item.quantity <= 1 %}disabled{% endif %}>
+            −
+        </button>
 
-                    {% if subscription_discount_amount > 0 %}
-                        <h6 class="text-success">
-                            Discount −£{{ subscription_discount_amount|floatformat:2 }}
-                            ({{ subscription_item.discount.total_discount }}%)
-                        </h6>
-                    {% endif %}
+        <input type="number"
+               name="quantity"
+               value="{{ item.quantity }}"
+               min="1"
+               max="99"
+               class="form-control form-control-sm text-center qty_input"
+               style="width:100px;"
+               id="id_qty_{{ item.item_id }}"
+               data-item_id="{{ item.item_id }}">
 
-                    <h6>
-                        Subscription (after discount):
-                        £{{ subscription_after_discount_total|floatformat:2 }}
-                    </h6>
-                {% endif %}
+        <button type="button"
+                class="btn btn-dark btn-sm increment-qty ml-2"
+                data-item_id="{{ item.item_id }}">
+            +
+        </button>
 
-                <hr>
+    </div>
+</form>
 
-                <h4 class="mt-2">
-                    <strong>Grand Total: £{{ grand_total|floatformat:2 }}</strong>
-                </h4>
+<div class="d-flex justify-content-center mt-2">
+    <a class="update-link text-info small mr-4">Update</a>
+    <a class="remove-item text-danger small"
+       id="remove_{{ item.item_id }}">
+        <i class="fas fa-trash-alt mr-1"></i>Remove
+    </a>
+</div>
 
-            </td>
-        </tr>
+</td>
 
-        <!-- ================= ACTION BUTTONS ================= -->
-        <tr>
-            <td colspan="4" class="text-right">
+<td class="text-right pr-5">
+    <strong>£{{ item.line_total|floatformat:2 }}</strong>
+</td>
 
-                <a href="{% url 'products' %}" class="btn btn-outline-dark mr-2">
-                    <i class="fas fa-chevron-left mr-1"></i>
-                    Continue Shopping
-                </a>
+</tr>
+{% endfor %}
 
-                {% if request.user.is_staff %}
-                    <span class="text-warning font-weight-bold ml-2">
-                        🔒 Admin accounts cannot proceed to checkout
-                    </span>
-                {% else %}
-                    <a href="{% url 'checkout' %}" class="btn btn-dark ml-2">
-                        <i class="fas fa-lock mr-1"></i>
-                        Secure Checkout
-                    </a>
-                {% endif %}
+{% if subscription_item %}
+<tr class="table-info">
+<td class="pl-3">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-dumbbell fa-2x text-primary mr-3"></i>
+        <div>
+            <strong>{{ subscription_item.plan.title }}</strong>
+            <div class="small text-muted">
+                {{ subscription_item.months }} month{{ subscription_item.months|pluralize }}
+            </div>
+        </div>
+    </div>
+</td>
 
-            </td>
-        </tr>
+<td class="pl-3">
+    £{{ subscription_item.plan.price|floatformat:2 }}
+    <span class="small text-muted">/ month</span>
+</td>
 
-    </tfoot>
+<td class="text-center">
+    <strong>{{ subscription_item.months }} mo</strong>
+</td>
+
+<td class="text-right pr-3">
+    <div class="d-flex justify-content-end align-items-center">
+        <strong class="mr-3">
+            £{{ subscription_after_discount_total|floatformat:2 }}
+        </strong>
+        <a href="{% url 'remove_subscription_from_cart' %}"
+           class="text-danger">
+            <i class="fas fa-trash-alt"></i>
+        </a>
+    </div>
+</td>
+</tr>
+{% endif %}
+
+</tbody>
+
+<tfoot>
+<tr>
+<td colspan="4" class="text-right pt-4">
+
+{% if cart_items %}
+    <h6>Products Total: £{{ product_total|floatformat:2 }}</h6>
+    <h6>Delivery: £{{ delivery|floatformat:2 }}</h6>
+    <h6>Products Subtotal: £{{ product_grand_total|floatformat:2 }}</h6>
+{% endif %}
+
+{% if subscription_item %}
+    <h6 class="mt-2">
+        Subscription (before discount):
+        £{{ subscription_pre_discount_total|floatformat:2 }}
+    </h6>
+
+    {% if subscription_discount_amount > 0 %}
+        <h6 class="text-success">
+            Discount −£{{ subscription_discount_amount|floatformat:2 }}
+            ({{ subscription_item.discount.total_discount }}%)
+        </h6>
+    {% endif %}
+
+    <h6>
+        Subscription (after discount):
+        £{{ subscription_after_discount_total|floatformat:2 }}
+    </h6>
+{% endif %}
+
+<hr>
+
+<h4 class="mt-2">
+    <strong>Grand Total: £{{ grand_total|floatformat:2 }}</strong>
+</h4>
+
+</td>
+</tr>
+
+<tr>
+<td colspan="4" class="text-right">
+    <a href="{% url 'products' %}" class="btn btn-outline-dark mr-2">
+        <i class="fas fa-chevron-left mr-1"></i> Continue Shopping
+    </a>
+
+    {% if request.user.is_staff %}
+        <span class="text-warning font-weight-bold ml-2">
+            🔒 Admin accounts cannot proceed to checkout
+        </span>
+    {% else %}
+        <a href="{% url 'checkout' %}" class="btn btn-dark ml-2">
+            <i class="fas fa-lock mr-1"></i> Secure Checkout
+        </a>
+    {% endif %}
+</td>
+</tr>
+</tfoot>
 
 </table>
 </div>
 
 {% else %}
-
 <div class="text-center py-5">
     <i class="fas fa-shopping-cart fa-4x text-muted"></i>
     <p class="lead mt-3">Your cart is empty.</p>
@@ -231,10 +217,11 @@
         <i class="fas fa-chevron-left mr-1"></i>Visit Shop
     </a>
 </div>
-
 {% endif %}
+
 </div>
 {% endblock %}
+
 
 {% block postloadjs %}
 {{ block.super }}
@@ -258,7 +245,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch(`/cart/remove/${itemId}/`, {
                 method: "POST",
-                headers: { "X-CSRFToken": csrfToken }
+                headers: {
+                    "X-CSRFToken": csrfToken
+                }
             }).then(() => location.reload());
         });
     });
@@ -266,3 +255,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {% endblock %}
+
+

@@ -295,18 +295,20 @@ input[name='q']::placeholder {
 
 /* ================= QUANTITY BUTTON STATES ================= */
 
-/* Disabled quantity buttons (cart + product) */
-.increment-qty:disabled,
-.decrement-qty:disabled {
-    opacity: 0.4;
-    background-color: #6c757d !important; /* Bootstrap secondary grey */
-    border-color: #6c757d !important;
-    cursor: not-allowed;
-    pointer-events: none;
+/* FORCE override Bootstrap disabled buttons */
+button.btn.increment-qty:disabled,
+button.btn.decrement-qty:disabled {
+    opacity: 0.6 !important;
+    background-color: #adb5bd !important; /* light grey */
+    border-color: #adb5bd !important;
+    color: #fff !important;
+    cursor: not-allowed !important;
 }
 
-/* Optional: smooth visual transition */
+/* Smooth transition */
 .increment-qty,
 .decrement-qty {
-    transition: opacity 0.15s ease-in-out;
+    transition: opacity 0.15s ease-in-out,
+                background-color 0.15s ease-in-out;
 }
+
