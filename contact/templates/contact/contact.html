@@ -1,2 +1,55 @@
-<h1>Contact Us</h1>
-<p>Email: info@dreamsfitness.com</p>
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra_title %}- Contact{% endblock %}
+
+{% block page_header %}
+<div class="container header-container">
+    <div class="row">
+        <div class="col text-center"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="overlay"></div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h2 class="logo-font text-center mb-3">
+                        Contact Us
+                    </h2>
+
+                    <p class="text-center text-muted mb-4">
+                        We’d love to hear from you
+                    </p>
+
+                    <form id="contact-form" method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-dark px-5">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="success-message"
+                         class="alert alert-success mt-4 d-none">
+                        ✅ Thanks for contacting us! We’ll get back to you soon.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
