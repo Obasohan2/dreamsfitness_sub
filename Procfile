@@ -1,1 +1,1 @@
-web: gunicorn dreamsfitness_sub.wsgi:application
+web: gunicorn dreamsfitness.wsgi
