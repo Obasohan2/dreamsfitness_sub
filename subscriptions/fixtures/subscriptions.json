@@ -1,0 +1,198 @@
+[
+{
+  "model": "subscriptions.subplan",
+  "pk": 1,
+  "fields": {
+    "title": "Standard Plan",
+    "price": "40.00",
+    "max_member": 60,
+    "highlight_status": false,
+    "validity_days": 30
+  }
+},
+{
+  "model": "subscriptions.subplan",
+  "pk": 4,
+  "fields": {
+    "title": "Premium Plan",
+    "price": "100.00",
+    "max_member": 45,
+    "highlight_status": true,
+    "validity_days": 30
+  }
+},
+{
+  "model": "subscriptions.subplan",
+  "pk": 5,
+  "fields": {
+    "title": "Elite Plan",
+    "price": "150.00",
+    "max_member": 30,
+    "highlight_status": false,
+    "validity_days": 30
+  }
+},
+{
+  "model": "subscriptions.subplanfeature",
+  "pk": 1,
+  "fields": {
+    "title": "Exercise Schedule",
+    "subplan": [
+      1,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "subscriptions.subplanfeature",
+  "pk": 2,
+  "fields": {
+    "title": "Diet Plan",
+    "subplan": [
+      1,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "subscriptions.subplanfeature",
+  "pk": 3,
+  "fields": {
+    "title": "individual Coach",
+    "subplan": [
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "subscriptions.subplanfeature",
+  "pk": 4,
+  "fields": {
+    "title": "Cardio",
+    "subplan": [
+      4
+    ]
+  }
+},
+{
+  "model": "subscriptions.subplanfeature",
+  "pk": 6,
+  "fields": {
+    "title": "Cardio & Functional Training",
+    "subplan": [
+      5
+    ]
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 1,
+  "fields": {
+    "subplan": 1,
+    "total_months": 1,
+    "total_discount": 0
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 2,
+  "fields": {
+    "subplan": 1,
+    "total_months": 3,
+    "total_discount": 10
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 3,
+  "fields": {
+    "subplan": 1,
+    "total_months": 6,
+    "total_discount": 20
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 4,
+  "fields": {
+    "subplan": 1,
+    "total_months": 12,
+    "total_discount": 30
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 5,
+  "fields": {
+    "subplan": 4,
+    "total_months": 1,
+    "total_discount": 0
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 6,
+  "fields": {
+    "subplan": 4,
+    "total_months": 3,
+    "total_discount": 10
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 7,
+  "fields": {
+    "subplan": 4,
+    "total_months": 6,
+    "total_discount": 20
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 8,
+  "fields": {
+    "subplan": 4,
+    "total_months": 12,
+    "total_discount": 30
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 9,
+  "fields": {
+    "subplan": 5,
+    "total_months": 1,
+    "total_discount": 0
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 10,
+  "fields": {
+    "subplan": 5,
+    "total_months": 3,
+    "total_discount": 10
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 12,
+  "fields": {
+    "subplan": 5,
+    "total_months": 12,
+    "total_discount": 30
+  }
+},
+{
+  "model": "subscriptions.plandiscount",
+  "pk": 13,
+  "fields": {
+    "subplan": 5,
+    "total_months": 6,
+    "total_discount": 20
+  }
+}
+]

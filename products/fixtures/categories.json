@@ -1,0 +1,18 @@
+[
+{
+  "model": "products.category",
+  "pk": 1,
+  "fields": {
+    "name": "Work Out Plan",
+    "slug": "work-out"
+  }
+},
+{
+  "model": "products.category",
+  "pk": 2,
+  "fields": {
+    "name": "Nutrition Plan",
+    "slug": "nutrition-plan"
+  }
+}
+]

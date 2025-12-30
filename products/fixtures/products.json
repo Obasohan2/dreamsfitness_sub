@@ -1,0 +1,434 @@
+[
+{
+  "model": "products.product",
+  "pk": 1,
+  "fields": {
+    "category": 2,
+    "name": "Yoghurt Vanilla",
+    "slug": "yoghurt-vanilla",
+    "description": "Protein filled Yoghurt with vanilla taste, less sugar.",
+    "price": "15.50",
+    "images": "photos/products/pexels-pixabay-414262.jpg",
+    "stock": 20,
+    "rating": "4.50",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T14:44:45.873Z",
+    "updated_at": "2025-12-18T16:30:40.666Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 2,
+  "fields": {
+    "category": 2,
+    "name": "Vegetable Mixed",
+    "slug": "vegetable-mixed",
+    "description": "Dietary mixed vegetable meal preparation process book",
+    "price": "15.00",
+    "images": "photos/products/pexels-chanwalrus-1059905.jpg",
+    "stock": 52,
+    "rating": "5.00",
+    "is_available": true,
+    "is_digital": true,
+    "created_at": "2025-11-28T15:14:08.713Z",
+    "updated_at": "2025-11-28T15:14:08.713Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 3,
+  "fields": {
+    "category": 2,
+    "name": "Fruits Mixed",
+    "slug": "fruits-mix",
+    "description": "Fruits basket for vitamin after work out",
+    "price": "10.99",
+    "images": "photos/products/pexels-janetrangdoan-1128678.jpg",
+    "stock": 12,
+    "rating": "4.80",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:15:13.617Z",
+    "updated_at": "2025-11-28T15:19:34.228Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 4,
+  "fields": {
+    "category": 2,
+    "name": "Pasta meal",
+    "slug": "pasta-meal",
+    "description": "High protein and carb pasta for lunch",
+    "price": "4.99",
+    "images": "photos/products/pexels-fotios-photos-1279330.jpg",
+    "stock": 30,
+    "rating": "4.20",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:17:01.461Z",
+    "updated_at": "2025-11-28T15:17:01.461Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 5,
+  "fields": {
+    "category": 2,
+    "name": "Protein meal",
+    "slug": "protein-meal",
+    "description": "protein meal for muscles growth preparation booklet",
+    "price": "5.99",
+    "images": "photos/products/pexels-pixabay-361184.jpg",
+    "stock": 10,
+    "rating": "3.90",
+    "is_available": true,
+    "is_digital": true,
+    "created_at": "2025-11-28T15:18:56.539Z",
+    "updated_at": "2025-11-28T15:18:56.539Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 6,
+  "fields": {
+    "category": 2,
+    "name": "kettlebells",
+    "slug": "kettlebells",
+    "description": "kettlebells 9kg",
+    "price": "10.00",
+    "images": "photos/products/kettle-bell-592905_1280_LR0yiZC.jpg",
+    "stock": 10,
+    "rating": "4.50",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:31:45.885Z",
+    "updated_at": "2025-11-28T18:40:05.927Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 8,
+  "fields": {
+    "category": 2,
+    "name": "Protein Bar",
+    "slug": "protein-bar",
+    "description": "High protein bar supplement",
+    "price": "5.99",
+    "images": "photos/products/protein_bar_2_fjHXXPk.JPG",
+    "stock": 52,
+    "rating": "4.30",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:38:01.036Z",
+    "updated_at": "2025-11-28T18:42:35.000Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 9,
+  "fields": {
+    "category": 2,
+    "name": "Mixed Shakes",
+    "slug": "mixed-ahakes",
+    "description": "High calories and protein mixed shakes",
+    "price": "18.99",
+    "images": "photos/products/pexels-teguhsugi-6174870_mwend6U.jpg",
+    "stock": 8,
+    "rating": "4.80",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:38:58.597Z",
+    "updated_at": "2025-11-28T21:48:51.211Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 10,
+  "fields": {
+    "category": 2,
+    "name": "Protien Bar",
+    "slug": "protien-bar",
+    "description": "Protein bar with chocolate",
+    "price": "3.99",
+    "images": "photos/products/protein_bar_ykLIIgg_mDqiGG4.jpg",
+    "stock": 15,
+    "rating": "4.80",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:40:06.451Z",
+    "updated_at": "2025-11-28T15:40:06.451Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 11,
+  "fields": {
+    "category": 2,
+    "name": "Yoghurt mixed shakes",
+    "slug": "yoghurt-mixed-shakes",
+    "description": "Yoghurt mixed shakes for post workout",
+    "price": "7.99",
+    "images": "photos/products/pexels-nicola-barts-7937483_L8cdCaV.jpg",
+    "stock": 10,
+    "rating": "4.10",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:41:11.571Z",
+    "updated_at": "2025-11-28T15:41:11.571Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 12,
+  "fields": {
+    "category": 2,
+    "name": "Papaya fruit",
+    "slug": "papaya-fruit",
+    "description": "papaya fruits for post workout",
+    "price": "5.00",
+    "images": "photos/products/pexels-jess-vide-5505398_eq8kyno.jpg",
+    "stock": 6,
+    "rating": "4.80",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:42:09.413Z",
+    "updated_at": "2025-11-28T15:42:09.413Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 13,
+  "fields": {
+    "category": 1,
+    "name": "Yoga Plates",
+    "slug": "yoga-plates",
+    "description": "Gym yoga plates 25kg",
+    "price": "15.00",
+    "images": "photos/products/yoga_set_TRQu1wj.jpg",
+    "stock": 15,
+    "rating": "5.00",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:44:33.373Z",
+    "updated_at": "2025-11-28T15:44:33.373Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 14,
+  "fields": {
+    "category": 2,
+    "name": "Shorts",
+    "slug": "shorts",
+    "description": "Gym Shorts",
+    "price": "5.99",
+    "images": "photos/products/shorts_4iqye1u.jpg",
+    "stock": 25,
+    "rating": "4.00",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:45:32.538Z",
+    "updated_at": "2025-11-28T15:45:32.538Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 15,
+  "fields": {
+    "category": 1,
+    "name": "Dumbells",
+    "slug": "dumbells",
+    "description": "Dumbells for workout",
+    "price": "20.00",
+    "images": "photos/products/dumbells_M0Cr4gL.jpg",
+    "stock": 0,
+    "rating": "5.00",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T15:46:23.496Z",
+    "updated_at": "2025-12-20T17:59:08.924Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 16,
+  "fields": {
+    "category": 1,
+    "name": "Multivitamin Gummie",
+    "slug": "multivitamin-gummie",
+    "description": "Multivitamin Gummie",
+    "price": "6.99",
+    "images": "photos/products/multivitamin_PCztbtZ_y3qeRXX.jpg",
+    "stock": 10,
+    "rating": "4.50",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T16:33:26.557Z",
+    "updated_at": "2025-12-20T09:34:43.398Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 17,
+  "fields": {
+    "category": 1,
+    "name": "T-Shirt",
+    "slug": "t-shirt",
+    "description": "T-Shirt white colour for workout",
+    "price": "15.99",
+    "images": "photos/products/tshirt_2_3Caih4D.jpg",
+    "stock": 0,
+    "rating": "4.50",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T16:34:39.794Z",
+    "updated_at": "2025-11-29T01:30:45.845Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 18,
+  "fields": {
+    "category": 1,
+    "name": "Fitness Belt",
+    "slug": "fitness-belt",
+    "description": "Fitness Belt for training",
+    "price": "20.99",
+    "images": "photos/products/fitness-product-weight-lifting-belt-display_ia6z51Y.jpg",
+    "stock": 1,
+    "rating": "4.80",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T16:35:37.156Z",
+    "updated_at": "2025-12-20T17:58:33.616Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 19,
+  "fields": {
+    "category": 1,
+    "name": "Balls",
+    "slug": "balls",
+    "description": "Balls for workout and sport",
+    "price": "3.99",
+    "images": "photos/products/ball-1551466_1280_40Rzaqq.jpg",
+    "stock": 30,
+    "rating": "4.80",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T16:36:32.268Z",
+    "updated_at": "2025-11-28T16:36:32.268Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 20,
+  "fields": {
+    "category": 1,
+    "name": "Energy Drink",
+    "slug": "energy-drink",
+    "description": "Energy Drink",
+    "price": "3.99",
+    "images": "photos/products/energy_drink_1iiMqkQ.jpg",
+    "stock": 50,
+    "rating": "5.00",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T16:37:15.159Z",
+    "updated_at": "2025-11-28T16:37:15.159Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 21,
+  "fields": {
+    "category": 1,
+    "name": "Yoga Balls",
+    "slug": "yoga-balls",
+    "description": "Yoga ball for fitness exercise",
+    "price": "14.99",
+    "images": "photos/products/home-fitness-equipment-1840858_1280_1_D2zNMyB.jpg",
+    "stock": 10,
+    "rating": "4.70",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-28T18:44:53.877Z",
+    "updated_at": "2025-11-28T18:44:53.877Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 22,
+  "fields": {
+    "category": 1,
+    "name": "Gym Booklet",
+    "slug": "gym-booklet",
+    "description": "Fitness booklet for everyday excises and nutrition",
+    "price": "5.50",
+    "images": "photos/products/noimage_8wzcwgv.png",
+    "stock": 3,
+    "rating": "3.80",
+    "is_available": true,
+    "is_digital": true,
+    "created_at": "2025-11-29T01:35:17.673Z",
+    "updated_at": "2025-11-29T01:35:17.673Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 23,
+  "fields": {
+    "category": 1,
+    "name": "Gym bag",
+    "slug": "gym-bag",
+    "description": "Gym and fitness bag for every attendance",
+    "price": "20.00",
+    "images": "photos/products/gymbag_logo_XMTwQ8A.JPG",
+    "stock": 5,
+    "rating": "4.00",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-29T01:37:19.578Z",
+    "updated_at": "2025-11-29T01:37:19.578Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 24,
+  "fields": {
+    "category": 1,
+    "name": "Dumbbell kit",
+    "slug": "dumbbell-kit",
+    "description": "Lady with dumbbell kit for fitness",
+    "price": "8.99",
+    "images": "photos/products/exercise-841167_1280_Em8ZgDc_V4QtYaI.jpg",
+    "stock": 5,
+    "rating": "4.10",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-29T01:39:30.456Z",
+    "updated_at": "2025-11-29T01:39:30.456Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 25,
+  "fields": {
+    "category": 1,
+    "name": "Group workout Guide",
+    "slug": "group-workout-guide",
+    "description": "Physical education for group walk out",
+    "price": "12.99",
+    "images": "photos/products/group_workout_vueyMpA.jpg",
+    "stock": 3,
+    "rating": "5.00",
+    "is_available": true,
+    "is_digital": false,
+    "created_at": "2025-11-29T01:40:29.363Z",
+    "updated_at": "2025-11-29T01:41:09.450Z"
+  }
+}
+]
