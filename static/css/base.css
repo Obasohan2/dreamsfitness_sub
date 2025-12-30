@@ -250,9 +250,8 @@ input[name='q']::placeholder {
     }
 }
 
-/* ================================================= */
+
 /* ================= CART TABLE ==================== */
-/* ================================================= */
 
 /* ===== DESKTOP + TABLET (SHOW TABLE HEADERS) ===== */
 @media (min-width: 768px) {
@@ -320,9 +319,8 @@ input[name='q']::placeholder {
     }
 }
 
-/* ================================================= */
 /* ============ PRODUCT IMAGE ====================== */
-/* ================================================= */
+
 
 .cart-product-image {
     display: flex;
@@ -344,9 +342,8 @@ input[name='q']::placeholder {
     }
 }
 
-/* ================================================= */
+
 /* ===== SUBSCRIPTION = MATCH PRODUCT ROW ========= */
-/* ================================================= */
 
 .cart-subscription-row td {
     vertical-align: middle;
@@ -385,9 +382,8 @@ input[name='q']::placeholder {
     }
 }
 
-/* ================================================= */
+
 /* ================= CHECKOUT BUTTONS ============== */
-/* ================================================= */
 
 .cart-checkout-actions {
     display: flex;
@@ -408,8 +404,6 @@ input[name='q']::placeholder {
     }
 }
 
-/* ================= FADE DISABLED QTY BUTTON ================= */
-
 /* ================= GREY-OUT DISABLED QTY BUTTON ================= */
 
 .decrement-qty:disabled {
@@ -420,3 +414,4 @@ input[name='q']::placeholder {
     opacity: 1;              /* NO fade */
     pointer-events: none;    /* extra safety */
 }
+
