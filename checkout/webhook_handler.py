@@ -20,9 +20,9 @@ class StripeWH_Handler:
     def __init__(self, request):
         self.request = request
 
-    # ------------------------------------------------
-    # EMAIL
-    # ------------------------------------------------
+    # ==========================================================
+    # EMAIL CONFIRMATION
+    # ==========================================================
     def _send_confirmation_email(self, order):
         subject = render_to_string(
             "checkout/confirmation_emails/confirmation_email_subject.txt",
@@ -44,38 +44,35 @@ class StripeWH_Handler:
             [order.email],
         )
 
-    # ------------------------------------------------
+    # ==========================================================
     # DEFAULT HANDLER
-    # ------------------------------------------------
+    # ==========================================================
     def handle_event(self, event):
         return HttpResponse(
-            content=f"Unhandled webhook received: {event['type']}",
+            content=f"Unhandled webhook received: {event.get('type', 'unknown')}",
             status=200,
-        )
+            )
 
-    # ------------------------------------------------
+    # ==========================================================
     # PAYMENT SUCCESS
-    # ------------------------------------------------
+    # ==========================================================
     def handle_payment_intent_succeeded(self, event):
-        intent = event.data.object
+        intent = event["data"]["object"]
         pid = intent.id
 
-        metadata = intent.metadata
+        metadata = intent.metadata or {}
         cart_json = metadata.get("cart", "{}")
         username = metadata.get("username", "AnonymousUser")
 
         subscription_plan_id = metadata.get("subscription_plan_id")
         subscription_months = metadata.get("subscription_months")
 
-        # ------------------------------------------------
+        # ------------------------------------------------------
         # REBUILD CART FROM METADATA
-        # ------------------------------------------------
+        # ------------------------------------------------------
         cart_data = json.loads(cart_json)
-
-        # Inject cart into session for cart_contents()
         self.request.session["cart"] = cart_data
 
-        # Restore subscription cart if present
         if subscription_plan_id:
             self.request.session["subscription_cart"] = {
                 "plan_id": subscription_plan_id,
@@ -86,9 +83,9 @@ class StripeWH_Handler:
         cart_totals = cart_contents(self.request)
         grand_total = cart_totals["grand_total"].quantize(Decimal("0.01"))
 
-        # ------------------------------------------------
+        # ------------------------------------------------------
         # STRIPE AMOUNT VERIFICATION (SECURITY)
-        # ------------------------------------------------
+        # ------------------------------------------------------
         stripe_amount = Decimal(intent.amount) / Decimal("100")
 
         if stripe_amount != grand_total:
@@ -97,29 +94,28 @@ class StripeWH_Handler:
                 status=400,
             )
 
-        # ------------------------------------------------
-        # BILLING / SHIPPING
-        # ------------------------------------------------
-        charge = intent.charges.data[0]
-        billing_details = charge.billing_details
+        # ------------------------------------------------------
+        # BILLING & SHIPPING (SAFE)
+        # ------------------------------------------------------
+        charge = intent.charges.data[0] if intent.charges.data else None
+        billing_details = charge.billing_details if charge else None
         shipping_details = intent.shipping
 
-        # Clean empty address fields
-        if shipping_details and shipping_details.address:
-            for field, value in shipping_details.address.items():
-                if value == "":
-                    shipping_details.address[field] = None
+        address = shipping_details.address if shipping_details else None
 
-        # ------------------------------------------------
+        # ------------------------------------------------------
         # USER PROFILE
-        # ------------------------------------------------
+        # ------------------------------------------------------
         profile = None
         if username != "AnonymousUser":
-            profile = UserProfile.objects.get(user__username=username)
+            try:
+                profile = UserProfile.objects.get(user__username=username)
+            except UserProfile.DoesNotExist:
+                profile = None
 
-        # ------------------------------------------------
-        # CHECK IF ORDER EXISTS (IDEMPOTENCY)
-        # ------------------------------------------------
+        # ------------------------------------------------------
+        # IDEMPOTENCY CHECK (PREVENT DUPLICATES)
+        # ------------------------------------------------------
         order_exists = False
         attempt = 1
 
@@ -139,44 +135,44 @@ class StripeWH_Handler:
         if order_exists:
             self._send_confirmation_email(order)
             return HttpResponse(
-                content=f"Webhook received: {event['type']} | Order already exists",
+                content="Order already exists",
                 status=200,
             )
 
-        # ------------------------------------------------
+        # ------------------------------------------------------
         # CREATE ORDER
-        # ------------------------------------------------
+        # ------------------------------------------------------
         try:
             order = Order.objects.create(
-                full_name=shipping_details.name,
+                full_name=shipping_details.name if shipping_details else "",
                 user_profile=profile,
-                email=billing_details.email,
-                phone_number=shipping_details.phone,
-                country=shipping_details.address.country,
-                postcode=shipping_details.address.postal_code,
-                town_or_city=shipping_details.address.city,
-                street_address1=shipping_details.address.line1,
-                street_address2=shipping_details.address.line2,
+                email=billing_details.email if billing_details else "",
+                phone_number=shipping_details.phone if shipping_details else "",
+                country=address.country if address else None,
+                postcode=address.postal_code if address else None,
+                town_or_city=address.city if address else None,
+                street_address1=address.line1 if address else None,
+                street_address2=address.line2 if address else None,
                 grand_total=grand_total,
                 original_cart=cart_json,
                 stripe_pid=pid,
             )
 
-            # ------------------------------------------------
+            # --------------------------------------------------
             # SUBSCRIPTION
-            # ------------------------------------------------
+            # --------------------------------------------------
             if subscription_plan_id:
                 plan = SubPlan.objects.get(id=subscription_plan_id)
                 order.subscription_plan = plan
                 order.subscription_months = int(subscription_months)
-                order.subscription_total = cart_totals[
-                    "subscription_after_discount_total"
-                ]
+                order.subscription_total = cart_totals.get(
+                    "subscription_after_discount_total", Decimal("0.00")
+                )
                 order.save()
 
-            # ------------------------------------------------
+            # --------------------------------------------------
             # PRODUCTS
-            # ------------------------------------------------
+            # --------------------------------------------------
             for item_id, quantity in cart_data.items():
                 product = Product.objects.get(id=item_id)
                 OrderLineItem.objects.create(
@@ -190,23 +186,23 @@ class StripeWH_Handler:
                 order.delete()
 
             return HttpResponse(
-                content=f"Webhook received: {event['type']} | ERROR: {e}",
+                content=f"Webhook error: {e}",
                 status=500,
             )
 
-        # ------------------------------------------------
+        # ------------------------------------------------------
         # CONFIRMATION EMAIL
-        # ------------------------------------------------
+        # ------------------------------------------------------
         self._send_confirmation_email(order)
 
         return HttpResponse(
-            content=f"Webhook received: {event['type']} | Order created successfully",
+            content="Order created successfully",
             status=200,
         )
 
-    # ------------------------------------------------
+    # ==========================================================
     # PAYMENT FAILED
-    # ------------------------------------------------
+    # ==========================================================
     def handle_payment_intent_payment_failed(self, event):
         return HttpResponse(
             content=f"Webhook received: {event['type']}",

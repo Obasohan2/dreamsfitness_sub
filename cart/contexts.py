@@ -23,6 +23,7 @@ def cart_contents(request):
 
     for item_id, quantity in cart.items():
         product = get_object_or_404(Product, pk=item_id)
+        quantity = int(quantity)
         line_total = product.price * quantity
 
         product_total += line_total
@@ -47,7 +48,7 @@ def cart_contents(request):
 
     if subscription_data:
         plan = get_object_or_404(SubPlan, pk=subscription_data["plan_id"])
-        months = int(subscription_data["months"])
+        months = max(1, int(subscription_data.get("months", 1)))
 
         subscription_pre_discount_total = plan.price * Decimal(months)
 
@@ -72,17 +73,17 @@ def cart_contents(request):
             "months": months,
             "discount": discount,
         }
-    
+
     # ======================
     # DELIVERY (PRODUCTS ONLY)
     # ======================
+    free_threshold = Decimal(settings.FREE_DELIVERY_THRESHOLD)
+    delivery_percentage = Decimal(settings.STANDARD_DELIVERY_PERCENTAGE)
+
     if product_total > 0:
-        if product_total < settings.FREE_DELIVERY_THRESHOLD:
-            delivery = (
-                product_total *
-                Decimal(settings.STANDARD_DELIVERY_PERCENTAGE) / Decimal("100")
-            )
-            free_delivery_delta = settings.FREE_DELIVERY_THRESHOLD - product_total
+        if product_total < free_threshold:
+            delivery = (product_total * delivery_percentage / Decimal("100"))
+            free_delivery_delta = free_threshold - product_total
         else:
             delivery = Decimal("0.00")
             free_delivery_delta = Decimal("0.00")
@@ -93,8 +94,10 @@ def cart_contents(request):
     # ======================
     # TOTALS
     # ======================
-    product_grand_total = product_total + delivery
-    grand_total = product_grand_total + subscription_after_discount_total
+    product_grand_total = (product_total + delivery).quantize(Decimal("0.01"))
+    grand_total = (
+        product_grand_total + subscription_after_discount_total
+    ).quantize(Decimal("0.01"))
 
     return {
         # Products
@@ -114,7 +117,7 @@ def cart_contents(request):
         # Delivery
         "delivery": delivery,
         "free_delivery_delta": free_delivery_delta,
-        "free_delivery_threshold": Decimal(settings.FREE_DELIVERY_THRESHOLD),
+        "free_delivery_threshold": free_threshold,
 
         # Totals
         "product_grand_total": product_grand_total,

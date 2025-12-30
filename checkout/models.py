@@ -1,9 +1,13 @@
-from django.db import models
-from products.models import Product
-from django_countries.fields import CountryField
-from decimal import Decimal
 import uuid
 import json
+from decimal import Decimal
+
+from django.conf import settings
+from django.db import models
+from django.db.models import Sum
+from django_countries.fields import CountryField
+
+from products.models import Product
 from profiles.models import UserProfile
 
 
@@ -13,13 +17,13 @@ from profiles.models import UserProfile
 class Order(models.Model):
 
     # ---------------- Billing fields ----------------
-    order_number = models.CharField(max_length=32, editable=False)
+    order_number = models.CharField(max_length=32, editable=False, unique=True)
     user_profile = models.ForeignKey(
         UserProfile,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='orders'
+        related_name="orders"
     )
     full_name = models.CharField(max_length=50)
     email = models.EmailField()
@@ -28,7 +32,7 @@ class Order(models.Model):
     address2 = models.CharField(max_length=80, blank=True, null=True)
     city = models.CharField(max_length=40)
     postcode = models.CharField(max_length=20)
-    country = CountryField(blank_label='Country', null=False, blank=False)
+    country = CountryField(blank_label="Country")
 
     # ---------------- Shipping fields ----------------
     shipping_full_name = models.CharField(max_length=50, blank=True, null=True)
@@ -37,7 +41,7 @@ class Order(models.Model):
     shipping_address2 = models.CharField(max_length=80, blank=True, null=True)
     shipping_city = models.CharField(max_length=40, blank=True, null=True)
     shipping_postcode = models.CharField(max_length=20, blank=True, null=True)
-    shipping_country = CountryField(blank_label='Country', null=False, blank=False)
+    shipping_country = CountryField(blank_label="Country")
 
     # ---------------- Totals ----------------
     order_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -46,8 +50,8 @@ class Order(models.Model):
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     # ---------------- Meta ----------------
-    original_cart = models.TextField(default='', blank=True)
-    stripe_pid = models.CharField(max_length=254, default='', blank=True)
+    original_cart = models.TextField(default="", blank=True)
+    stripe_pid = models.CharField(max_length=254, default="", blank=True)
     date = models.DateTimeField(auto_now_add=True)
 
     # ---------------- Helpers ----------------
@@ -59,13 +63,15 @@ class Order(models.Model):
         return self.subscription_total > Decimal("0.00")
 
     def update_total(self):
-        self.order_total = sum(
-            item.lineitem_total for item in self.lineitems.all()
-        ) or Decimal("0.00")
+        self.order_total = (
+            self.lineitems.aggregate(total=Sum("lineitem_total"))["total"]
+            or Decimal("0.00")
+        )
 
-        self.subscription_total = sum(
-            sub.lineitem_total for sub in self.subscription_items.all()
-        ) or Decimal("0.00")
+        self.subscription_total = (
+            self.subscription_items.aggregate(total=Sum("lineitem_total"))["total"]
+            or Decimal("0.00")
+        )
 
         self.grand_total = (
             self.order_total +
@@ -90,7 +96,7 @@ class Order(models.Model):
     def readable_cart(self):
         try:
             cart = json.loads(self.original_cart)
-        except Exception:
+        except (TypeError, ValueError):
             return "Invalid cart data"
 
         lines = []
@@ -113,11 +119,15 @@ class OrderLineItem(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name='lineitems'
+        related_name="lineitems"
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    lineitem_total = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        editable=False
+    )
 
     def save(self, *args, **kwargs):
         self.lineitem_total = self.product.price * self.quantity
@@ -142,7 +152,11 @@ class SubscriptionLineItem(models.Model):
         on_delete=models.CASCADE
     )
     months = models.PositiveIntegerField(default=1)
-    lineitem_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    lineitem_total = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        editable=False
+    )
 
     def save(self, *args, **kwargs):
         monthly_cost = self.subscription_plan.price
@@ -153,7 +167,7 @@ class SubscriptionLineItem(models.Model):
         ).first()
 
         if discount:
-            total -= (total * Decimal(discount.total_discount) / 100)
+            total -= (total * Decimal(discount.total_discount) / Decimal("100"))
 
         self.lineitem_total = total
         super().save(*args, **kwargs)
