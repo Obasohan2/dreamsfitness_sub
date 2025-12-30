@@ -1,0 +1,36 @@
+<tr class="cart-subscription-row">
+    <!-- PRODUCT -->
+    <td>
+        <div class="cart-product-image">
+            <i class="fas fa-dumbbell fa-lg text-primary"></i>
+            <div>
+                <strong>{{ subscription_item.plan.title }}</strong>
+                <div class="small text-muted">
+                    {{ subscription_item.months }} month{{ subscription_item.months|pluralize }}
+                </div>
+            </div>
+        </div>
+    </td>
+
+    <!-- PRICE -->
+    <td>
+        £{{ subscription_item.plan.price|floatformat:2 }}
+        <div class="small text-muted">/ month</div>
+    </td>
+
+    <!-- QTY -->
+    <td class="text-center">
+        <strong>{{ subscription_item.months }} mo</strong>
+    </td>
+
+    <!-- SUBTOTAL -->
+    <td class="text-right">
+        <strong>
+            £{{ subscription_after_discount_total|floatformat:2 }}
+        </strong>
+        <a href="{% url 'remove_subscription_from_cart' %}"
+           class="text-danger ml-2">
+            <i class="fas fa-trash-alt"></i>
+        </a>
+    </td>
+</tr>

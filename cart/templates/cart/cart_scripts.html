@@ -1,0 +1,88 @@
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    function updateDecrementState(itemId) {
+        const qtyInput = document.getElementById(`id_qty_${itemId}`);
+        const decrementBtn = document.querySelector(
+            `.decrement-qty[data-item_id="${itemId}"]`
+        );
+
+        if (!qtyInput || !decrementBtn) return;
+
+        if (parseInt(qtyInput.value) <= 1) {
+            decrementBtn.disabled = true;
+        } else {
+            decrementBtn.disabled = false;
+        }
+    }
+
+    /* ================= UPDATE LINK ================= */
+    document.querySelectorAll(".update-link").forEach(link => {
+        link.addEventListener("click", function () {
+            this.closest("td").querySelector("form").submit();
+        });
+    });
+
+    /* ================= REMOVE ITEM ================= */
+    document.querySelectorAll(".remove-item").forEach(link => {
+        link.addEventListener("click", function () {
+            const itemId = this.id.replace("remove_", "");
+            const csrfToken = document.querySelector(
+                'input[name="csrfmiddlewaretoken"]'
+            ).value;
+
+            fetch(`/cart/remove/${itemId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken
+                }
+            }).then(() => location.reload());
+        });
+    });
+
+    /* ================= DECREMENT ================= */
+    document.querySelectorAll(".decrement-qty").forEach(button => {
+        button.addEventListener("click", function () {
+            const itemId = this.dataset.item_id;
+            const qtyInput = document.getElementById(`id_qty_${itemId}`);
+
+            let currentQty = parseInt(qtyInput.value);
+            if (currentQty > 1) {
+                qtyInput.value = currentQty - 1;
+            }
+
+            updateDecrementState(itemId);
+        });
+    });
+
+    /* ================= INCREMENT ================= */
+    document.querySelectorAll(".increment-qty").forEach(button => {
+        button.addEventListener("click", function () {
+            const itemId = this.dataset.item_id;
+            const qtyInput = document.getElementById(`id_qty_${itemId}`);
+
+            qtyInput.value = parseInt(qtyInput.value) + 1;
+            updateDecrementState(itemId);
+        });
+    });
+
+    /* ================= MANUAL INPUT ================= */
+    document.querySelectorAll(".qty_input").forEach(input => {
+        input.addEventListener("change", function () {
+            const itemId = this.dataset.item_id;
+
+            if (parseInt(this.value) < 1 || isNaN(this.value)) {
+                this.value = 1;
+            }
+
+            updateDecrementState(itemId);
+        });
+    });
+
+    /* ================= INIT STATE ================= */
+    document.querySelectorAll(".qty_input").forEach(input => {
+        updateDecrementState(input.dataset.item_id);
+    });
+
+});
+</script>

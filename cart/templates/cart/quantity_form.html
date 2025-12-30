@@ -1,0 +1,49 @@
+<form method="POST"
+      action="{% url 'adjust_cart' item.item_id %}"
+      class="update-form d-inline-block">
+    {% csrf_token %}
+
+    <div class="d-flex justify-content-center align-items-center">
+
+        <!-- DECREMENT -->
+        <button
+            type="button"
+            class="btn btn-dark btn-sm decrement-qty mr-2"
+            data-item_id="{{ item.item_id }}"
+            {% if item.quantity <= 1 %}disabled{% endif %}
+        >
+            −
+        </button>
+
+        <!-- QUANTITY INPUT -->
+        <input
+            type="number"
+            name="quantity"
+            value="{{ item.quantity }}"
+            min="1"
+            max="99"
+            class="form-control form-control-sm text-center qty_input"
+            style="width:100px;"
+            id="id_qty_{{ item.item_id }}"
+            data-item_id="{{ item.item_id }}"
+        >
+
+        <!-- INCREMENT -->
+        <button
+            type="button"
+            class="btn btn-dark btn-sm increment-qty ml-2"
+            data-item_id="{{ item.item_id }}"
+        >
+            +
+        </button>
+
+    </div>
+</form>
+
+<div class="d-flex justify-content-center mt-2">
+    <a class="update-link text-info small mr-4">Update</a>
+    <a class="remove-item text-danger small"
+       id="remove_{{ item.item_id }}">
+        <i class="fas fa-trash-alt mr-1"></i>Remove
+    </a>
+</div>

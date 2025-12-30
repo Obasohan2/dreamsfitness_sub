@@ -1,0 +1,30 @@
+{% if cart_items %}
+<h6>Products Total: £{{ product_total|floatformat:2 }}</h6>
+<h6>Delivery: £{{ delivery|floatformat:2 }}</h6>
+<h6>Products Subtotal: £{{ product_grand_total|floatformat:2 }}</h6>
+{% endif %}
+
+{% if subscription_item %}
+<h6 class="mt-2">
+    Subscription (before discount):
+    £{{ subscription_pre_discount_total|floatformat:2 }}
+</h6>
+
+{% if subscription_discount_amount > 0 %}
+<h6 class="text-success">
+    Discount −£{{ subscription_discount_amount|floatformat:2 }}
+    ({{ subscription_item.discount.total_discount }}%)
+</h6>
+{% endif %}
+
+<h6>
+    Subscription (after discount):
+    £{{ subscription_after_discount_total|floatformat:2 }}
+</h6>
+{% endif %}
+
+<hr>
+
+<h4 class="mt-2">
+    <strong>Grand Total: £{{ grand_total|floatformat:2 }}</strong>
+</h4>

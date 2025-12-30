@@ -221,58 +221,17 @@ input[name='q']::placeholder {
     font-size: 1rem;
     line-height: 1.5;
     border-radius: 0;
-
-    /* standard bootstrap btn transitions */
-    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
+/* ================================================= */
+/* ================= FIXED NAVBAR ================= */
+/* ================================================= */
 
-.allauth-form-inner-content button:hover,
-.allauth-form-inner-content input[type='submit']:hover {	
-	color: #fff;
-    background-color: #222;
-    border-color: #222;
-}
-
-.allauth-form-inner-content a {
-	color: #17a2b8; /* text-info */
-}
-
-/* Product Form */
-
-.btn-file {
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-file input[type="file"] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.custom-checkbox .custom-control-label::before {
-    border-radius: 0;
-    border-color: #dc3545;
-}
-
-.custom-checkbox .custom-control-input:checked~.custom-control-label::before {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    border-radius: 0;
-}
-
-
-/* fixed top navbar only on medium and up */
 @media (min-width: 992px) {
     .fixed-top-desktop-only {
         position: fixed;
         top: 0;
-        right: 0;
         left: 0;
+        right: 0;
         z-index: 1030;
     }
 
@@ -281,49 +240,183 @@ input[name='q']::placeholder {
     }
 }
 
-/* pad the top a bit when navbar is collapsed on mobile */
 @media (max-width: 991px) {
     .header-container {
         padding-top: 116px;
     }
 
     body {
-        height: calc(100vh - 116px);
+        height: auto;
+    }
+}
+
+/* ================================================= */
+/* ================= CART TABLE ==================== */
+/* ================================================= */
+
+/* ===== DESKTOP + TABLET (SHOW TABLE HEADERS) ===== */
+@media (min-width: 768px) {
+
+    table.cart-table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .display-4.logo-font.text-black {
-        font-size: 2rem;
+    table.cart-table thead {
+        display: table-header-group;
     }
 
-    .nav-link {
-        padding: 0.15rem;
+    table.cart-table tbody {
+        display: table-row-group;
     }
 
-    .nav-link i.fa-lg {
-        font-size: 1rem;
+    table.cart-table tr {
+        display: table-row;
     }
 
-    .navbar-toggler {
-        padding: .6rem .6rem;
-        font-size: 1rem;
+    table.cart-table th,
+    table.cart-table td {
+        display: table-cell;
+        vertical-align: middle;
+    }
+}
+
+/* ===== MOBILE (CARD STYLE, HIDE HEADERS) ===== */
+@media (max-width: 767px) {
+
+    table.cart-table {
+        display: block;
+        width: 100%;
     }
 
-    #delivery-banner h4 {
-        font-size: .9rem;
+    table.cart-table thead {
+        display: none;
     }
 
-    .btn.btn-outline-black.rounded-0,
-    .btn.btn-black.rounded-0 {
-        padding: .375rem .375rem;
+    table.cart-table tbody,
+    table.cart-table tr,
+    table.cart-table td {
+        display: block;
+        width: 100%;
     }
 
-    .btn.btn-outline-black.rounded-0.btn-lg,
-    .btn.btn-black.rounded-0.btn-lg {
-        padding: .375rem .375rem;
-        font-size: .75rem;
+    table.cart-table tbody tr {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 1rem;
     }
 
-    .increment-qty, .decrement-qty {
-        padding: .25rem .5rem !important;
+    table.cart-table tbody td {
+        padding: 6px 0;
+        text-align: left !important;
     }
+
+    table.cart-table tbody td:last-child {
+        text-align: right;
+        font-weight: 600;
+    }
+}
+
+/* ================================================= */
+/* ============ PRODUCT IMAGE ====================== */
+/* ================================================= */
+
+.cart-product-image {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cart-product-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+    .cart-product-image img {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+/* ================================================= */
+/* ===== SUBSCRIPTION = MATCH PRODUCT ROW ========= */
+/* ================================================= */
+
+.cart-subscription-row td {
+    vertical-align: middle;
+}
+
+/* Desktop behaves like table row */
+@media (min-width: 768px) {
+    .cart-subscription-row {
+        display: table-row;
+    }
+}
+
+/* Mobile behaves like product card */
+@media (max-width: 767px) {
+
+    .cart-subscription-row {
+        display: block;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .cart-subscription-row td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        text-align: left !important;
+    }
+
+    .cart-subscription-row td:last-child {
+        justify-content: flex-end;
+        font-weight: 600;
+    }
+}
+
+/* ================================================= */
+/* ================= CHECKOUT BUTTONS ============== */
+/* ================================================= */
+
+.cart-checkout-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .cart-checkout-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cart-checkout-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* ================= FADE DISABLED QTY BUTTON ================= */
+
+/* ================= GREY-OUT DISABLED QTY BUTTON ================= */
+
+.decrement-qty:disabled {
+    background-color: #adb5bd !important; /* Bootstrap grey */
+    border-color: #adb5bd !important;
+    color: #fff !important;
+    cursor: not-allowed;
+    opacity: 1;              /* NO fade */
+    pointer-events: none;    /* extra safety */
 }
