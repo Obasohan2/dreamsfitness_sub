@@ -15,6 +15,7 @@ class PostList(ListView):
     model = BlogPost
     template_name = "blog/blog.html"
     context_object_name = "posts"
+    paginate_by = 8
 
     def get_queryset(self):
         return BlogPost.objects.exclude(
