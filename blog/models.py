@@ -17,14 +17,12 @@ class BlogPost(models.Model):
     image = models.ImageField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
 
-    # Likes
     likes = models.ManyToManyField(
         User,
         related_name="liked_blog_posts",
         blank=True
     )
 
-    # Unlikes
     unlikes = models.ManyToManyField(
         User,
         related_name="unliked_blog_posts",
@@ -48,13 +46,10 @@ class BlogPost(models.Model):
             base_slug = slugify(self.title)
             slug = base_slug
             counter = 1
-
             while BlogPost.objects.filter(slug=slug).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
-
             self.slug = slug
-
         super().save(*args, **kwargs)
 
 
@@ -64,8 +59,11 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name="comments"
     )
-    name = models.CharField(max_length=80)
-    email = models.EmailField()
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="comments"
+    )
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
@@ -73,4 +71,4 @@ class Comment(models.Model):
         ordering = ["created_on"]
 
     def __str__(self):
-        return f"Comment by {self.name}"
+        return f"Comment by {self.user.username}"

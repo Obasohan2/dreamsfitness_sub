@@ -1,10 +1,11 @@
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
 
-from .models import BlogPost
+from .models import BlogPost, Comment
 from .forms import AddPostForm, PostForm, CommentForm
 
 
@@ -31,6 +32,7 @@ def post_detail(request, slug):
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.post = post
+            comment.user = request.user
             comment.save()
             messages.success(request, "Comment added successfully.")
             return redirect("post_detail", slug=slug)
@@ -86,11 +88,12 @@ def edit_post(request, slug):
     })
 
 
+@require_POST
 @login_required
 def delete_post(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
 
-    if request.user != post.author and not request.user.is_superuser:
+    if post.author != request.user and not request.user.is_superuser:
         messages.error(request, "You are not allowed to delete this post.")
         return redirect("post_detail", slug=slug)
 
@@ -99,20 +102,23 @@ def delete_post(request, slug):
     return redirect("blog")
 
 
-
 @login_required
 def toggle_reaction(request, post_id, reaction):
     post = get_object_or_404(BlogPost, id=post_id)
 
     if reaction == "like":
-        post.unlikes.remove(request.user)
+        if request.user in post.unlikes.all():
+            post.unlikes.remove(request.user)
+
         if request.user in post.likes.all():
             post.likes.remove(request.user)
         else:
             post.likes.add(request.user)
 
     elif reaction == "unlike":
-        post.likes.remove(request.user)
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+
         if request.user in post.unlikes.all():
             post.unlikes.remove(request.user)
         else:
@@ -122,3 +128,41 @@ def toggle_reaction(request, post_id, reaction):
         "likes_count": post.total_likes(),
         "unlikes_count": post.total_unlikes(),
     })
+
+
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.user != request.user and not request.user.is_superuser:
+        messages.error(request, "You are not allowed to edit this comment.")
+        return redirect("post_detail", slug=comment.post.slug)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Comment updated successfully.")
+            return redirect("post_detail", slug=comment.post.slug)
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(request, "blog/edit_comment.html", {
+        "form": form,
+        "comment": comment
+    })
+
+
+@require_POST
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.user != request.user and not request.user.is_superuser:
+        messages.error(request, "You are not allowed to delete this comment.")
+        return redirect("post_detail", slug=comment.post.slug)
+
+    post_slug = comment.post.slug
+    comment.delete()
+    messages.success(request, "Comment deleted.")
+    return redirect("post_detail", slug=post_slug)
