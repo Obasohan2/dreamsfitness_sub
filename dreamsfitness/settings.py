@@ -98,7 +98,6 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',  # important for allauth
                 'django.contrib.auth.context_processors.auth',
-                "django.contrib.sessions.middleware.SessionMiddleware",  # 500 error
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',  # to handle media files
                 'cart.contexts.cart_contents',  # to make cart available globally

@@ -19,16 +19,7 @@ def cart_contents(request):
     product_total = Decimal("0.00")
     product_count = 0
 
-    # cart = request.session.get("cart", {})
-    
-    def cart_contents(request):
-        cart = {}
-        
-        if hasattr(request, "session"):
-            cart = request.session.get("cart", {})
-            return {
-                "cart": cart,
-                }
+    cart = request.session.get("cart", {})
             
     for item_id, quantity in cart.items():
         product = get_object_or_404(Product, pk=item_id)
