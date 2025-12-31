@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'django_summernote',
-    'storages', # for AWS S3
+    'storages',  # for AWS S3
     
     'home',  # our app
     'products',  # our app
