@@ -4,7 +4,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'blog/css/reactions.css' %}">
-<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
 {% block extra_title %}
@@ -60,26 +59,26 @@ Testimonies
                                 <img
                                     src="{{ post.image.url }}"
                                     alt="{{ post.title }}"
-                                    loading="lazy"
+                                    class="img-fluid"
                                 >
                             {% else %}
                                 <img
                                     src="{% static 'img/noimage.png' %}"
                                     alt="No image available"
-                                    loading="lazy"
+                                    class="img-fluid"
                                 >
                             {% endif %}
                         </div>
                     </a>
 
                     <!-- BODY -->
-                    <div class="card-body pb-0">
+                    <div class="card-body pb-2">
 
                         <h2 class="h5 mb-2">
                             {{ post.title }}
                         </h2>
 
-                        <p class="small text-muted mb-1">
+                        <p class="small text-muted mb-2">
                             {{ post.body|striptags|truncatewords:40 }}
                         </p>
 
@@ -93,7 +92,7 @@ Testimonies
                     </div>
 
                     <!-- FOOTER -->
-                    <div class="card-footer bg-white pt-0 border-0">
+                    <div class="card-footer bg-white border-0 pt-0">
 
                         <p class="small text-muted mb-1">
                             {{ post.created_on|date:"M d, Y" }}
@@ -137,7 +136,8 @@ Testimonies
                                 </span>
 
                             {% else %}
-                                ❤️ {{ post.total_likes }} | 🤍 {{ post.total_unlikes }}
+                                ❤️ {{ post.total_likes }} |
+                                🤍 {{ post.total_unlikes }}
                             {% endif %}
 
                             <a
@@ -218,11 +218,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!data.success) return;
 
                 document.getElementById(
-                    `likes-count-${this.dataset.postId}`
+                    "likes-count-" + this.dataset.postId
                 ).innerText = data.likes;
 
                 document.getElementById(
-                    `unlikes-count-${this.dataset.postId}`
+                    "unlikes-count-" + this.dataset.postId
                 ).innerText = data.unlikes;
             });
 
