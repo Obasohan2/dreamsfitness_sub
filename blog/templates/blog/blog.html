@@ -2,12 +2,8 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'blog/css/reactions.css' %}">
-{% endblock %}
-
 {% block extra_title %}
-Testimonies
+    Testimonies
 {% endblock %}
 
 {% block page_header %}
@@ -49,51 +45,39 @@ Testimonies
 
             {% for post in posts %}
             <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
-
                 <div class="card h-100 border-0 shadow-sm">
 
                     <!-- IMAGE -->
                     <a href="{% url 'post_detail' post.slug %}">
                         <div class="post-image-wrapper">
                             {% if post.image %}
-                                <img
-                                    src="{{ post.image.url }}"
-                                    alt="{{ post.title }}"
-                                    class="img-fluid"
-                                >
+                                <img src="{{ post.image.url }}"
+                                     alt="{{ post.title }}"
+                                     class="img-fluid">
                             {% else %}
-                                <img
-                                    src="{% static 'img/noimage.png' %}"
-                                    alt="No image available"
-                                    class="img-fluid"
-                                >
+                                <img src="{% static 'img/noimage.png' %}"
+                                     alt="No image available"
+                                     class="img-fluid">
                             {% endif %}
                         </div>
                     </a>
 
                     <!-- BODY -->
                     <div class="card-body pb-2">
-
-                        <h2 class="h5 mb-2">
-                            {{ post.title }}
-                        </h2>
+                        <h2 class="h5 mb-2">{{ post.title }}</h2>
 
                         <p class="small text-muted mb-2">
                             {{ post.body|striptags|truncatewords:40 }}
                         </p>
 
-                        <a
-                            href="{% url 'post_detail' post.slug %}"
-                            class="small font-weight-bold text-dark"
-                        >
+                        <a href="{% url 'post_detail' post.slug %}"
+                           class="small font-weight-bold text-dark">
                             Read more →
                         </a>
-
                     </div>
 
                     <!-- FOOTER -->
                     <div class="card-footer bg-white border-0 pt-0">
-
                         <p class="small text-muted mb-1">
                             {{ post.created_on|date:"M d, Y" }}
                         </p>
@@ -106,61 +90,43 @@ Testimonies
                         <div class="reaction-bar d-flex align-items-center">
 
                             {% if request.user.is_authenticated %}
-
-                                <span
-                                    class="reaction-icon mr-3"
-                                    data-post-id="{{ post.id }}"
-                                    data-reaction="like"
-                                >
+                                <span class="reaction-icon mr-3"
+                                      data-post-id="{{ post.id }}"
+                                      data-reaction="like">
                                     ❤️
-                                    <span
-                                        id="likes-count-{{ post.id }}"
-                                        class="badge badge-light ml-1"
-                                    >
+                                    <span id="likes-count-{{ post.id }}"
+                                          class="badge badge-light ml-1">
                                         {{ post.total_likes }}
                                     </span>
                                 </span>
 
-                                <span
-                                    class="reaction-icon mr-3"
-                                    data-post-id="{{ post.id }}"
-                                    data-reaction="unlike"
-                                >
+                                <span class="reaction-icon mr-3"
+                                      data-post-id="{{ post.id }}"
+                                      data-reaction="unlike">
                                     🤍
-                                    <span
-                                        id="unlikes-count-{{ post.id }}"
-                                        class="badge badge-light ml-1"
-                                    >
+                                    <span id="unlikes-count-{{ post.id }}"
+                                          class="badge badge-light ml-1">
                                         {{ post.total_unlikes }}
                                     </span>
                                 </span>
-
                             {% else %}
                                 ❤️ {{ post.total_likes }} |
                                 🤍 {{ post.total_unlikes }}
                             {% endif %}
 
-                            <a
-                                href="{% url 'post_detail' post.slug %}#comments"
-                                class="text-muted ml-auto"
-                            >
+                            <a href="{% url 'post_detail' post.slug %}#comments"
+                               class="text-muted ml-auto">
                                 💬 {{ post.comments.count }}
                             </a>
 
                         </div>
-
                     </div>
 
                 </div>
             </div>
-
-            {% empty %}
-            <div class="col text-center mt-5">
-                <p>No testimonies yet.</p>
-            </div>
             {% endfor %}
 
-        </div>
+        </div>  {# end .row #}
 
         <!-- PAGINATION -->
         {% if posts.has_other_pages %}
@@ -189,48 +155,4 @@ Testimonies
 
     </div>
 </div>
-{% endblock %}
-
-{% block postloadjs %}
-{{ block.super }}
-
-{% if request.user.is_authenticated %}
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    document.querySelectorAll(".reaction-icon").forEach(function (icon) {
-
-        icon.addEventListener("click", function () {
-
-            fetch("{% url 'post_reaction' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}"
-                },
-                body: JSON.stringify({
-                    post_id: this.dataset.postId,
-                    reaction: this.dataset.reaction
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) return;
-
-                document.getElementById(
-                    "likes-count-" + this.dataset.postId
-                ).innerText = data.likes;
-
-                document.getElementById(
-                    "unlikes-count-" + this.dataset.postId
-                ).innerText = data.unlikes;
-            });
-
-        });
-
-    });
-
-});
-</script>
-{% endif %}
 {% endblock %}
