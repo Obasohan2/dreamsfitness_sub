@@ -3,7 +3,7 @@
 
 <!doctype html>
 <html lang="en">
-<body class="bg-white text-black d-flex flex-column min-vh-100">
+
 <head>
 
     {% block meta %}
@@ -42,14 +42,17 @@
 
     {% block extra_js %}{% endblock %}
 
-    <title>Dreams Fitness {% block extra_title %}{% endblock %}</title>
+    <title>
+        Dreams Fitness {% block extra_title %}{% endblock %}
+    </title>
+
 </head>
 
-<body class="bg-white text-black">
+<body class="bg-white text-black d-flex flex-column min-vh-100">
 
 <header class="container-fluid fixed-top">
 
-    <!-- DESKTOP NAV -->
+    <!-- ================= DESKTOP NAV ================= -->
     <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
 
         <!-- Logo -->
@@ -66,10 +69,17 @@
         <div class="col-12 col-lg-4 my-auto py-1">
             <form method="GET" action="{% url 'products' %}">
                 <div class="input-group w-100">
-                    <input class="form-control border border-black rounded-0"
-                           type="text" name="q" placeholder="Search our site">
+                    <input
+                        class="form-control border border-black rounded-0"
+                        type="text"
+                        name="q"
+                        placeholder="Search our site"
+                    >
                     <div class="input-group-append">
-                        <button class="form-control btn btn-black border border-black rounded-0">
+                        <button
+                            class="form-control btn btn-black border border-black rounded-0"
+                            type="submit"
+                        >
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
@@ -81,9 +91,14 @@
         <div class="col-12 col-lg-4 my-auto py-1">
             <ul class="list-inline list-unstyled text-center text-lg-right my-0">
 
-                <!-- USER DROPDOWN -->
+                <!-- User Dropdown -->
                 <li class="list-inline-item dropdown">
-                    <a class="nav-link text-black" href="#" id="user-options" data-toggle="dropdown">
+                    <a
+                        class="nav-link text-black"
+                        href="#"
+                        id="user-options"
+                        data-toggle="dropdown"
+                    >
                         <div class="text-center">
                             <i class="fas fa-user fa-lg"></i>
                             <p class="my-0">Membership</p>
@@ -91,15 +106,13 @@
                     </a>
 
                     <div class="dropdown-menu border-0" aria-labelledby="user-options">
-
                         {% if request.user.is_authenticated %}
 
                             {% if request.user.is_superuser %}
-                                 <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                                <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
                                     Dashboard
                                 </a>
                             {% else %}
-                                <!-- NORMAL USER ONLY -->
                                 <a href="{% url 'my_profile' %}" class="dropdown-item">
                                     My Profile
                                 </a>
@@ -117,7 +130,6 @@
                                 Login
                             </a>
                         {% endif %}
-
                     </div>
                 </li>
 
@@ -126,10 +138,16 @@
                     <a href="{% url 'view_cart' %}" class="nav-link text-black">
                         <div class="text-center position-relative">
                             <i class="fas fa-shopping-bag fa-lg"></i>
+
                             {% if cart_count %}
-                                <span class="position-absolute badge bg-danger">{{ cart_count }}</span>
+                                <span class="position-absolute badge bg-danger">
+                                    {{ cart_count }}
+                                </span>
                             {% endif %}
-                            <p class="my-0">£{{ grand_total|default:0|floatformat:2 }}</p>
+
+                            <p class="my-0">
+                                £{{ grand_total|default:0|floatformat:2 }}
+                            </p>
                         </div>
                     </a>
                 </li>
@@ -138,59 +156,65 @@
         </div>
     </div>
 
-    <!-- MOBILE NAV -->
+    <!-- ================= MOBILE NAV ================= -->
     <div class="row bg-white">
         <nav class="navbar navbar-expand-lg navbar-light w-100">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav">
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#main-nav"
+            >
                 <span class="navbar-toggler-icon"></span>
             </button>
-            {% include 'includes/mobile-top-header.html' %}
-            {% include 'includes/main-nav.html' %}
+
+            {% include "includes/mobile-top-header.html" %}
+            {% include "includes/main-nav.html" %}
         </nav>
     </div>
 
-    <!-- DELIVERY BANNER -->
-    <div id="delivery-banner" class="row text-center">
-        <div class="col bg-black text-white">
-            <h5 class="logo-font my-1">
-                Join us today and enjoy free delivery on all catalog orders over
-                £{{ free_delivery_threshold }}!
-            </h5>
-        </div>
+    <!-- ================= DELIVERY BANNER ================= -->
+  <div id="delivery-banner" class="row text-center">
+      <div class="col bg-black text-white">
+      <h5 class="logo-font my-1">Join now — free delivery on orders over £{{ free_delivery_threshold }}!</h5>
+      </div>
     </div>
 
 </header>
 
-<!-- TOASTS -->
+
+<!-- ================= TOASTS ================= -->
 {% if messages %}
 <div class="message-container">
     {% for message in messages %}
         {% with message.level as level %}
             {% if level == 40 %}
-                {% include 'includes/toasts/toast_error.html' %}
+                {% include "includes/toasts/toast_error.html" %}
             {% elif level == 30 %}
-                {% include 'includes/toasts/toast_warning.html' %}
+                {% include "includes/toasts/toast_warning.html" %}
             {% elif level == 25 %}
-                {% include 'includes/toasts/toast_success.html' %}
+                {% include "includes/toasts/toast_success.html" %}
             {% else %}
-                {% include 'includes/toasts/toast_info.html' %}
+                {% include "includes/toasts/toast_info.html" %}
             {% endif %}
         {% endwith %}
     {% endfor %}
 </div>
 {% endif %}
 
-<!-- MAIN CONTENT -->
-<main class="flex-fill">
 
+<!-- ================= MAIN CONTENT ================= -->
+<main class="flex-fill">
     {% block page_header %}{% endblock %}
     {% block content %}{% endblock %}
-
 </main>
-<!-- FOOTER -->
+
+
+<!-- ================= FOOTER ================= -->
 <footer class="site-footer mt-auto">
     {% include "includes/footer.html" %}
-</footer> 
+</footer>
+
 
 {% block postloadjs %}
 <script>
@@ -213,6 +237,28 @@
     });
 </script>
 
+  <!-- Bootstrap Validation -->
+   <script>
+        (function () {
+            'use strict';
+
+            var forms = document.querySelectorAll('.needs-validation');
+
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener(
+                    'submit',
+                    function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    },
+                    false
+                );
+            });
+        })();
+    </script>
 
 </body>
 </html>
