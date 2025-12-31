@@ -1,48 +1,57 @@
 {% extends "base.html" %}
 
-{% block extra_title %}Delete Post{% endblock %}
+{% block extra_title %}
+    Delete Post
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
+    <div class="container my-5">
 
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
 
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
 
-                    <h3 class="mb-3 text-danger">
-                        Delete Post
-                    </h3>
+                        <h3 class="mb-3 text-danger">
+                            Delete Post
+                        </h3>
 
-                    <p class="mb-4">
-                        Are you sure you want to delete
-                        <strong>"{{ post.title }}"</strong>?
-                    </p>
+                        <p class="mb-4">
+                            Are you sure you want to delete
+                            <strong>"{{ post.title }}"</strong>?
+                        </p>
 
-                    <p class="text-muted small">
-                        This action cannot be undone.
-                    </p>
+                        <p class="text-muted small">
+                            This action cannot be undone.
+                        </p>
 
-                    <form method="POST">
-                        {% csrf_token %}
+                        <form
+                            method="POST"
+                            action="{% url 'delete_post' post.slug %}"
+                        >
+                            {% csrf_token %}
 
-                        <button type="submit"
-                                class="btn btn-danger mr-2">
-                            Yes, delete
-                        </button>
+                            <button
+                                type="submit"
+                                class="btn btn-danger mr-2"
+                            >
+                                Yes, delete
+                            </button>
 
-                        <a href="{% url 'post_detail' post.slug %}"
-                           class="btn btn-outline-secondary">
-                            Cancel
-                        </a>
-                    </form>
+                            <a
+                                href="{% url 'post_detail' post.slug %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Cancel
+                            </a>
+                        </form>
 
+                    </div>
                 </div>
+
             </div>
-
         </div>
-    </div>
 
-</div>
+    </div>
 {% endblock %}
