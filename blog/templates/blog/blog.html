@@ -199,34 +199,48 @@
     </div>
 </div>
 {% endblock %}
-
 {% block postloadjs %}
 {{ block.super }}
 
 {% if request.user.is_authenticated %}
 <script>
-document.querySelectorAll(".reaction-icon").forEach(icon => {
-    icon.addEventListener("click", function () {
-        const postId = this.dataset.postId;
-        const reaction = this.dataset.reaction;
+document.addEventListener("DOMContentLoaded", function () {
 
-        fetch(`/blog/react/${postId}/${reaction}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-            },
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById(
-                `likes-count-${postId}`
-            ).innerText = data.likes_count;
+    document.querySelectorAll(".reaction-icon").forEach(icon => {
 
-            document.getElementById(
-                `unlikes-count-${postId}`
-            ).innerText = data.unlikes_count;
+        icon.addEventListener("click", function () {
+
+            const postId = this.dataset.postId;
+            const reaction = this.dataset.reaction;
+
+            fetch("{% url 'post_reaction' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    reaction: reaction,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                if (!data.success) return;
+
+                document.getElementById(
+                    `likes-count-${postId}`
+                ).innerText = data.likes;
+
+                document.getElementById(
+                    `unlikes-count-${postId}`
+                ).innerText = data.unlikes;
+            });
         });
+
     });
+
 });
 </script>
 {% endif %}

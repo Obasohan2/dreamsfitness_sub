@@ -27,31 +27,30 @@
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <!-- Title (narrow) -->
+                <!-- Title -->
                 <div class="form-group row">
                     <div class="col-md-8 col-lg-6">
                         {{ form.title|as_crispy_field }}
                     </div>
                 </div>
 
-                <!-- Body (full width) -->
+                <!-- Body -->
                 <div class="form-group">
                     {{ form.body|as_crispy_field }}
                 </div>
 
-                <!-- Image -->
+                <!-- Image (NO crispy) -->
                 <div class="form-group">
-                    {{ form.image|as_crispy_field }}
+                    {{ form.image.label_tag }}
+                    {{ form.image }}
                 </div>
 
                 <button type="submit" class="btn btn-dark mt-3">
                     Save Post
                 </button>
 
-                <a
-                    href="{% url 'blog' %}"
-                    class="btn btn-outline-secondary mt-3 ml-2"
-                >
+                <a href="{% url 'blog' %}"
+                   class="btn btn-outline-secondary mt-3 ml-2">
                     Cancel
                 </a>
             </form>

@@ -307,4 +307,47 @@
         </div>
     </div>
 </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.reaction-icon').forEach(icon => {
+
+        icon.addEventListener('click', function () {
+
+            const postId = this.dataset.postId;
+            const reaction = this.dataset.reaction;
+
+            fetch("{% url 'post_reaction' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    reaction: reaction
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(
+                        `likes-count-${postId}`
+                    ).textContent = data.likes;
+
+                    document.getElementById(
+                        `unlikes-count-${postId}`
+                    ).textContent = data.unlikes;
+                }
+            });
+
+        });
+
+    });
+
+});
+</script>
+
 {% endblock %}
