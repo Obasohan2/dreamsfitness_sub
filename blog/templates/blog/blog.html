@@ -7,7 +7,9 @@
 <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
-{% block extra_title %}Testimonies{% endblock %}
+{% block extra_title %}
+    Testimonies
+{% endblock %}
 
 {% block page_header %}
 <div class="container header-container">
@@ -65,8 +67,8 @@
                                 >
                             {% else %}
                                 <img
-                                    src="{{ MEDIA_URL }}photos/products/noimage.png"
-                                    alt=""
+                                    src="{% static 'img/noimage.png' %}"
+                                    alt="No image available"
                                     loading="lazy"
                                 >
                             {% endif %}
@@ -100,58 +102,55 @@
                             {{ post.created_on|date:"M d, Y" }}
                         </p>
 
+                        <!-- AUTHOR (SAFE) -->
                         <p class="small mb-2">
-                            By
-                            <a
-                                href="{% url 'profile' post.author.username %}"
-                                class="text-muted font-weight-bold"
-                            >
-                                {{ post.author.username }}
-                            </a>
+                            By {{ post.author.username }}
                         </p>
 
                         <!-- REACTIONS + COMMENTS -->
                         <div class="reaction-bar d-flex align-items-center">
 
                             {% if request.user.is_authenticated %}
-                            <!-- LIKE -->
-                            <span
-                                class="reaction-icon heart-like mr-3"
-                                data-post-id="{{ post.id }}"
-                                data-reaction="like"
-                            >
-                                ❤️
-                                <span
-                                    id="likes-count-{{ post.id }}"
-                                    class="badge badge-light ml-1"
-                                >
-                                    {{ post.total_likes }}
-                                </span>
-                            </span>
 
-                            <!-- UNLIKE -->
-                            <span
-                                class="reaction-icon heart-unlike mr-3"
-                                data-post-id="{{ post.id }}"
-                                data-reaction="unlike"
-                            >
-                                🤍
+                                <!-- LIKE -->
                                 <span
-                                    id="unlikes-count-{{ post.id }}"
-                                    class="badge badge-light ml-1"
+                                    class="reaction-icon heart-like mr-3"
+                                    data-post-id="{{ post.id }}"
+                                    data-reaction="like"
                                 >
-                                    {{ post.total_unlikes }}
+                                    ❤️
+                                    <span
+                                        id="likes-count-{{ post.id }}"
+                                        class="badge badge-light ml-1"
+                                    >
+                                        {{ post.total_likes }}
+                                    </span>
                                 </span>
-                            </span>
+
+                                <!-- UNLIKE -->
+                                <span
+                                    class="reaction-icon heart-unlike mr-3"
+                                    data-post-id="{{ post.id }}"
+                                    data-reaction="unlike"
+                                >
+                                    🤍
+                                    <span
+                                        id="unlikes-count-{{ post.id }}"
+                                        class="badge badge-light ml-1"
+                                    >
+                                        {{ post.total_unlikes }}
+                                    </span>
+                                </span>
+
                             {% else %}
-                            ❤️ {{ post.total_likes }} | 🤍 {{ post.total_unlikes }}
+                                ❤️ {{ post.total_likes }} | 🤍 {{ post.total_unlikes }}
                             {% endif %}
 
-                            <!-- COMMENTS (EVERYONE) -->
+                            <!-- COMMENTS -->
                             <a
                                 href="{% url 'post_detail' post.slug %}#comments"
                                 class="text-muted ml-auto"
-                                style="text-decoration:none;"
+                                style="text-decoration: none;"
                                 title="View comments"
                             >
                                 💬 {{ post.comments.count }}
@@ -163,6 +162,7 @@
 
                 </div>
             </div>
+
             {% empty %}
             <div class="col text-center mt-5">
                 <p>No testimonies yet.</p>
@@ -199,6 +199,7 @@
     </div>
 </div>
 {% endblock %}
+
 {% block postloadjs %}
 {{ block.super }}
 
@@ -206,7 +207,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll(".reaction-icon").forEach(icon => {
+    document.querySelectorAll(".reaction-icon").forEach(function (icon) {
 
         icon.addEventListener("click", function () {
 
@@ -236,7 +237,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById(
                     `unlikes-count-${postId}`
                 ).innerText = data.unlikes;
+
             });
+
         });
 
     });
