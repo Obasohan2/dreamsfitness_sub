@@ -3,8 +3,8 @@
 {% load crispy_forms_tags %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'blog/css/reactions.css' %}">
-<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/reactions.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
 {% block extra_title %}
@@ -12,239 +12,240 @@
 {% endblock %}
 
 {% block page_header %}
-<div class="container header-container">
-    <div class="row">
-        <div class="col"></div>
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block content %}
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<!-- FULL-WIDTH BACKGROUND -->
-<div class="container-fluid bg-light">
+    <!-- FULL-WIDTH BACKGROUND -->
+    <div class="container-fluid bg-light">
 
-    <!-- CENTERED CONTENT -->
-    <div class="container py-5">
+        <!-- CENTERED CONTENT -->
+        <div class="container py-5">
 
-        <!-- PAGE TITLE -->
-        <div class="row">
-            <div class="col text-center">
-                <hr class="w-50 mb-1">
-                <h1 class="logo-font">Testimonies</h1>
-                <hr class="w-50 mb-4">
-            </div>
-        </div>
-
-        <!-- ADD POST -->
-        {% if request.user.is_authenticated %}
-        <div class="row mb-4">
-            <div class="col text-center">
-                <a href="{% url 'add_post' %}" class="btn btn-dark">
-                    Add Post
-                </a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- POSTS -->
-        <div class="row">
-
-            {% for post in posts %}
-            <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
-
-                <div class="card h-100 border-0 shadow-sm">
-
-                    <!-- IMAGE -->
-                    <a href="{% url 'post_detail' post.slug %}">
-                        <div class="post-image-wrapper">
-                            {% if post.image %}
-                                <img
-                                    src="{{ post.image.url }}"
-                                    alt="{{ post.title }}"
-                                    loading="lazy"
-                                >
-                            {% else %}
-                                <img
-                                    src="{% static 'img/noimage.png' %}"
-                                    alt="No image available"
-                                    loading="lazy"
-                                >
-                            {% endif %}
-                        </div>
-                    </a>
-
-                    <!-- BODY -->
-                    <div class="card-body pb-0">
-
-                        <h2 class="h5 mb-2">
-                            <strong>{{ post.title }}</strong>
-                        </h2>
-
-                        <p class="small text-muted mb-1">
-                            {{ post.body|striptags|truncatewords:40 }}
-                        </p>
-
-                        <a
-                            href="{% url 'post_detail' post.slug %}"
-                            class="small font-weight-bold text-dark"
-                        >
-                            Read more →
-                        </a>
-
-                    </div>
-
-                    <!-- FOOTER -->
-                    <div class="card-footer bg-white pt-0 border-0">
-
-                        <p class="small text-muted mb-1">
-                            {{ post.created_on|date:"M d, Y" }}
-                        </p>
-
-                        <!-- AUTHOR (SAFE) -->
-                        <p class="small mb-2">
-                            By {{ post.author.username }}
-                        </p>
-
-                        <!-- REACTIONS + COMMENTS -->
-                        <div class="reaction-bar d-flex align-items-center">
-
-                            {% if request.user.is_authenticated %}
-
-                                <!-- LIKE -->
-                                <span
-                                    class="reaction-icon heart-like mr-3"
-                                    data-post-id="{{ post.id }}"
-                                    data-reaction="like"
-                                >
-                                    ❤️
-                                    <span
-                                        id="likes-count-{{ post.id }}"
-                                        class="badge badge-light ml-1"
-                                    >
-                                        {{ post.total_likes }}
-                                    </span>
-                                </span>
-
-                                <!-- UNLIKE -->
-                                <span
-                                    class="reaction-icon heart-unlike mr-3"
-                                    data-post-id="{{ post.id }}"
-                                    data-reaction="unlike"
-                                >
-                                    🤍
-                                    <span
-                                        id="unlikes-count-{{ post.id }}"
-                                        class="badge badge-light ml-1"
-                                    >
-                                        {{ post.total_unlikes }}
-                                    </span>
-                                </span>
-
-                            {% else %}
-                                ❤️ {{ post.total_likes }} | 🤍 {{ post.total_unlikes }}
-                            {% endif %}
-
-                            <!-- COMMENTS -->
-                            <a
-                                href="{% url 'post_detail' post.slug %}#comments"
-                                class="text-muted ml-auto"
-                                style="text-decoration: none;"
-                                title="View comments"
-                            >
-                                💬 {{ post.comments.count }}
-                            </a>
-
-                        </div>
-
-                    </div>
-
+            <!-- PAGE TITLE -->
+            <div class="row">
+                <div class="col text-center">
+                    <hr class="w-50 mb-1">
+                    <h1 class="logo-font">Testimonies</h1>
+                    <hr class="w-50 mb-4">
                 </div>
             </div>
 
-            {% empty %}
-            <div class="col text-center mt-5">
-                <p>No testimonies yet.</p>
+            <!-- ADD POST -->
+            {% if request.user.is_authenticated %}
+                <div class="row mb-4">
+                    <div class="col text-center">
+                        <a href="{% url 'add_post' %}" class="btn btn-dark">
+                            Add Post
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- POSTS -->
+            <div class="row">
+
+                {% for post in posts %}
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+
+                        <div class="card h-100 border-0 shadow-sm">
+
+                            <!-- IMAGE -->
+                            <a href="{% url 'post_detail' post.slug %}">
+                                <div class="post-image-wrapper">
+                                    {% if post.image %}
+                                        <img
+                                            src="{{ post.image.url }}"
+                                            alt="{{ post.title }}"
+                                            loading="lazy"
+                                        >
+                                    {% else %}
+                                        <img
+                                            src="{% static 'img/noimage.png' %}"
+                                            alt="No image available"
+                                            loading="lazy"
+                                        >
+                                    {% endif %}
+                                </div>
+                            </a>
+
+                            <!-- BODY -->
+                            <div class="card-body pb-0">
+
+                                <h2 class="h5 mb-2">
+                                    <strong>{{ post.title }}</strong>
+                                </h2>
+
+                                <p class="small text-muted mb-1">
+                                    {{ post.body|striptags|truncatewords:40 }}
+                                </p>
+
+                                <a
+                                    href="{% url 'post_detail' post.slug %}"
+                                    class="small font-weight-bold text-dark"
+                                >
+                                    Read more →
+                                </a>
+
+                            </div>
+
+                            <!-- FOOTER -->
+                            <div class="card-footer bg-white pt-0 border-0">
+
+                                <p class="small text-muted mb-1">
+                                    {{ post.created_on|date:"M d, Y" }}
+                                </p>
+
+                                <!-- AUTHOR (SAFE – NO URL REVERSAL) -->
+                                <p class="small mb-2">
+                                    By {{ post.author.username }}
+                                </p>
+
+                                <!-- REACTIONS + COMMENTS -->
+                                <div class="reaction-bar d-flex align-items-center">
+
+                                    {% if request.user.is_authenticated %}
+
+                                        <!-- LIKE -->
+                                        <span
+                                            class="reaction-icon heart-like mr-3"
+                                            data-post-id="{{ post.id }}"
+                                            data-reaction="like"
+                                        >
+                                            ❤️
+                                            <span
+                                                id="likes-count-{{ post.id }}"
+                                                class="badge badge-light ml-1"
+                                            >
+                                                {{ post.total_likes }}
+                                            </span>
+                                        </span>
+
+                                        <!-- UNLIKE -->
+                                        <span
+                                            class="reaction-icon heart-unlike mr-3"
+                                            data-post-id="{{ post.id }}"
+                                            data-reaction="unlike"
+                                        >
+                                            🤍
+                                            <span
+                                                id="unlikes-count-{{ post.id }}"
+                                                class="badge badge-light ml-1"
+                                            >
+                                                {{ post.total_unlikes }}
+                                            </span>
+                                        </span>
+
+                                    {% else %}
+                                        ❤️ {{ post.total_likes }} |
+                                        🤍 {{ post.total_unlikes }}
+                                    {% endif %}
+
+                                    <!-- COMMENTS -->
+                                    <a
+                                        href="{% url 'post_detail' post.slug %}#comments"
+                                        class="text-muted ml-auto"
+                                        style="text-decoration: none;"
+                                        title="View comments"
+                                    >
+                                        💬 {{ post.comments.count }}
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                {% empty %}
+                    <div class="col text-center mt-5">
+                        <p>No testimonies yet.</p>
+                    </div>
+                {% endfor %}
+
             </div>
-            {% endfor %}
+
+            <!-- PAGINATION -->
+            {% if posts.paginator.num_pages > 1 %}
+                <div class="row mt-4">
+                    <div class="col text-center">
+
+                        {% if posts.has_previous %}
+                            <a href="?page={{ posts.previous_page_number }}">
+                                Previous
+                            </a>
+                        {% endif %}
+
+                        <span class="mx-3">
+                            Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+                        </span>
+
+                        {% if posts.has_next %}
+                            <a href="?page={{ posts.next_page_number }}">
+                                Next
+                            </a>
+                        {% endif %}
+
+                    </div>
+                </div>
+            {% endif %}
 
         </div>
-
-        <!-- PAGINATION -->
-        {% if posts.paginator.num_pages > 1 %}
-        <div class="row mt-4">
-            <div class="col text-center">
-
-                {% if posts.has_previous %}
-                    <a href="?page={{ posts.previous_page_number }}">
-                        Previous
-                    </a>
-                {% endif %}
-
-                <span class="mx-3">
-                    Page {{ posts.number }} of {{ posts.paginator.num_pages }}
-                </span>
-
-                {% if posts.has_next %}
-                    <a href="?page={{ posts.next_page_number }}">
-                        Next
-                    </a>
-                {% endif %}
-
-            </div>
-        </div>
-        {% endif %}
-
     </div>
-</div>
 {% endblock %}
 
 {% block postloadjs %}
-{{ block.super }}
+    {{ block.super }}
 
-{% if request.user.is_authenticated %}
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+    {% if request.user.is_authenticated %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll(".reaction-icon").forEach(function (icon) {
+                document.querySelectorAll(".reaction-icon").forEach(function (icon) {
 
-        icon.addEventListener("click", function () {
+                    icon.addEventListener("click", function () {
 
-            const postId = this.dataset.postId;
-            const reaction = this.dataset.reaction;
+                        const postId = this.dataset.postId;
+                        const reaction = this.dataset.reaction;
 
-            fetch("{% url 'post_reaction' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}",
-                },
-                body: JSON.stringify({
-                    post_id: postId,
-                    reaction: reaction,
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
+                        fetch("{% url 'post_reaction' %}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                            body: JSON.stringify({
+                                post_id: postId,
+                                reaction: reaction,
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
 
-                if (!data.success) return;
+                            if (!data.success) return;
 
-                document.getElementById(
-                    `likes-count-${postId}`
-                ).innerText = data.likes;
+                            document.getElementById(
+                                `likes-count-${postId}`
+                            ).innerText = data.likes;
 
-                document.getElementById(
-                    `unlikes-count-${postId}`
-                ).innerText = data.unlikes;
+                            document.getElementById(
+                                `unlikes-count-${postId}`
+                            ).innerText = data.unlikes;
+
+                        });
+
+                    });
+
+                });
 
             });
-
-        });
-
-    });
-
-});
-</script>
-{% endif %}
+        </script>
+    {% endif %}
 {% endblock %}
