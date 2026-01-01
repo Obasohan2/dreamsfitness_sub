@@ -10,7 +10,6 @@ Blog
 <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
-
 {% block page_header %}
 <div class="container header-container">
     <div class="row">
@@ -36,23 +35,32 @@ Blog
         <article class="blog-grid-item {% if forloop.first %}featured{% endif %}">
             <div class="card blog-card">
 
-                {% if post.image %}
+                {% if post.image and post.slug %}
                 <a href="{% url 'post_detail' post.slug %}">
                     <img src="{{ post.image.url }}"
                          class="blog-image"
                          alt="{{ post.title }}">
                 </a>
+                {% elif post.image %}
+                <img src="{{ post.image.url }}"
+                     class="blog-image"
+                     alt="{{ post.title }}">
                 {% endif %}
 
                 <div class="card-body blog-body">
+
                     <h5 class="blog-title">
-                        <a href="{% url 'post_detail' post.slug %}">
+                        {% if post.slug %}
+                            <a href="{% url 'post_detail' post.slug %}">
+                                {{ post.title }}
+                            </a>
+                        {% else %}
                             {{ post.title }}
-                        </a>
+                        {% endif %}
                     </h5>
 
                     <p class="blog-meta">
-                        By <strong>{{ post.author.username }}</strong> ·
+                        By <strong>{{ post.author }}</strong><br>
                         {{ post.created_on|date:"M d, Y" }}
                     </p>
 
@@ -66,14 +74,17 @@ Blog
                         <span>💬 {{ post.comments.count }}</span>
                     </div>
 
+                    {% if post.slug %}
                     <a href="{% url 'post_detail' post.slug %}"
                        class="btn btn-outline-primary btn-sm btn-block mt-3">
                         Read More
                     </a>
-                </div>
+                    {% endif %}
 
+                </div>
             </div>
         </article>
+
         {% empty %}
         <p class="text-muted text-center">No blog posts available yet.</p>
         {% endfor %}
@@ -81,6 +92,7 @@ Blog
     <!-- CSS GRID END -->
 
 </div>
+
 <button id="backToTop" aria-label="Back to top">↑</button>
 {% endblock %}
 
