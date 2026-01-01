@@ -511,4 +511,3 @@ input[name="q"]::placeholder {
     height: auto;
     object-fit: cover; /* Ensure images fill the space without distortion */
 }
-

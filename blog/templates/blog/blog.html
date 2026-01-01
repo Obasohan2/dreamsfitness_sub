@@ -3,8 +3,13 @@
 {% load crispy_forms_tags %}
 
 {% block extra_title %}
-    Testimonies
+Blog
 {% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+{% endblock %}
+
 
 {% block page_header %}
 <div class="container header-container">
@@ -17,138 +22,68 @@
 {% block content %}
 <div class="overlay"></div>
 
-<div class="container-fluid bg-light">
-    <div class="container py-5">
-
-        <!-- PAGE TITLE -->
-        <div class="row">
-            <div class="col text-center">
-                <hr class="w-50 mb-1">
-                <h1 class="logo-font">Testimonies</h1>
-                <hr class="w-50 mb-4">
-            </div>
+<div class="container mt-5 blog-container">
+    <div class="row">
+        <div class="col-12 mb-4 text-center">
+            <h1 class="font-weight-bold">Blog</h1>
+            <p class="text-muted">Latest articles & updates</p>
         </div>
-
-        <!-- ADD POST BUTTON -->
-        {% if request.user.is_authenticated %}
-        <div class="row mb-4">
-            <div class="col text-center">
-                <a href="{% url 'add_post' %}" class="btn btn-dark">
-                    Add Post
-                </a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- POSTS GRID -->
-        <div class="row">
-            {% for post in posts %}
-            <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-
-                    <!-- IMAGE -->
-                    <a href="{% url 'post_detail' post.slug %}">
-                        <div class="post-image-wrapper">
-                            {% if post.image %}
-                            <img src="{{ post.image.url }}"
-                                 alt="{{ post.title }}"
-                                 class="img-fluid">
-                            {% else %}
-                            <img src="{% static 'img/noimage.png' %}"
-                                 alt="No image available"
-                                 class="img-fluid">
-                            {% endif %}
-                        </div>
-                    </a>
-
-                    <!-- BODY -->
-                    <div class="card-body pb-2">
-                        <h2 class="h5 mb-2">{{ post.title }}</h2>
-
-                        <p class="small text-muted mb-2">
-                            {{ post.body|striptags|truncatewords:40 }}
-                        </p>
-
-                        <a href="{% url 'post_detail' post.slug %}"
-                           class="small font-weight-bold text-dark">
-                            Read more →
-                        </a>
-                    </div>
-
-                    <!-- FOOTER -->
-                    <div class="card-footer bg-white border-0 pt-0">
-                        <p class="small text-muted mb-1">
-                            {{ post.created_on|date:"M d, Y" }}
-                        </p>
-
-                        <p class="small mb-2">
-                            By {{ post.author.username }}
-                        </p>
-
-                        <!-- REACTIONS -->
-                        <div class="reaction-bar d-flex align-items-center">
-                            {% if request.user.is_authenticated %}
-                            <span class="reaction-icon mr-3"
-                                  data-post-id="{{ post.id }}"
-                                  data-reaction="like">
-                                ❤️
-                                <span id="likes-count-{{ post.id }}"
-                                      class="badge badge-light ml-1">
-                                    {{ post.total_likes }}
-                                </span>
-                            </span>
-
-                            <span class="reaction-icon mr-3"
-                                  data-post-id="{{ post.id }}"
-                                  data-reaction="unlike">
-                                🤍
-                                <span id="unlikes-count-{{ post.id }}"
-                                      class="badge badge-light ml-1">
-                                    {{ post.total_unlikes }}
-                                </span>
-                            </span>
-                            {% else %}
-                            ❤️ {{ post.total_likes }} |
-                            🤍 {{ post.total_unlikes }}
-                            {% endif %}
-
-                            <a href="{% url 'post_detail' post.slug %}#comments"
-                               class="text-muted ml-auto">
-                                💬 {{ post.comments.count }}
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- PAGINATION -->
-        {% if is_paginated %}
-        <div class="row mt-4">
-            <div class="col text-center">
-
-                {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">
-                    Previous
-                </a>
-                {% endif %}
-
-                <span class="mx-3">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
-
-                {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">
-                    Next
-                </a>
-                {% endif %}
-
-            </div>
-        </div>
-        {% endif %}
-
     </div>
+
+    <!-- CSS GRID START -->
+    <div class="blog-grid">
+        {% for post in posts %}
+        <article class="blog-grid-item {% if forloop.first %}featured{% endif %}">
+            <div class="card blog-card">
+
+                {% if post.image %}
+                <a href="{% url 'post_detail' post.slug %}">
+                    <img src="{{ post.image.url }}"
+                         class="blog-image"
+                         alt="{{ post.title }}">
+                </a>
+                {% endif %}
+
+                <div class="card-body blog-body">
+                    <h5 class="blog-title">
+                        <a href="{% url 'post_detail' post.slug %}">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+
+                    <p class="blog-meta">
+                        By <strong>{{ post.author.username }}</strong> ·
+                        {{ post.created_on|date:"M d, Y" }}
+                    </p>
+
+                    <p class="blog-excerpt">
+                        {{ post.body|truncatewords:30 }}
+                    </p>
+
+                    <div class="blog-footer">
+                        <span>👍 {{ post.total_likes }}</span>
+                        <span>👎 {{ post.total_unlikes }}</span>
+                        <span>💬 {{ post.comments.count }}</span>
+                    </div>
+
+                    <a href="{% url 'post_detail' post.slug %}"
+                       class="btn btn-outline-primary btn-sm btn-block mt-3">
+                        Read More
+                    </a>
+                </div>
+
+            </div>
+        </article>
+        {% empty %}
+        <p class="text-muted text-center">No blog posts available yet.</p>
+        {% endfor %}
+    </div>
+    <!-- CSS GRID END -->
+
 </div>
+<button id="backToTop" aria-label="Back to top">↑</button>
+{% endblock %}
+
+{% block postloadjs %}
+<script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}
