@@ -5,7 +5,9 @@ from django.utils.text import slugify
 def fix_empty_slugs(apps, schema_editor):
     BlogPost = apps.get_model("blog", "BlogPost")
 
-    for post in BlogPost.objects.filter(slug=""):
+    queryset = BlogPost.objects.filter(slug__isnull=True) | BlogPost.objects.filter(slug="")
+
+    for post in queryset:
         base_slug = slugify(post.title)
         slug = base_slug
         counter = 1
@@ -21,7 +23,7 @@ def fix_empty_slugs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("blog", "0009_remove_comment_email_remove_comment_name_and_more"),
+        ("blog", "0010_alter_blogpost_slug"),
     ]
 
     operations = [
