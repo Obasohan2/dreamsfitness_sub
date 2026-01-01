@@ -12,7 +12,6 @@ class BlogPost(models.Model):
     slug = models.SlugField(
         max_length=130,
         unique=True,
-        blank=True
     )
 
     author = models.ForeignKey(
