@@ -12,16 +12,19 @@ class BlogPost(models.Model):
     slug = models.SlugField(
         max_length=130,
         unique=True,
+        blank=True,  
     )
 
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="blog_posts"
+        related_name="posts"
     )
 
     body = models.TextField()
+
     image = models.ImageField(
+        upload_to="blog/",
         null=True,
         blank=True
     )
@@ -32,13 +35,13 @@ class BlogPost(models.Model):
 
     likes = models.ManyToManyField(
         User,
-        related_name="liked_blog_posts",
+        related_name="liked_posts",
         blank=True
     )
 
     unlikes = models.ManyToManyField(
         User,
-        related_name="unliked_blog_posts",
+        related_name="unliked_posts",
         blank=True
     )
 

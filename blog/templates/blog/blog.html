@@ -3,99 +3,106 @@
 {% load crispy_forms_tags %}
 
 {% block extra_title %}
-Blog
+    Blog
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
 {% block page_header %}
-<div class="container header-container">
-    <div class="row">
-        <div class="col"></div>
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block content %}
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<div class="container mt-5 blog-container">
-    <div class="row">
-        <div class="col-12 mb-4 text-center">
-            <h1 class="font-weight-bold">Blog</h1>
-            <p class="text-muted">Latest articles & updates</p>
-        </div>
-    </div>
-
-    <!-- CSS GRID START -->
-    <div class="blog-grid">
-        {% for post in posts %}
-        <article class="blog-grid-item {% if forloop.first %}featured{% endif %}">
-            <div class="card blog-card">
-
-                {% if post.image and post.slug %}
-                <a href="{% url 'post_detail' post.slug %}">
-                    <img src="{{ post.image.url }}"
-                         class="blog-image"
-                         alt="{{ post.title }}">
-                </a>
-                {% elif post.image %}
-                <img src="{{ post.image.url }}"
-                     class="blog-image"
-                     alt="{{ post.title }}">
-                {% endif %}
-
-                <div class="card-body blog-body">
-
-                    <h5 class="blog-title">
-                        {% if post.slug %}
-                            <a href="{% url 'post_detail' post.slug %}">
-                                {{ post.title }}
-                            </a>
-                        {% else %}
-                            {{ post.title }}
-                        {% endif %}
-                    </h5>
-
-                    <p class="blog-meta">
-                        By <strong>{{ post.author }}</strong><br>
-                        {{ post.created_on|date:"M d, Y" }}
-                    </p>
-
-                    <p class="blog-excerpt">
-                        {{ post.body|truncatewords:30 }}
-                    </p>
-
-                    <div class="blog-footer">
-                        <span>👍 {{ post.total_likes }}</span>
-                        <span>👎 {{ post.total_unlikes }}</span>
-                        <span>💬 {{ post.comments.count }}</span>
-                    </div>
-
-                    {% if post.slug %}
-                    <a href="{% url 'post_detail' post.slug %}"
-                       class="btn btn-outline-primary btn-sm btn-block mt-3">
-                        Read More
-                    </a>
-                    {% endif %}
-
-                </div>
+    <div class="container mt-5 blog-container">
+        <div class="row">
+            <div class="col-12 mb-4 text-center">
+                <h1 class="font-weight-bold">Blog</h1>
+                <p class="text-muted">Latest articles & updates</p>
             </div>
-        </article>
+        </div>
 
-        {% empty %}
-        <p class="text-muted text-center">No blog posts available yet.</p>
-        {% endfor %}
+        <!-- CSS GRID START -->
+        <div class="blog-grid">
+            {% for post in posts %}
+                <article class="blog-grid-item {% if forloop.first %}featured{% endif %}">
+                    <div class="card blog-card">
+
+                        {% if post.image and post.slug %}
+                            <a href="{% url 'post_detail' post.slug %}">
+                                <img
+                                    src="{{ post.image.url }}"
+                                    class="blog-image"
+                                    alt="{{ post.title }}"
+                                >
+                            </a>
+                        {% elif post.image %}
+                            <img
+                                src="{{ post.image.url }}"
+                                class="blog-image"
+                                alt="{{ post.title }}"
+                            >
+                        {% endif %}
+
+                        <div class="card-body blog-body">
+
+                            <h5 class="blog-title">
+                                {% if post.slug %}
+                                    <a href="{% url 'post_detail' post.slug %}">
+                                        {{ post.title }}
+                                    </a>
+                                {% else %}
+                                    {{ post.title }}
+                                {% endif %}
+                            </h5>
+
+                            <p class="blog-meta">
+                                By <strong>{{ post.author }}</strong><br>
+                                {{ post.created_on|date:"M d, Y" }}
+                            </p>
+
+                            <p class="blog-excerpt">
+                                {{ post.body|truncatewords:30 }}
+                            </p>
+
+                            <div class="blog-footer">
+                                <span>👍 {{ post.total_likes }}</span>
+                                {# 👎 removed temporarily – DB table missing #}
+                                <span>💬 {{ post.comments.count }}</span>
+                            </div>
+
+                            {% if post.slug %}
+                                <a
+                                    href="{% url 'post_detail' post.slug %}"
+                                    class="btn btn-outline-primary btn-sm btn-block mt-3"
+                                >
+                                    Read More
+                                </a>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="text-muted text-center">
+                    No blog posts available yet.
+                </p>
+            {% endfor %}
+        </div>
+        <!-- CSS GRID END -->
+
     </div>
-    <!-- CSS GRID END -->
 
-</div>
-
-<button id="backToTop" aria-label="Back to top">↑</button>
+    <button id="backToTop" aria-label="Back to top">↑</button>
 {% endblock %}
 
 {% block postloadjs %}
-<script src="{% static 'blog/js/blog.js' %}"></script>
+    <script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}
