@@ -54,17 +54,37 @@ class BasePostForm(forms.ModelForm):
 # ====================================================
 # ADD POST FORM
 # ====================================================
-class AddPostForm(forms.ModelForm):
-    class Meta:
-        model = BlogPost
-        fields = ["title", "body", "image", "is_success_story"]
+class AddPostForm(BasePostForm):
+    """
+    Form for creating a new blog post.
+    Success Story checkbox is visible to ALL users.
+    Backend enforces subscriber-only rules.
+    """
+
+    class Meta(BasePostForm.Meta):
+        widgets = {
+            "title": forms.TextInput(
+                attrs={
+                    "placeholder": "Post title",
+                }
+            ),
+            "body": SummernoteWidget(
+                attrs={
+                    "placeholder": "Share your update...",
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+        # Keep user available if you want messaging later
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        if user and not user.profile.is_subscriber:
-            self.fields.pop("is_success_story")
+        # Optional: helper text for clarity
+        self.fields["is_success_story"].help_text = (
+            "Optional. Subscriber-only feature. "
+            "Free users’ selections may be ignored."
+        )
 
 
 # ====================================================

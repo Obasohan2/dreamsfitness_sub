@@ -73,9 +73,44 @@
 
         </div>
 
-        <!-- ================= RIGHT COLUMN – ORDER HISTORY ================= -->
+        <!-- ================= RIGHT COLUMN ================= -->
         <div class="col-12 col-lg-6 mb-4">
 
+            <!-- ================= SUBSCRIPTION STATUS ================= -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase mb-3">Subscription Status</h6>
+
+                    {% if profile.is_subscriber %}
+                        <span class="badge badge-success p-2">
+                            ✅ Active Subscriber
+                        </span>
+
+                        <p class="small text-muted mt-2">
+                            You can post success stories and premium content
+                        </p>
+                    {% else %}
+                        <span class="badge badge-secondary p-2">
+                            ❌ Free User
+                        </span>
+
+                        <p class="small text-muted mt-2">
+                            You can post updates, but success stories require a subscription
+                        </p>
+
+                        <a
+                            href="{% url 'pricing' %}"
+                            class="btn btn-sm btn-outline-success mt-2"
+                        >
+                            Upgrade Plan
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- ================= ORDER HISTORY ================= -->
             <p class="text-muted mb-2">Order History</p>
 
             <div class="order-history table-responsive">
