@@ -32,11 +32,13 @@
         <!-- ================= LEFT COLUMN – PROFILE ================= -->
         <div class="col-12 col-lg-6 mb-3">
 
-            <p class="text-muted mb-2">Default Delivery Information</p>
+            <p class="text-muted mb-2">Profile & Delivery Information</p>
 
+            <!-- ✅ enctype is REQUIRED -->
             <form
                 action="{% url 'my_profile' %}"
                 method="POST"
+                enctype="multipart/form-data"
                 id="profile-update-form"
             >
                 {% csrf_token %}
@@ -80,7 +82,9 @@
             <div class="card mb-4">
                 <div class="card-body text-center">
 
-                    <h6 class="text-uppercase mb-3">Subscription Status</h6>
+                    <h6 class="text-uppercase mb-3">
+                        Subscription Status
+                    </h6>
 
                     {% if profile.is_subscriber %}
                         <span class="badge badge-success p-2">
@@ -88,7 +92,7 @@
                         </span>
 
                         <p class="small text-muted mt-2">
-                            You can post success stories and premium content
+                            You can post success stories and premium content.
                         </p>
                     {% else %}
                         <span class="badge badge-secondary p-2">
@@ -96,7 +100,7 @@
                         </span>
 
                         <p class="small text-muted mt-2">
-                            You can post updates, but success stories require a subscription
+                            You can post updates, but success stories require a subscription.
                         </p>
 
                         <a
@@ -128,76 +132,59 @@
 
                     <tbody>
                         {% for order in orders %}
-                        <tr>
+                            <tr>
+                                <td>{{ order.order_number|truncatechars:6 }}</td>
+                                <td>{{ order.date|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <ul class="list-unstyled mb-0 small">
 
-                            <!-- ORDER NUMBER -->
-                            <td>
-                                {{ order.order_number|truncatechars:6 }}
-                            </td>
-
-                            <!-- DATE -->
-                            <td>
-                                {{ order.date|date:"Y-m-d H:i" }}
-                            </td>
-
-                            <!-- CONTENTS -->
-                            <td>
-                                <ul class="list-unstyled mb-0 small">
-
-                                    {% if order.lineitems.exists %}
-                                        <li class="font-weight-bold text-muted">
-                                            Products
-                                        </li>
-                                        {% for item in order.lineitems.all %}
-                                            <li class="ml-2">
-                                                🛒 {{ item.product.name }} × {{ item.quantity }}
+                                        {% if order.lineitems.exists %}
+                                            <li class="font-weight-bold text-muted">
+                                                Products
                                             </li>
-                                        {% endfor %}
-                                    {% endif %}
+                                            {% for item in order.lineitems.all %}
+                                                <li class="ml-2">
+                                                    🛒 {{ item.product.name }} × {{ item.quantity }}
+                                                </li>
+                                            {% endfor %}
+                                        {% endif %}
 
-                                    {% if order.subscription_items.exists %}
-                                        <li class="font-weight-bold text-muted mt-2">
-                                            Subscriptions
-                                        </li>
-                                        {% for sub in order.subscription_items.all %}
-                                            <li class="ml-2">
-                                                📦 {{ sub.subscription_plan.title }}
-                                                ({{ sub.months }} months)
+                                        {% if order.subscription_items.exists %}
+                                            <li class="font-weight-bold text-muted mt-2">
+                                                Subscriptions
                                             </li>
-                                        {% endfor %}
-                                    {% endif %}
+                                            {% for sub in order.subscription_items.all %}
+                                                <li class="ml-2">
+                                                    📦 {{ sub.subscription_plan.title }}
+                                                    ({{ sub.months }} months)
+                                                </li>
+                                            {% endfor %}
+                                        {% endif %}
 
-                                    {% if not order.lineitems.exists and not order.subscription_items.exists %}
-                                        <li class="text-muted">
-                                            No items
-                                        </li>
-                                    {% endif %}
+                                        {% if not order.lineitems.exists and not order.subscription_items.exists %}
+                                            <li class="text-muted">
+                                                No items
+                                            </li>
+                                        {% endif %}
 
-                                </ul>
-                            </td>
-
-                            <!-- TOTAL -->
-                            <td>
-                                £{{ order.grand_total|floatformat:2 }}
-                            </td>
-
-                            <!-- VIEW -->
-                            <td>
-                                <a
-                                    href="{% url 'order_history' order.order_number %}"
-                                    class="btn btn-sm btn-outline-primary"
-                                >
-                                    View
-                                </a>
-                            </td>
-
-                        </tr>
+                                    </ul>
+                                </td>
+                                <td>£{{ order.grand_total|floatformat:2 }}</td>
+                                <td>
+                                    <a
+                                        href="{% url 'order_history' order.order_number %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-muted text-center">
-                                No orders yet.
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="5" class="text-muted text-center">
+                                    No orders yet.
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
 

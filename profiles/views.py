@@ -10,16 +10,19 @@ from checkout.models import Order, SubscriptionLineItem
 from blog.models import BlogPost
 
 
+User = get_user_model()
+
+
 # ====================================================
-# USER PROFILE (PRIVATE)
+# PRIVATE PROFILE (OWNER ONLY)
 # ====================================================
 @login_required
 def profile(request):
     """
-    Display user profile + order history + subscription history
+    Logged-in user's private profile
     """
 
-    # ---------- Admin safety guard ----------
+    # Safety: block superusers
     if request.user.is_superuser:
         messages.info(
             request,
@@ -27,16 +30,16 @@ def profile(request):
         )
         return redirect("home")
 
-    # ---------- Get profile ----------
     profile = get_object_or_404(
         UserProfile,
         user=request.user
     )
 
-    # ---------- Update profile ----------
+    # Update profile
     if request.method == "POST":
         form = UserProfileForm(
             request.POST,
+            request.FILES,
             instance=profile
         )
 
@@ -44,24 +47,25 @@ def profile(request):
             form.save()
             messages.success(
                 request,
-                "Profile updated successfully!"
+                "Profile updated successfully."
             )
+            return redirect("my_profile")
         else:
             messages.error(
                 request,
-                "Error updating your profile."
+                "Error updating profile."
             )
     else:
         form = UserProfileForm(instance=profile)
 
-    # ---------- Order history ----------
+    # Order history
     orders = (
-        profile.orders
-        .all()
+        Order.objects
+        .filter(user_profile=profile)
         .order_by("-date")
     )
 
-    # ---------- Subscription history ----------
+    # Subscription history
     subscriptions = SubscriptionLineItem.objects.filter(
         order__user_profile=profile
     )
@@ -82,42 +86,37 @@ def profile(request):
 
 
 # ====================================================
-# PUBLIC PROFILE
+# PUBLIC PROFILE (VIEWABLE BY LOGGED-IN USERS)
 # ====================================================
+@login_required
 def public_profile(request, username):
     """
-    Public-facing user profile
+    Public-facing profile page
     """
-
-    User = get_user_model()
 
     user = get_object_or_404(
         User,
         username=username
     )
 
-    # ---------- Block superusers ----------
+    # Block superusers
     if user.is_superuser:
         messages.info(
             request,
             "This user does not have a public profile."
         )
-        return redirect("home")
+        return redirect("blog")
 
     profile = get_object_or_404(
         UserProfile,
         user=user
     )
 
-    # ---------- Visible posts (soft-delete aware) ----------
     posts = (
         BlogPost.objects
-        .filter(
-            author=user,
-            is_deleted=False
-        )
-        .exclude(slug="")
+        .filter(author=user)
         .exclude(slug__isnull=True)
+        .exclude(slug="")
         .order_by("-created_on")
     )
 
@@ -135,12 +134,12 @@ def public_profile(request, username):
 
 
 # ====================================================
-# ORDER HISTORY (PROFILE ONLY)
+# ORDER HISTORY (OWNER ONLY)
 # ====================================================
 @login_required
 def order_history(request, order_number):
     """
-    View a past order (profile only)
+    View a past order from profile
     """
 
     order = get_object_or_404(
@@ -151,7 +150,7 @@ def order_history(request, order_number):
 
     messages.info(
         request,
-        f"Viewing past order {order_number}"
+        f"Viewing order {order_number}"
     )
 
     return render(
@@ -165,12 +164,12 @@ def order_history(request, order_number):
 
 
 # ====================================================
-# SUBSCRIPTION HISTORY (PROFILE ONLY)
+# SUBSCRIPTION HISTORY (OWNER ONLY)
 # ====================================================
 @login_required
 def subscription_history(request, sub_id):
     """
-    View a past subscription (profile only)
+    View a subscription from profile
     """
 
     subscription = get_object_or_404(
@@ -181,7 +180,7 @@ def subscription_history(request, sub_id):
 
     messages.info(
         request,
-        "Viewing your subscription details"
+        "Viewing subscription details."
     )
 
     return render(
