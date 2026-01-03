@@ -54,24 +54,17 @@ class BasePostForm(forms.ModelForm):
 # ====================================================
 # ADD POST FORM
 # ====================================================
-class AddPostForm(BasePostForm):
-    """
-    Form for creating a new blog post
-    """
+class AddPostForm(forms.ModelForm):
+    class Meta:
+        model = BlogPost
+        fields = ["title", "body", "image", "is_success_story"]
 
-    class Meta(BasePostForm.Meta):
-        widgets = {
-            "title": forms.TextInput(
-                attrs={
-                    "placeholder": "Post title",
-                }
-            ),
-            "body": SummernoteWidget(
-                attrs={
-                    "placeholder": "Write your post content here...",
-                }
-            ),
-        }
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        if user and not user.profile.is_subscriber:
+            self.fields.pop("is_success_story")
 
 
 # ====================================================

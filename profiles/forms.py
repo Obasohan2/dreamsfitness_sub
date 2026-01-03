@@ -5,7 +5,14 @@ from .models import UserProfile
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        exclude = ('user',)
+        fields = (
+            'default_phone_number',
+            'default_street_address1',
+            'default_street_address2',
+            'default_town_or_city',
+            'default_postcode',
+            'default_country',
+        )
 
     def __init__(self, *args, **kwargs):
         """Add placeholders, classes, remove labels, set autofocus."""
@@ -24,7 +31,7 @@ class UserProfileForm(forms.ModelForm):
         self.fields['default_phone_number'].widget.attrs['autofocus'] = True
 
         for field in self.fields:
-            if field != 'default_country':  # Country field has a select dropdown
+            if field != 'default_country':
                 placeholder = placeholders.get(field, '')
                 if self.fields[field].required:
                     placeholder += ' *'
@@ -34,5 +41,4 @@ class UserProfileForm(forms.ModelForm):
                 'form-control border-black rounded-0 profile-form-input'
             )
 
-            # Remove labels (crispy will handle layout)
             self.fields[field].label = False

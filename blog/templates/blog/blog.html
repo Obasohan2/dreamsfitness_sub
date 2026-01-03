@@ -19,58 +19,68 @@
         <!-- ================= LEFT: COMMUNITY FEED ================= -->
         <div class="col-lg-8">
 
-            <!-- Share Success -->
+            <!-- ================= SHARE SUCCESS ================= -->
             {% if user.is_authenticated %}
-                {% if user.profile.is_subscriber %}
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="mb-3">🏆 Share Your Success</h5>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="mb-3">🏆 Share Your Success</h5>
 
-                            <form method="POST" action="{% url 'add_post' %}">
-                                {% csrf_token %}
-                                <textarea
-                                    name="body"
-                                    class="form-control mb-2"
-                                    rows="3"
-                                    placeholder="What progress did you make today?"
-                                    required></textarea>
+                        <form method="POST" action="{% url 'add_post' %}">
+                            {% csrf_token %}
 
-                                <button type="submit" class="btn btn-success btn-block">
-                                    Post Update
-                                </button>
-                            </form>
-                        </div>
+                            <textarea
+                                name="body"
+                                class="form-control mb-2"
+                                rows="3"
+                                placeholder="What progress did you make today?"
+                                required
+                            ></textarea>
+
+                            {% if not user.profile.is_subscriber %}
+                                <small class="text-muted d-block mb-2">
+                                    ℹ️ Upgrade to mark posts as success stories.
+                                </small>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-success btn-block">
+                                Post Update
+                            </button>
+                        </form>
                     </div>
-                {% else %}
-                    <div class="alert alert-warning">
-                        🔒 Posting is for subscribers only.
-                        <a href="{% url 'pricing' %}" class="alert-link">
-                            Upgrade your plan
-                        </a>.
-                    </div>
-                {% endif %}
+                </div>
             {% else %}
                 <div class="alert alert-info">
                     👀 You’re viewing as a guest.
                     <a href="{% url 'account_login' %}">Login</a> or
                     <a href="{% url 'account_signup' %}">sign up</a>
-                    to like and comment.
+                    to post, like, and comment.
                 </div>
             {% endif %}
 
-            <!-- Feed -->
+            <!-- ================= COMMUNITY FEED ================= -->
             {% for post in posts %}
                 <div class="card mb-4 border-left border-success">
                     <div class="card-body">
 
-                        <!-- Author -->
+                        <!-- Post Image + Author -->
                         <div class="d-flex align-items-center mb-2">
-                            <img
-                                src="{{ post.author.profile.avatar.url|default:'/static/img/default-avatar.png' }}"
-                                class="rounded-circle mr-2"
-                                width="45"
-                                height="45"
-                                alt="Avatar">
+                            {% if post.image %}
+                                <img
+                                    src="{{ post.image.url }}"
+                                    class="rounded-circle mr-2"
+                                    width="45"
+                                    height="45"
+                                    alt="{{ post.title }}"
+                                >
+                            {% else %}
+                                <img
+                                    src="{% static 'img/noimage.png' %}"
+                                    class="rounded-circle mr-2"
+                                    width="45"
+                                    height="45"
+                                    alt="No image"
+                                >
+                            {% endif %}
 
                             <div>
                                 <strong>
@@ -91,7 +101,8 @@
                                 type="button"
                                 class="btn btn-sm btn-outline-danger react-btn"
                                 data-id="{{ post.id }}"
-                                data-action="like">
+                                data-action="like"
+                            >
                                 ❤️ <span id="likes-{{ post.id }}">{{ post.likes.count }}</span>
                             </button>
 
@@ -99,7 +110,8 @@
                                 type="button"
                                 class="btn btn-sm btn-outline-secondary react-btn"
                                 data-id="{{ post.id }}"
-                                data-action="unlike">
+                                data-action="unlike"
+                            >
                                 👎 <span id="unlikes-{{ post.id }}">{{ post.unlikes.count }}</span>
                             </button>
                         {% else %}
@@ -126,30 +138,62 @@
         <!-- ================= RIGHT: SIDEBAR ================= -->
         <div class="col-lg-4">
 
-            {% if user.is_authenticated %}
-                <div class="card text-center mb-4">
-                    <div class="card-body">
+            <!-- ================= SUCCESS STORIES ================= -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">🌟 Success Stories</h6>
 
+                    {% for post in success_stories %}
+                        <p class="mb-2">
+                            <a href="{% url 'post_detail' post.slug %}">
+                                {{ post.title|truncatechars:40 }}
+                            </a>
+                        </p>
+                    {% empty %}
+                        <p class="text-muted small">No success stories yet.</p>
+                    {% endfor %}
+
+                    <a href="{% url 'success_stories' %}" class="small d-block mt-2">
+                        View all →
+                    </a>
+                </div>
+            </div>
+
+            <!-- ================= SIDEBAR IMAGE ================= -->
+            <div class="card text-center mb-4">
+                <div class="card-body">
+
+                    {% if posts.0.image %}
                         <img
-                            src="{{ user.profile.avatar.url|default:'/static/img/default-avatar.png' }}"
+                            src="{{ posts.0.image.url }}"
                             class="rounded-circle mb-3"
                             width="90"
                             height="90"
-                            alt="Avatar">
+                            alt="Post image"
+                        >
+                    {% else %}
+                        <img
+                            src="{% static 'img/noimage.png' %}"
+                            class="rounded-circle mb-3"
+                            width="90"
+                            height="90"
+                            alt="No image"
+                        >
+                    {% endif %}
 
-                        <h5>{{ user.get_full_name|default:user.username }}</h5>
-                        <p class="text-muted">Community Member</p>
+                    <h5>{{ user.get_full_name|default:user.username }}</h5>
+                    <p class="text-muted">Community Member</p>
 
-                        {% if not user.profile.is_subscriber %}
-                            <div class="alert alert-warning mt-3">
-                                🔒 Upgrade to post success stories.
-                            </div>
-                        {% endif %}
+                    {% if user.is_authenticated and not user.profile.is_subscriber %}
+                        <div class="alert alert-warning mt-3">
+                            🔒 Upgrade to post success stories.
+                        </div>
+                    {% endif %}
 
-                    </div>
                 </div>
-            {% endif %}
+            </div>
 
+            <!-- ================= MOTIVATION ================= -->
             <div class="card">
                 <div class="card-body">
                     <h6>🔥 Stay Motivated</h6>

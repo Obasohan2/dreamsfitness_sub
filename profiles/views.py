@@ -7,15 +7,19 @@ from .models import UserProfile
 from .forms import UserProfileForm
 
 from checkout.models import Order, SubscriptionLineItem
+from blog.models import BlogPost
 
 
+# ====================================================
+# USER PROFILE (PRIVATE)
+# ====================================================
 @login_required
 def profile(request):
     """
     Display user profile + order history + subscription history
     """
 
-    # ================= ADMIN SAFETY GUARD =================
+    # ---------- Admin safety guard ----------
     if request.user.is_superuser:
         messages.info(
             request,
@@ -23,22 +27,39 @@ def profile(request):
         )
         return redirect("home")
 
-    # ================= CUSTOMER PROFILE =================
-    profile = get_object_or_404(UserProfile, user=request.user)
+    # ---------- Get profile ----------
+    profile = get_object_or_404(
+        UserProfile,
+        user=request.user
+    )
 
-    # ---------- Update profile form ----------
+    # ---------- Update profile ----------
     if request.method == "POST":
-        form = UserProfileForm(request.POST, instance=profile)
+        form = UserProfileForm(
+            request.POST,
+            instance=profile
+        )
+
         if form.is_valid():
             form.save()
-            messages.success(request, "Profile updated successfully!")
+            messages.success(
+                request,
+                "Profile updated successfully!"
+            )
         else:
-            messages.error(request, "Error updating your profile.")
+            messages.error(
+                request,
+                "Error updating your profile."
+            )
     else:
         form = UserProfileForm(instance=profile)
 
     # ---------- Order history ----------
-    orders = profile.orders.all().order_by("-date")
+    orders = (
+        profile.orders
+        .all()
+        .order_by("-date")
+    )
 
     # ---------- Subscription history ----------
     subscriptions = SubscriptionLineItem.objects.filter(
@@ -46,34 +67,76 @@ def profile(request):
     )
 
     context = {
+        "profile": profile,
         "form": form,
         "orders": orders,
         "subscriptions": subscriptions,
         "on_profile_page": True,
     }
 
-    return render(request, "profiles/profile.html", context)
+    return render(
+        request,
+        "profiles/profile.html",
+        context
+    )
 
 
+# ====================================================
+# PUBLIC PROFILE
+# ====================================================
 def public_profile(request, username):
-    User = get_user_model()
-    user = get_object_or_404(User, username=username)
+    """
+    Public-facing user profile
+    """
 
+    User = get_user_model()
+
+    user = get_object_or_404(
+        User,
+        username=username
+    )
+
+    # ---------- Block superusers ----------
     if user.is_superuser:
-        messages.info(request, "This user does not have a public profile.")
+        messages.info(
+            request,
+            "This user does not have a public profile."
+        )
         return redirect("home")
 
-    profile = get_object_or_404(UserProfile, user=user)
+    profile = get_object_or_404(
+        UserProfile,
+        user=user
+    )
 
-    posts = user.blog_posts.exclude(slug="").exclude(slug__isnull=True)
+    # ---------- Visible posts (soft-delete aware) ----------
+    posts = (
+        BlogPost.objects
+        .filter(
+            author=user,
+            is_deleted=False
+        )
+        .exclude(slug="")
+        .exclude(slug__isnull=True)
+        .order_by("-created_on")
+    )
 
-    return render(request, "profiles/public_profile.html", {
+    context = {
         "profile_user": user,
         "profile": profile,
         "posts": posts,
-    })
+    }
+
+    return render(
+        request,
+        "profiles/public_profile.html",
+        context
+    )
 
 
+# ====================================================
+# ORDER HISTORY (PROFILE ONLY)
+# ====================================================
 @login_required
 def order_history(request, order_number):
     """
@@ -86,14 +149,24 @@ def order_history(request, order_number):
         user_profile__user=request.user
     )
 
-    messages.info(request, f"Viewing past order {order_number}")
+    messages.info(
+        request,
+        f"Viewing past order {order_number}"
+    )
 
-    return render(request, "checkout/checkout_success.html", {
-        "order": order,
-        "from_profile": True,
-    })
+    return render(
+        request,
+        "checkout/checkout_success.html",
+        {
+            "order": order,
+            "from_profile": True,
+        }
+    )
 
 
+# ====================================================
+# SUBSCRIPTION HISTORY (PROFILE ONLY)
+# ====================================================
 @login_required
 def subscription_history(request, sub_id):
     """
@@ -106,9 +179,16 @@ def subscription_history(request, sub_id):
         order__user_profile__user=request.user
     )
 
-    messages.info(request, "Viewing your subscription details")
+    messages.info(
+        request,
+        "Viewing your subscription details"
+    )
 
-    return render(request, "profiles/subscription_history.html", {
-        "subscription": subscription,
-        "from_profile": True,
-    })
+    return render(
+        request,
+        "profiles/subscription_history.html",
+        {
+            "subscription": subscription,
+            "from_profile": True,
+        }
+    )
