@@ -1,94 +1,119 @@
 from django import forms
 from django_summernote.widgets import SummernoteWidget
 
-from .models import BlogPost, Comment
+from .models import BlogPost, Comment, Category
 from .widgets import CustomClearableFileInput
 
 
+# ====================================================
+# BASE BLOG POST FORM
+# ====================================================
 class BasePostForm(forms.ModelForm):
     """
-    Base form for creating and editing blog posts
+    Base form shared by Add & Edit post forms
     """
 
     image = forms.ImageField(
-        label='Image',
+        label="Image",
         required=False,
-        widget=CustomClearableFileInput()
+        widget=CustomClearableFileInput(),
     )
 
     class Meta:
         model = BlogPost
-        fields = ['title', 'body', 'image']
+        fields = [
+            "title",
+            "category",
+            "is_success_story",
+            "body",
+            "image",
+        ]
         labels = {
-            'title': '',
-            'body': '',
+            "title": "",
+            "category": "Category",
+            "is_success_story": "Mark as success story",
+            "body": "",
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Apply consistent styling (exclude custom file widget)
         for name, field in self.fields.items():
-            if name != 'image':
+            if name != "image":
                 field.widget.attrs.setdefault(
-                    'class',
-                    'form-control border-black rounded-0'
+                    "class",
+                    "form-control border-black rounded-0"
                 )
 
+        # Category dropdown
+        self.fields["category"].queryset = Category.objects.all()
+        self.fields["category"].empty_label = "Select category"
 
+
+# ====================================================
+# ADD POST FORM
+# ====================================================
 class AddPostForm(BasePostForm):
     """
-    Form for adding a blog post
+    Form for creating a new blog post
     """
 
     class Meta(BasePostForm.Meta):
         widgets = {
-            'title': forms.TextInput(
+            "title": forms.TextInput(
                 attrs={
-                    'placeholder': 'Post title',
+                    "placeholder": "Post title",
                 }
             ),
-            'body': SummernoteWidget(
+            "body": SummernoteWidget(
                 attrs={
-                    'placeholder': 'Write your post content here...',
+                    "placeholder": "Write your post content here...",
                 }
             ),
         }
 
 
+# ====================================================
+# EDIT POST FORM
+# ====================================================
 class PostForm(BasePostForm):
     """
-    Form for editing a blog post
+    Form for editing an existing blog post
     """
 
     class Meta(BasePostForm.Meta):
         widgets = {
-            'title': forms.TextInput(
+            "title": forms.TextInput(
                 attrs={
-                    'placeholder': 'Post title',
+                    "placeholder": "Post title",
                 }
             ),
-            'body': SummernoteWidget(
+            "body": SummernoteWidget(
                 attrs={
-                    'placeholder': 'Update your post content...',
+                    "placeholder": "Update your post content...",
                 }
             ),
         }
 
 
+# ====================================================
+# COMMENT FORM
+# ====================================================
 class CommentForm(forms.ModelForm):
     """
-    Form for blog comments (authenticated users)
+    Form for authenticated users to comment on posts
     """
 
     class Meta:
         model = Comment
-        fields = ['body']
+        fields = ["body"]
         widgets = {
-            'body': forms.Textarea(
+            "body": forms.Textarea(
                 attrs={
-                    'class': 'form-control',
-                    'rows': 3,
-                    'placeholder': 'Add a comment...',
+                    "class": "form-control rounded-0",
+                    "rows": 3,
+                    "placeholder": "Add a comment...",
                 }
             ),
         }

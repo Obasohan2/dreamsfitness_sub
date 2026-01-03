@@ -3,6 +3,37 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 
 
+# ====================================================
+# CATEGORY
+# ====================================================
+class Category(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    slug = models.SlugField(
+        max_length=120,
+        unique=True,
+        blank=True
+    )
+
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ["name"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+# ====================================================
+# BLOG POST
+# ====================================================
 class BlogPost(models.Model):
     title = models.CharField(
         max_length=250,
@@ -12,12 +43,20 @@ class BlogPost(models.Model):
     slug = models.SlugField(
         max_length=130,
         unique=True,
-        blank=True,  
+        blank=True
     )
 
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name="blog_posts"
+    )
+
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="posts"
     )
 
@@ -27,6 +66,11 @@ class BlogPost(models.Model):
         upload_to="blog/",
         null=True,
         blank=True
+    )
+
+    is_success_story = models.BooleanField(
+        default=False,
+        help_text="Mark this post as a success story"
     )
 
     created_on = models.DateTimeField(
@@ -74,6 +118,9 @@ class BlogPost(models.Model):
         super().save(*args, **kwargs)
 
 
+# ====================================================
+# COMMENT
+# ====================================================
 class Comment(models.Model):
     post = models.ForeignKey(
         BlogPost,

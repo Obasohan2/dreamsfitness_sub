@@ -2,15 +2,19 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 
-from .models import BlogPost, Comment
+from .models import BlogPost, Comment, Category
 from .forms import AddPostForm, PostForm, CommentForm
 
 
+# ====================================================
+# BLOG LIST (ALL POSTS)
+# ====================================================
 class PostList(ListView):
     model = BlogPost
     template_name = "blog/blog.html"
@@ -18,20 +22,86 @@ class PostList(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return BlogPost.objects.exclude(
-            slug=""
-        ).exclude(
-            slug__isnull=True
+        return (
+            BlogPost.objects
+            .exclude(slug__isnull=True)
+            .exclude(slug="")
+            .select_related("author", "category")
+            .order_by("-created_on")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+
+        context["user_data"] = {
+            "name": user.get_full_name() or user.username if user.is_authenticated else "Guest",
+            "avatar": (
+                user.profile.avatar.url
+                if user.is_authenticated and hasattr(user, "profile")
+                else "/static/img/default-avatar.png"
+            ),
+            "is_authenticated": user.is_authenticated,
+        }
+
+        return context
+
+
+# ====================================================
+# CATEGORY POSTS
+# ====================================================
+class CategoryPostList(ListView):
+    model = BlogPost
+    template_name = "blog/category.html"
+    context_object_name = "posts"
+    paginate_by = 8
+
+    def get_queryset(self):
+        self.category = get_object_or_404(
+            Category,
+            slug=self.kwargs["category_slug"]
+        )
+
+        return (
+            BlogPost.objects
+            .filter(category=self.category)
+            .exclude(slug__isnull=True)
+            .exclude(slug="")
+            .select_related("author", "category")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["category"] = self.category
+        return context
+
+
+# ====================================================
+# SUCCESS STORIES
+# ====================================================
+class SuccessStoryList(ListView):
+    model = BlogPost
+    template_name = "blog/success_stories.html"
+    context_object_name = "posts"
+    paginate_by = 8
+
+    def get_queryset(self):
+        return (
+            BlogPost.objects
+            .filter(is_success_story=True)
+            .exclude(slug__isnull=True)
+            .exclude(slug="")
+            .select_related("author", "category")
         )
 
 
+# ====================================================
+# BLOG DETAIL + COMMENTS
+# ====================================================
 def post_detail(request, slug):
-    post = get_object_or_404(
-        BlogPost,
-        slug=slug
-    )
-
-    comments = post.comments.all()
+    post = get_object_or_404(BlogPost, slug=slug)
+    comments = post.comments.select_related("user")
     comment_form = CommentForm()
 
     if request.method == "POST":
@@ -54,10 +124,7 @@ def post_detail(request, slug):
                 request,
                 "Comment added successfully."
             )
-            return redirect(
-                "post_detail",
-                slug=slug
-            )
+            return redirect("post_detail", slug=slug)
 
     return render(
         request,
@@ -66,56 +133,47 @@ def post_detail(request, slug):
             "post": post,
             "comments": comments,
             "comment_form": comment_form,
-        },
+        }
     )
 
 
+# ====================================================
+# ADD POST (USER + SUPERUSER)
+# ====================================================
 @login_required
 def add_post(request):
+    if not request.user.profile.is_subscriber:
+        return HttpResponseForbidden("Subscription required")
+
     if request.method == "POST":
-        form = AddPostForm(
-            request.POST,
-            request.FILES
-        )
+        form = AddPostForm(request.POST, request.FILES)
 
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
 
-            messages.success(
-                request,
-                "Post created successfully."
-            )
+            messages.success(request, "Post created successfully.")
             return redirect("blog")
+
     else:
         form = AddPostForm()
 
-    return render(
-        request,
-        "blog/add_post.html",
-        {
-            "form": form
-        }
-    )
+    return render(request, "blog/add_post.html", {"form": form})
 
-
+# ====================================================
+# EDIT POST (AUTHOR OR SUPERUSER)
+# ====================================================
 @login_required
 def edit_post(request, slug):
-    post = get_object_or_404(
-        BlogPost,
-        slug=slug
-    )
+    post = get_object_or_404(BlogPost, slug=slug)
 
-    if request.user != post.author:
+    if request.user != post.author and not request.user.is_superuser:
         messages.error(
             request,
             "You are not allowed to edit this post."
         )
-        return redirect(
-            "post_detail",
-            slug=slug
-        )
+        return redirect("post_detail", slug=slug)
 
     if request.method == "POST":
         form = PostForm(
@@ -130,10 +188,7 @@ def edit_post(request, slug):
                 request,
                 "Post updated successfully."
             )
-            return redirect(
-                "post_detail",
-                slug=slug
-            )
+            return redirect("post_detail", slug=slug)
     else:
         form = PostForm(instance=post)
 
@@ -147,33 +202,33 @@ def edit_post(request, slug):
     )
 
 
-@require_POST
+# ====================================================
+# DELETE POST (AUTHOR OR SUPERUSER)
+# ====================================================
 @login_required
+@require_POST
 def delete_post(request, slug):
-    post = get_object_or_404(
-        BlogPost,
-        slug=slug
-    )
+    post = get_object_or_404(BlogPost, slug=slug)
 
-    if post.author != request.user and not request.user.is_superuser:
+    if request.user != post.author and not request.user.is_superuser:
         messages.error(
             request,
             "You are not allowed to delete this post."
         )
-        return redirect(
-            "post_detail",
-            slug=slug
-        )
+        return redirect("post_detail", slug=slug)
 
     post.delete()
 
     messages.success(
         request,
-        "Post deleted."
+        "Post deleted successfully."
     )
     return redirect("blog")
 
 
+# ====================================================
+# LIKE / UNLIKE (AJAX)
+# ====================================================
 @login_required
 @require_POST
 def post_reaction(request):
@@ -188,24 +243,16 @@ def post_reaction(request):
     user = request.user
 
     if reaction == "like":
-
         if post.likes.filter(id=user.id).exists():
-            # Toggle like OFF
             post.likes.remove(user)
-
         else:
-            # Switch from unlike → like
             post.unlikes.remove(user)
             post.likes.add(user)
 
     elif reaction == "unlike":
-
         if post.unlikes.filter(id=user.id).exists():
-            # Toggle unlike OFF
             post.unlikes.remove(user)
-
         else:
-            # Switch from like → unlike
             post.likes.remove(user)
             post.unlikes.add(user)
 
@@ -216,22 +263,19 @@ def post_reaction(request):
     })
 
 
+# ====================================================
+# EDIT COMMENT (OWNER OR SUPERUSER)
+# ====================================================
 @login_required
 def edit_comment(request, comment_id):
-    comment = get_object_or_404(
-        Comment,
-        id=comment_id
-    )
+    comment = get_object_or_404(Comment, id=comment_id)
 
     if comment.user != request.user and not request.user.is_superuser:
         messages.error(
             request,
             "You are not allowed to edit this comment."
         )
-        return redirect(
-            "post_detail",
-            slug=comment.post.slug
-        )
+        return redirect("post_detail", slug=comment.post.slug)
 
     if request.method == "POST":
         form = CommentForm(
@@ -245,10 +289,7 @@ def edit_comment(request, comment_id):
                 request,
                 "Comment updated successfully."
             )
-            return redirect(
-                "post_detail",
-                slug=comment.post.slug
-            )
+            return redirect("post_detail", slug=comment.post.slug)
     else:
         form = CommentForm(instance=comment)
 
@@ -262,33 +303,26 @@ def edit_comment(request, comment_id):
     )
 
 
-@require_POST
+# ====================================================
+# DELETE COMMENT (OWNER OR SUPERUSER)
+# ====================================================
 @login_required
+@require_POST
 def delete_comment(request, comment_id):
-    comment = get_object_or_404(
-        Comment,
-        id=comment_id
-    )
+    comment = get_object_or_404(Comment, id=comment_id)
 
     if comment.user != request.user and not request.user.is_superuser:
         messages.error(
             request,
             "You are not allowed to delete this comment."
         )
-        return redirect(
-            "post_detail",
-            slug=comment.post.slug
-        )
+        return redirect("post_detail", slug=comment.post.slug)
 
-    post_slug = comment.post.slug
     comment.delete()
 
     messages.success(
         request,
-        "Comment deleted."
+        "Comment deleted successfully."
     )
 
-    return redirect(
-        "post_detail",
-        slug=post_slug
-    )
+    return redirect("post_detail", slug=comment.post.slug)
