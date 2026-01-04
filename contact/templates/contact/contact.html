@@ -2,7 +2,9 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block extra_title %}- Contact{% endblock %}
+{% block extra_title %}
+    - Contact
+{% endblock %}
 
 {% block page_header %}
 <div class="container header-container">
@@ -22,29 +24,50 @@
             <div class="card shadow-sm">
                 <div class="card-body">
 
-                    <h2 class="logo-font text-center mb-3">
-                        Contact Us
-                    </h2>
+                    {% if sent %}
+                        <!-- ================= SUCCESS MESSAGE ================= -->
+                        <div class="text-center py-5">
+                            <h2 class="logo-font mb-3">
+                                Thank you!
+                            </h2>
 
-                    <p class="text-center text-muted mb-4">
-                        We’d love to hear from you
-                    </p>
+                            <p class="text-muted mb-4">
+                                Your message has been sent successfully.
+                                We’ll get back to you soon.
+                            </p>
 
-                    <form id="contact-form" method="POST">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-
-                        <div class="text-center mt-3">
-                            <button type="submit" class="btn btn-dark px-5">
-                                Send Message
-                            </button>
+                            <a
+                                href="{% url 'home' %}"
+                                class="btn btn-dark px-5"
+                            >
+                                Back to Home
+                            </a>
                         </div>
-                    </form>
 
-                    <div id="success-message"
-                         class="alert alert-success mt-4 d-none">
-                        ✅ Thanks for contacting us! We’ll get back to you soon.
-                    </div>
+                    {% else %}
+                        <!-- ================= CONTACT FORM ================= -->
+                        <h2 class="logo-font text-center mb-3">
+                            Contact Us
+                        </h2>
+
+                        <p class="text-center text-muted mb-4">
+                            We’d love to hear from you
+                        </p>
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+
+                            <div class="text-center mt-3">
+                                <button
+                                    type="submit"
+                                    class="btn btn-dark px-5"
+                                >
+                                    Send Message
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
 
                 </div>
             </div>
