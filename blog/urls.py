@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
     # ====================================================
     # BLOG LISTS
@@ -11,13 +10,6 @@ urlpatterns = [
         views.PostList.as_view(),
         name="blog",
     ),
-
-    path(
-        "success-stories/",
-        views.SuccessStoryList.as_view(),
-        name="success_stories",
-    ),
-
     path(
         "category/<slug:category_slug>/",
         views.CategoryPostList.as_view(),
