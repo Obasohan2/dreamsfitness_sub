@@ -12,7 +12,7 @@ from .forms import AddPostForm, PostForm, CommentForm
 
 
 # ====================================================
-# BLOG LIST (COMMUNITY POSTS ONLY)
+# BLOG LIST (ALL POSTS)
 # ====================================================
 class PostList(ListView):
     model = BlogPost
@@ -23,25 +23,11 @@ class PostList(ListView):
     def get_queryset(self):
         return (
             BlogPost.objects
-            .filter(is_success_story=False)
             .exclude(slug__isnull=True)
             .exclude(slug="")
             .select_related("author", "category")
             .order_by("-created_on")
         )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["success_stories"] = (
-            BlogPost.objects
-            .filter(is_success_story=True)
-            .exclude(slug__isnull=True)
-            .exclude(slug="")
-            .order_by("-created_on")[:5]
-        )
-
-        return context
 
 
 # ====================================================
@@ -65,32 +51,13 @@ class CategoryPostList(ListView):
             .exclude(slug__isnull=True)
             .exclude(slug="")
             .select_related("author", "category")
+            .order_by("-created_on")
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["category"] = self.category
         return context
-
-
-# ====================================================
-# SUCCESS STORIES PAGE
-# ====================================================
-class SuccessStoryList(ListView):
-    model = BlogPost
-    template_name = "blog/success_stories.html"
-    context_object_name = "posts"
-    paginate_by = 8
-
-    def get_queryset(self):
-        return (
-            BlogPost.objects
-            .filter(is_success_story=True)
-            .exclude(slug__isnull=True)
-            .exclude(slug="")
-            .select_related("author", "category")
-            .order_by("-created_on")
-        )
 
 
 # ====================================================
@@ -129,30 +96,25 @@ def post_detail(request, slug):
 
 
 # ====================================================
-# ADD POST (ALL USERS CAN POST)
+# ADD POST
 # ====================================================
 @login_required
 def add_post(request):
     if request.method == "POST":
         form = AddPostForm(
             request.POST,
-            request.FILES,
-            user=request.user
+            request.FILES
         )
 
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-
-            # 🔐 HARD SECURITY RULE
-            if not request.user.profile.is_subscriber:
-                post.is_success_story = False
-
             post.save()
+
             messages.success(request, "Post created successfully.")
             return redirect("blog")
     else:
-        form = AddPostForm(user=request.user)
+        form = AddPostForm()
 
     return render(
         request,

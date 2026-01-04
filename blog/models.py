@@ -67,12 +67,6 @@ class BlogPost(models.Model):
         null=True,
         blank=True
     )
-
-    is_success_story = models.BooleanField(
-        default=False,
-        help_text="Mark this post as a success story"
-    )
-
     created_on = models.DateTimeField(
         auto_now_add=True
     )

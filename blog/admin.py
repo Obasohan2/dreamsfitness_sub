@@ -12,12 +12,15 @@ class CategoryAdmin(admin.ModelAdmin):
         "name",
         "slug",
     )
+
     search_fields = (
         "name",
     )
+
     prepopulated_fields = {
         "slug": ("name",),
     }
+
     ordering = (
         "name",
     )
@@ -32,13 +35,11 @@ class BlogPostAdmin(admin.ModelAdmin):
         "title",
         "author",
         "category",
-        "is_success_story",
         "created_on",
     )
 
     list_filter = (
         "category",
-        "is_success_story",
         "created_on",
         "author",
     )
@@ -78,7 +79,6 @@ class BlogPostAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "category",
-                    "is_success_story",
                 )
             },
         ),

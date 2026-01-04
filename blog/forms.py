@@ -24,14 +24,12 @@ class BasePostForm(forms.ModelForm):
         fields = [
             "title",
             "category",
-            "is_success_story",
             "body",
             "image",
         ]
         labels = {
             "title": "",
             "category": "Category",
-            "is_success_story": "Mark as success story",
             "body": "",
         }
 
@@ -56,9 +54,7 @@ class BasePostForm(forms.ModelForm):
 # ====================================================
 class AddPostForm(BasePostForm):
     """
-    Form for creating a new blog post.
-    Success Story checkbox is visible to ALL users.
-    Backend enforces subscriber-only rules.
+    Form for creating a new blog post
     """
 
     class Meta(BasePostForm.Meta):
@@ -74,17 +70,6 @@ class AddPostForm(BasePostForm):
                 }
             ),
         }
-
-    def __init__(self, *args, **kwargs):
-        # Keep user available if you want messaging later
-        self.user = kwargs.pop("user", None)
-        super().__init__(*args, **kwargs)
-
-        # Optional: helper text for clarity
-        self.fields["is_success_story"].help_text = (
-            "Optional. Subscriber-only feature. "
-            "Free users’ selections may be ignored."
-        )
 
 
 # ====================================================
