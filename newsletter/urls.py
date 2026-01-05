@@ -1,7 +1,6 @@
 from django.urls import path
-from . import views
-
+from .views import subscribe
 
 urlpatterns = [
-    path("", views.subscribe, name="newsletter"),
+    path("subscribe/", subscribe, name="newsletter_subscribe"),
 ]

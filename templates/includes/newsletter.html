@@ -1,0 +1,44 @@
+<section class="newsletter">
+    <h6 class="newsletter-title mb-2">
+        Subscribe for workout tips and promotions
+    </h6>
+
+    <form
+        action="{% url 'newsletter_subscribe' %}"
+        method="POST"
+        class="newsletter-form"
+    >
+        {% csrf_token %}
+
+        <!-- Email + Join (attached) -->
+        <div class="input-group input-group-sm mb-2">
+            {{ newsletter_form.email }}
+            <div class="input-group-append">
+                <button
+                    class="btn btn-danger"
+                    type="submit"
+                >
+                    Join
+                </button>
+            </div>
+        </div>
+
+        <!-- Consent aligned with input -->
+        <div class="form-check pl-1">
+            {{ newsletter_form.consent }}
+            <label
+                for="{{ newsletter_form.consent.id_for_label }}"
+                class="form-check-label small"
+            >
+                {{ newsletter_form.consent.label }}
+                <a
+                    href="https://www.termsfeed.com/live/8d980cba-9027-46b3-a40e-79d6433fd723"
+                    target="_blank"
+                    rel="nofollow"
+                >
+                    Privacy Policy
+                </a>.
+            </label>
+        </div>
+    </form>
+</section>

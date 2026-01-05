@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'blog',
     'contact',  # our app
     'newsletter',  # our app
+
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',  # to handle media files
+                'newsletter.context_processors.newsletter_form', 
                 'cart.contexts.cart_contents',  # to make cart available globally
             ],
             'builtins': [
@@ -220,11 +222,11 @@ STRIPE_CURRENCY = 'gbp'
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
 STRIPE_WH_SECRET = os.getenv('STRIPE_WH_SECRET', '')
-DEFAULT_FROM_EMAIL = 'dreamsfitness@example.com'
+DEFAULT_FROM_EMAIL = 'Dreams Fitness Center <no-reply@dreamsfitness.com>'
 
 if 'DEVELOPMENT' in os.environ:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    DEFAULT_FROM_EMAIL = 'dreamsfitness@example.com'
+    DEFAULT_FROM_EMAIL = 'Dreams Fitness Center <no-reply@dreamsfitness.com>'
 
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

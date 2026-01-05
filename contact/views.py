@@ -4,7 +4,6 @@ from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-
 from .forms import ContactForm
 
 
@@ -14,6 +13,9 @@ def contact(request):
 
         if form.is_valid():
             data = form.cleaned_data
+
+            # Capitalize full name properly
+            data["full_name"] = data["full_name"].title()
 
             # ================= ADMIN EMAIL =================
             admin_html = render_to_string(

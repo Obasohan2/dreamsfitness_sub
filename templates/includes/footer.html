@@ -21,79 +21,9 @@
                 </p>
             </div>
 
-            <!-- Newsletter -->
-            <div class="col-lg-4 col-md-6 mb-3 mb-md-0">
-
-                <h6 class="mb-2 text-dark">
-                    Subscribe for workout tips and promotions
-                </h6>
-                <form
-                    action="https://herokuapp.us16.list-manage.com/subscribe/post?u=e4519b35a647e8b60af881267&id=06fbff4f44"
-                    method="post"
-                    target="_blank"
-                    class="mt-2 needs-validation"
-                    novalidate
-                >
-                    <div class="input-group w-100">
-                        <input
-                            type="email"
-                            name="EMAIL"
-                            class="form-control form-control-sm border-dark"
-                            placeholder="Your email"
-                            required
-                        >
-
-                        <div class="input-group-append">
-                            <button
-                                class="btn btn-danger btn-sm"
-                                type="submit"
-                            >
-                                Join
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- GDPR Consent -->
-                    <div class="form-check mt-2">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            name="gdpr[009bc2e1f0]"
-                            id="newsletterConsent"
-                            required
-                        >
-                        <label
-                            class="form-check-label small"
-                            for="newsletterConsent"
-                        >
-                            I agree to receive emails from Dreams Fitness Center
-                            and accept the
-                            <a
-                                href="https://www.termsfeed.com/live/8d980cba-9027-46b3-a40e-79d6433fd723"
-                                target="_blank"
-                            >
-                                Privacy Policy
-                            </a>.
-                        </label>
-
-                        <div class="invalid-feedback">
-                            Consent is required.
-                        </div>
-                    </div>
-
-                    <!-- Mailchimp Anti-Bot Field -->
-                    <div
-                        style="position: absolute; left: -5000px;"
-                        aria-hidden="true"
-                    >
-                        <input
-                            type="text"
-                            name="b_e4519b35a647e8b60af881267_06fbff4f44"
-                            tabindex="-1"
-                            value=""
-                        >
-                    </div>
-                </form>
+               <!-- Newsletter -->
+            <div class="col-lg-4 col-md-6 mb-3">
+                {% include "includes/newsletter.html" %}
             </div>
 
             <!-- Social & Copyright -->

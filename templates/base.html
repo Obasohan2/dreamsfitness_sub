@@ -5,6 +5,14 @@
 <html lang="en">
 
 <head>
+    <meta name="description"
+      content="{% block meta_description %}
+      Dreams Fitness Center – fitness programs, nutrition plans, and memberships designed to help you reach your goals.
+      {% endblock %}">
+
+    <meta name="robots" content="index, follow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
 
     {% block meta %}
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -43,7 +51,7 @@
     {% block extra_js %}{% endblock %}
 
     <title>
-        Dreams Fitness {% block extra_title %}{% endblock %}
+        {% block meta_title %}Dreams Fitness Center{% endblock %}
     </title>
 
 </head>
@@ -213,6 +221,7 @@
 <!-- ================= FOOTER ================= -->
 <footer class="site-footer mt-auto">
     {% include "includes/footer.html" %}
+    {% include "includes/newsletter_success_modal.html" %}
 </footer>
 
 
@@ -259,6 +268,5 @@
             });
         })();
     </script>
-
 </body>
 </html>
