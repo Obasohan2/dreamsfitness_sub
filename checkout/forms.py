@@ -1,5 +1,12 @@
 from django import forms
+from django.core.validators import RegexValidator
 from .models import Order
+
+
+phone_validator = RegexValidator(
+    regex=r'^\d{7,15}$',
+    message='Enter a valid phone number (7–15 digits, numbers only).'
+)
 
 
 class OrderForm(forms.ModelForm):
@@ -16,6 +23,38 @@ class OrderForm(forms.ModelForm):
             "shipping_address1", "shipping_address2",
             "shipping_city", "shipping_postcode", "shipping_country",
         ]
+
+    # ================= STRICT FIELD OVERRIDES =================
+
+    full_name = forms.CharField(
+        min_length=3,
+        max_length=100,
+        required=True
+    )
+
+    email = forms.EmailField(required=True)
+
+    phone_number = forms.CharField(
+        validators=[phone_validator],
+        required=True
+    )
+
+    shipping_phone_number = forms.CharField(
+        validators=[phone_validator],
+        required=False
+    )
+
+    postcode = forms.CharField(
+        min_length=3,
+        max_length=12,
+        required=True
+    )
+
+    shipping_postcode = forms.CharField(
+        min_length=3,
+        max_length=12,
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,10 +80,8 @@ class OrderForm(forms.ModelForm):
             "shipping_country": "Shipping Country",
         }
 
-        # Autofocus first field
         self.fields["full_name"].widget.attrs["autofocus"] = True
 
-        #  MAKE SHIPPING FIELDS OPTIONAL (CRITICAL FIX)
         shipping_fields = [
             "shipping_full_name",
             "shipping_phone_number",
@@ -58,7 +95,6 @@ class OrderForm(forms.ModelForm):
         for field in shipping_fields:
             self.fields[field].required = False
 
-        # Apply placeholders + styling
         for field in self.fields:
             if field not in ("country", "shipping_country"):
                 ph = placeholders.get(field, "")
@@ -67,3 +103,40 @@ class OrderForm(forms.ModelForm):
 
             self.fields[field].widget.attrs["class"] = "stripe-style-input"
             self.fields[field].label = False
+
+    # ================= CUSTOM CLEANING =================
+
+    def clean_full_name(self):
+        name = self.cleaned_data.get("full_name", "")
+        if not name.replace(" ", "").isalpha():
+            raise forms.ValidationError(
+                "Name must contain letters only."
+            )
+        return name
+
+    def clean(self):
+        """
+        Require ALL shipping fields if ANY shipping field is filled
+        """
+        cleaned = super().clean()
+
+        shipping_fields = [
+            "shipping_full_name",
+            "shipping_phone_number",
+            "shipping_address1",
+            "shipping_city",
+            "shipping_postcode",
+            "shipping_country",
+        ]
+
+        shipping_used = any(cleaned.get(field) for field in shipping_fields)
+
+        if shipping_used:
+            for field in shipping_fields:
+                if not cleaned.get(field):
+                    self.add_error(
+                        field,
+                        "This field is required for shipping."
+                    )
+
+        return cleaned
