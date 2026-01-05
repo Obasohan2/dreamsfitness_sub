@@ -29,5 +29,8 @@ def subscribe(request):
             )
             email.attach_alternative(html_message, "text/html")
             email.send()
+            
+            # modal trigger
+            request.session["newsletter_success"] = True
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
