@@ -3,6 +3,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.db import IntegrityError
 
 from .forms import NewsletterForm
 
@@ -10,27 +11,37 @@ from .forms import NewsletterForm
 def subscribe(request):
     if request.method == "POST":
         form = NewsletterForm(request.POST)
+
         if form.is_valid():
-            subscriber = form.save()
+            try:
+                subscriber = form.save()
+
+            except IntegrityError:
+                # Email already exists → no crash
+                request.session["newsletter_success"] = True
+                return redirect(request.META.get("HTTP_REFERER", "/"))
 
             website_url = request.build_absolute_uri("/")
 
-            html_message = render_to_string(
-                "newsletter/newsletter.html",
-                {"website_url": website_url}
-            )
-            plain_message = strip_tags(html_message)
+            try:
+                html_message = render_to_string(
+                    "emails/newsletter_welcome.html",
+                    {"website_url": website_url}
+                )
+                plain_message = strip_tags(html_message)
 
-            email = EmailMultiAlternatives(
-                subject="Welcome to Dreams Fitness Center",
-                body=plain_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[subscriber.email],
-            )
-            email.attach_alternative(html_message, "text/html")
-            email.send()
-            
-            # modal trigger
+                email = EmailMultiAlternatives(
+                    subject="Welcome to Dreams Fitness Center",
+                    body=plain_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[subscriber.email],
+                )
+                email.attach_alternative(html_message, "text/html")
+                email.send()
+
+            except Exception as e:
+                print("Newsletter email failed:", e)
+
             request.session["newsletter_success"] = True
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
