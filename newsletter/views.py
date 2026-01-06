@@ -9,15 +9,23 @@ from .forms import NewsletterForm
 
 
 def subscribe(request):
+    """
+    Handle newsletter subscriptions safely.
+    - Validates input via NewsletterForm
+    - Saves subscriber
+    - Sends welcome email (fails silently)
+    - Sets success flag in session
+    """
+
     if request.method == "POST":
         form = NewsletterForm(request.POST)
 
         if form.is_valid():
             try:
-                subscriber = form.save()
+                subscriber = form.save(commit=True)
 
             except IntegrityError:
-                # Email already exists → no crash
+                # Email already exists → treat as success, no crash
                 request.session["newsletter_success"] = True
                 return redirect(request.META.get("HTTP_REFERER", "/"))
 
@@ -26,7 +34,7 @@ def subscribe(request):
             try:
                 html_message = render_to_string(
                     "emails/newsletter_welcome.html",
-                    {"website_url": website_url}
+                    {"website_url": website_url},
                 )
                 plain_message = strip_tags(html_message)
 
@@ -37,10 +45,11 @@ def subscribe(request):
                     to=[subscriber.email],
                 )
                 email.attach_alternative(html_message, "text/html")
-                email.send()
+                email.send(fail_silently=True)
 
-            except Exception as e:
-                print("Newsletter email failed:", e)
+            except Exception:
+                # Email failure should never block signup
+                pass
 
             request.session["newsletter_success"] = True
 

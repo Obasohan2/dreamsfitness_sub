@@ -10,9 +10,15 @@
     >
         {% csrf_token %}
 
-        <!-- Email + Join (attached) -->
+        <!-- Email input + Join button -->
         <div class="input-group input-group-sm mb-2">
-            {{ newsletter_form.email }}
+            <input
+                type="email"
+                name="email"
+                placeholder="Your email"
+                class="form-control form-control-sm"
+                required
+            >
             <div class="input-group-append">
                 <button
                     class="btn btn-danger"
@@ -23,14 +29,20 @@
             </div>
         </div>
 
-        <!-- Consent aligned with input -->
+        <!-- Consent checkbox -->
         <div class="form-check pl-1">
-            {{ newsletter_form.consent }}
+            <input
+                type="checkbox"
+                name="consent"
+                id="newsletter-consent"
+                class="form-check-input"
+                required
+            >
             <label
-                for="{{ newsletter_form.consent.id_for_label }}"
+                for="newsletter-consent"
                 class="form-check-label small"
             >
-                {{ newsletter_form.consent.label }}
+                I agree to receive emails from Dreams Fitness Center and accept the
                 <a
                     href="https://www.termsfeed.com/live/8d980cba-9027-46b3-a40e-79d6433fd723"
                     target="_blank"
@@ -41,4 +53,10 @@
             </label>
         </div>
     </form>
+
+    {% if newsletter_success %}
+        <p class="text-success small mt-2">
+            Thanks for subscribing!
+        </p>
+    {% endif %}
 </section>
