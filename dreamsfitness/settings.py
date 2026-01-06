@@ -101,7 +101,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',  # to handle media files
-                'newsletter.context_processors.newsletter_form',
+                #' newsletter.context_processors.newsletter_form',
                 'newsletter.context_processors.newsletter_success',
                 'cart.contexts.cart_contents',  # to make cart available globally
             ],
