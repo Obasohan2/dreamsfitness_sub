@@ -18,5 +18,5 @@ class NewsletterForm(forms.ModelForm):
 
     consent = forms.BooleanField(
         required=True,
-        label="I agree to receive emails from Dreams Fitness Center and accept the"
+        label="I agree to receive emails from Dreams Fitness Center."
     )
