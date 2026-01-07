@@ -20,11 +20,3 @@ class NewsletterForm(forms.ModelForm):
         required=True,
         label="I agree to receive emails from Dreams Fitness Center and accept the"
     )
-
-    def clean_email(self):
-        email = self.cleaned_data["email"].lower()
-        if NewsletterSubscriber.objects.filter(email=email).exists():
-            raise forms.ValidationError(
-                "This email is already subscribed."
-            )
-        return email

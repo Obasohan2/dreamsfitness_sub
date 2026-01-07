@@ -12,16 +12,21 @@ document.addEventListener("DOMContentLoaded", function () {
         "X-Requested-With": "XMLHttpRequest"
       }
     })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("newsletterModalMessage").innerText = data.message;
-        $('#newsletterSuccessModal').modal('show');
-        if (data.status === "success") form.reset();
-      })
-      .catch(() => {
-        document.getElementById("newsletterModalMessage").innerText =
-          "Something went wrong. Please try again.";
-        $('#newsletterSuccessModal').modal('show');
-      });
+    .then(response => response.json())
+    .then(data => {
+      const msg = document.getElementById("newsletterModalMessage");
+      msg.textContent = data.message;
+
+      $('#newsletterSuccessModal').modal('show');
+
+      if (data.status === "success") {
+        form.reset();
+      }
+    })
+    .catch(() => {
+      document.getElementById("newsletterModalMessage").textContent =
+        "Something went wrong. Please try again.";
+      $('#newsletterSuccessModal').modal('show');
+    });
   });
 });
