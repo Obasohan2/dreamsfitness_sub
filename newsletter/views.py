@@ -1,47 +1,31 @@
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import NewsletterSubscriber
+from .utils import send_newsletter_confirmation
 
 
-@require_POST
-def subscribe(request):
-    """
-    Handle newsletter subscription via AJAX.
+def subscribe_newsletter(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
 
-    Expects:
-    - email (POST)
-    - consent (POST)
-
-    Returns:
-    - JSON success response for frontend modal
-    """
-
-    email = (request.POST.get("email") or "").strip()
-    consent = request.POST.get("consent")
-
-    # Basic validation
-    if not email:
-        return JsonResponse(
-            {"success": False, "message": "Email is required."},
-            status=400
+        subscriber, created = NewsletterSubscriber.objects.get_or_create(
+            email=email,
+            defaults={"consent": True}
         )
 
-    if not consent:
-        return JsonResponse(
-            {"success": False, "message": "Consent is required."},
-            status=400
-        )
+        if created:
+            send_newsletter_confirmation(email)
+            messages.success(
+                request,
+                "You’ve successfully subscribed to our newsletter!",
+                extra_tags="newsletter"
+            )
+        else:
+            messages.info(
+                request,
+                "You are already subscribed."
+            )
 
-    # ----------------------------------
-    # TODO (optional, later):
-    # - Save email to database
-    # - Send to Mailchimp / SendGrid
-    # - Prevent duplicates
-    # ----------------------------------
+        return redirect("newsletter")
 
-    return JsonResponse(
-        {
-            "success": True,
-            "message": "Subscription successful!"
-        },
-        status=200
-    )
+    return render(request, "newsletter.html")

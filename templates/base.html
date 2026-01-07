@@ -166,13 +166,11 @@
 </header>
 
 <!-- ================= TOASTS & NEWSLETTER MODAL ================= -->
+<!-- ================= TOASTS ================= -->
 {% if messages %}
     <div class="message-container">
         {% for message in messages %}
-
-            {% if "newsletter" in message.tags %}
-                {% include "includes/newsletter_success_modal.html" with message=message %}
-            {% else %}
+            {% if "newsletter" not in message.tags %}
                 {% with message.level as level %}
                     {% if level == 40 %}
                         {% include "includes/toasts/toast_error.html" %}
@@ -185,10 +183,10 @@
                     {% endif %}
                 {% endwith %}
             {% endif %}
-
         {% endfor %}
     </div>
 {% endif %}
+
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="flex-fill">
@@ -202,8 +200,11 @@
 </footer>
 
 <!-- ================= NEWSLETTER MODAL ================= -->
-{% include "includes/newsletter_success_modal.html" %}
-{% include "includes/newsletter_success_modal.html" %}
+{% for message in messages %}
+    {% if "newsletter" in message.tags %}
+        {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
+    {% endif %}
+{% endfor %}
 
 <script src="{% static 'newsletter/js/newsletter.js' %}"></script>
 
@@ -212,5 +213,16 @@
     $('.toast').toast('show');
 </script>
 {% endblock %}
+
+{% for message in messages %}
+    {% if "newsletter" in message.tags %}
+        <script>
+            $(document).ready(function () {
+                $('#newsletterModal').modal('show');
+            });
+        </script>
+    {% endif %}
+{% endfor %}
+
 </body>
 </html>

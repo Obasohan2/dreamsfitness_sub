@@ -1,58 +1,16 @@
-<div
-    class="modal fade"
-    id="newsletterConfirmationModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="newsletterConfirmationTitle"
-    aria-hidden="true"
->
+<div class="modal fade" id="newsletterModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header bg-danger text-white">
-                <h5
-                    class="modal-title"
-                    id="newsletterConfirmationTitle"
-                >
-                    Welcome to Dreams Fitness Center 💪
-                </h5>
-
-                <button
-                    type="button"
-                    class="close text-white"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
-                    <span aria-hidden="true">&times;</span>
+            <div class="modal-header">
+                <h5 class="modal-title">Subscription Successful 🎉</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
                 </button>
             </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body text-center py-4">
-                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-
-                <p class="mb-2 font-weight-bold">
-                    Subscription successful!
-                </p>
-
-                <p class="mb-0 text-muted">
-                    You’ll now receive workout tips, nutrition advice,
-                    and exclusive offers straight to your inbox.
-                </p>
+            <div class="modal-body">
+                {{ newsletter_message }}
             </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer justify-content-center">
-                <button
-                    type="button"
-                    class="btn btn-outline-dark px-4"
-                    data-dismiss="modal"
-                >
-                    Got it
-                </button>
-            </div>
-
         </div>
     </div>
 </div>
+
