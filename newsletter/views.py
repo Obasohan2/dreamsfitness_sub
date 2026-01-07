@@ -51,7 +51,8 @@ def subscribe(request):
 
             messages.success(
                 request,
-                "Thanks for subscribing! Please check your email."
+                "Thanks for subscribing! Please check your email.",
+                extra_tags="newsletter"
             )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))

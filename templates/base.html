@@ -176,8 +176,9 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            {% include "includes/mobile-top-header.html" %}
             {% include "includes/main-nav.html" %}
+            {% include "includes/mobile-top-header.html" %}
+            
         </nav>
     </div>
 
@@ -195,20 +196,23 @@
 {% if messages %}
 <div class="message-container">
     {% for message in messages %}
-        {% with message.level as level %}
-            {% if level == 40 %}
-                {% include "includes/toasts/toast_error.html" %}
-            {% elif level == 30 %}
-                {% include "includes/toasts/toast_warning.html" %}
-            {% elif level == 25 %}
-                {% include "includes/toasts/toast_success.html" %}
-            {% else %}
-                {% include "includes/toasts/toast_info.html" %}
-            {% endif %}
-        {% endwith %}
+        {% if "newsletter" not in message.tags %}
+            {% with message.level as level %}
+                {% if level == 40 %}
+                    {% include "includes/toasts/toast_error.html" %}
+                {% elif level == 30 %}
+                    {% include "includes/toasts/toast_warning.html" %}
+                {% elif level == 25 %}
+                    {% include "includes/toasts/toast_success.html" %}
+                {% else %}
+                    {% include "includes/toasts/toast_info.html" %}
+                {% endif %}
+            {% endwith %}
+        {% endif %}
     {% endfor %}
 </div>
 {% endif %}
+
 
 
 <!-- ================= MAIN CONTENT ================= -->
