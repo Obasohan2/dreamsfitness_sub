@@ -1,18 +1,21 @@
 {% load static %}
 {% load tz %}
+{% load messages %}
 
 <!doctype html>
 <html lang="en">
 
 <head>
-    <meta name="description"
-      content="{% block meta_description %}
-      Dreams Fitness Center – fitness programs, nutrition plans, and memberships designed to help you reach your goals.
-      {% endblock %}">
+    <meta
+        name="description"
+        content="{% block meta_description %}
+        Dreams Fitness Center – fitness programs, nutrition plans, and memberships designed to help you reach your goals.
+        {% endblock %}"
+    >
 
     <meta name="robots" content="index, follow">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
     {% block meta %}
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -53,17 +56,18 @@
     <title>
         {% block meta_title %}Dreams Fitness Center{% endblock %}
     </title>
-
 </head>
 
 <body class="bg-white text-black d-flex flex-column min-vh-100">
 
+{% get_messages as all_messages %}
+
+<!-- ================= HEADER ================= -->
 <header class="container-fluid fixed-top">
 
-    <!-- ================= DESKTOP NAV ================= -->
+    <!-- DESKTOP NAV -->
     <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
 
-        <!-- Logo -->
         <div class="col-12 col-lg-4 my-auto py-1 text-center text-lg-left">
             <a href="{% url 'home' %}" class="nav-link main-logo-link">
                 <h2 class="logo-font my-0 text-black">
@@ -73,7 +77,6 @@
             </a>
         </div>
 
-        <!-- Search -->
         <div class="col-12 col-lg-4 my-auto py-1">
             <form method="GET" action="{% url 'products' %}">
                 <div class="input-group w-100">
@@ -95,68 +98,32 @@
             </form>
         </div>
 
-        <!-- User & Cart -->
         <div class="col-12 col-lg-4 my-auto py-1">
             <ul class="list-inline list-unstyled text-center text-lg-right my-0">
 
-                <!-- User Dropdown -->
                 <li class="list-inline-item dropdown">
-                    <a
-                        class="nav-link text-black"
-                        href="#"
-                        id="user-options"
-                        data-toggle="dropdown"
-                    >
-                        <div class="text-center">
-                            <i class="fas fa-user fa-lg"></i>
-                            <p class="my-0">Membership</p>
-                        </div>
+                    <a class="nav-link text-black" href="#" data-toggle="dropdown">
+                        <i class="fas fa-user fa-lg"></i>
+                        <p class="my-0">Membership</p>
                     </a>
 
-                    <div class="dropdown-menu border-0" aria-labelledby="user-options">
+                    <div class="dropdown-menu border-0">
                         {% if request.user.is_authenticated %}
-
-                            {% if request.user.is_superuser %}
-                                <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
-                                    Dashboard
-                                </a>
-                            {% else %}
-                                <a href="{% url 'my_profile' %}" class="dropdown-item">
-                                    My Profile
-                                </a>
-                            {% endif %}
-
-                            <a href="{% url 'account_logout' %}" class="dropdown-item">
-                                Logout
-                            </a>
-
+                            <a href="{% url 'my_profile' %}" class="dropdown-item">My Profile</a>
+                            <a href="{% url 'account_logout' %}" class="dropdown-item">Logout</a>
                         {% else %}
-                            <a href="{% url 'account_signup' %}" class="dropdown-item">
-                                Register
-                            </a>
-                            <a href="{% url 'account_login' %}" class="dropdown-item">
-                                Login
-                            </a>
+                            <a href="{% url 'account_signup' %}" class="dropdown-item">Register</a>
+                            <a href="{% url 'account_login' %}" class="dropdown-item">Login</a>
                         {% endif %}
                     </div>
                 </li>
 
-                <!-- Cart -->
-                <li class="list-inline-item position-relative">
+                <li class="list-inline-item">
                     <a href="{% url 'view_cart' %}" class="nav-link text-black">
-                        <div class="text-center position-relative">
-                            <i class="fas fa-shopping-bag fa-lg"></i>
-
-                            {% if cart_count %}
-                                <span class="position-absolute badge bg-danger">
-                                    {{ cart_count }}
-                                </span>
-                            {% endif %}
-
-                            <p class="my-0">
-                                £{{ grand_total|default:0|floatformat:2 }}
-                            </p>
-                        </div>
+                        <i class="fas fa-shopping-bag fa-lg"></i>
+                        <p class="my-0">
+                            £{{ grand_total|default:0|floatformat:2 }}
+                        </p>
                     </a>
                 </li>
 
@@ -164,7 +131,7 @@
         </div>
     </div>
 
-    <!-- ================= MOBILE NAV ================= -->
+    <!-- MOBILE NAV -->
     <div class="row bg-white">
         <nav class="navbar navbar-expand-lg navbar-light w-100">
             <button
@@ -177,26 +144,22 @@
             </button>
 
             {% include "includes/main-nav.html" %}
-            {% include "includes/newsletter_success_modal.html" with all_messages=all_messages %}
-            
+            {% include "includes/mobile-top-header.html" %}
         </nav>
     </div>
 
-    <!-- ================= DELIVERY BANNER ================= -->
-  <div id="delivery-banner" class="row text-center">
-      <div class="col bg-black text-white">
-      <h5 class="logo-font my-1">Join now — free delivery on orders over £{{ free_delivery_threshold }}!</h5>
-      </div>
+    <!-- DELIVERY BANNER -->
+    <div id="delivery-banner" class="row text-center">
+        <div class="col bg-black text-white">
+            <h5 class="logo-font my-1">
+                Join now — free delivery on orders over £{{ free_delivery_threshold }}!
+            </h5>
+        </div>
     </div>
 
 </header>
 
-
-{% load messages %}
-
 <!-- ================= TOASTS ================= -->
-{% get_messages as all_messages %}
-
 {% if all_messages %}
 <div class="message-container">
     {% for message in all_messages %}
@@ -217,20 +180,17 @@
 </div>
 {% endif %}
 
-
 <!-- ================= MAIN CONTENT ================= -->
 <main class="flex-fill">
     {% block page_header %}{% endblock %}
     {% block content %}{% endblock %}
 </main>
 
-
 <!-- ================= FOOTER ================= -->
 <footer class="site-footer mt-auto">
     {% include "includes/footer.html" %}
-    {% include "includes/newsletter_success_modal.html" %}
+    {% include "includes/newsletter_success_modal.html" with all_messages=all_messages %}
 </footer>
-
 
 {% block postloadjs %}
 <script>
@@ -238,42 +198,5 @@
 </script>
 {% endblock %}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const input = document.getElementById('new-image');
-        const filename = document.getElementById('filename');
-
-        if (input) {
-            input.addEventListener('change', function () {
-                filename.textContent = this.files.length
-                    ? this.files[0].name
-                    : '';
-            });
-        }
-    });
-</script>
-
-  <!-- Bootstrap Validation -->
-   <script>
-        (function () {
-            'use strict';
-
-            var forms = document.querySelectorAll('.needs-validation');
-
-            Array.prototype.slice.call(forms).forEach(function (form) {
-                form.addEventListener(
-                    'submit',
-                    function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    },
-                    false
-                );
-            });
-        })();
-    </script>
 </body>
 </html>
