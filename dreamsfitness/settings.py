@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'django_countries',
     
+    "django.contrib.sitemaps", # sitemap
+    
     'crispy_forms',
     'crispy_bootstrap4',
     'django_summernote',

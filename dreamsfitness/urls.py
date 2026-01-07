@@ -18,22 +18,34 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import handler404
+from django.contrib.sitemaps.views import sitemap
 
+from home.sitemap import StaticViewSitemap, ProductSitemap, BlogSitemap
+
+
+sitemaps = {
+    "static": StaticViewSitemap,
+    "products": ProductSitemap,
+    "blog": BlogSitemap,
+}
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('summernote/', include('django_summernote.urls')),
-    path('accounts/', include('allauth.urls')),
-    path('', include('home.urls')),
-    path('products/', include('products.urls')),
-    path('cart/', include('cart.urls')),
-    path('subscriptions/', include('subscriptions.urls')),
-    path('checkout/', include('checkout.urls')),
-    path('profiles/', include('profiles.urls')),
+    path("admin/", admin.site.urls),
+    path("summernote/", include("django_summernote.urls")),
+    path("accounts/", include("allauth.urls")),
+    path("", include("home.urls")),
+    path("products/", include("products.urls")),
+    path("cart/", include("cart.urls")),
+    path("subscriptions/", include("subscriptions.urls")),
+    path("checkout/", include("checkout.urls")),
+    path("profiles/", include("profiles.urls")),
     path("dashboard/", include("dashboard.urls")),
-    path('blog/', include('blog.urls')),
-    path('contact/', include('contact.urls')),
-    path('newsletter/', include('newsletter.urls')),
+    path("blog/", include("blog.urls")),
+    path("contact/", include("contact.urls")),
+    path("newsletter/", include("newsletter.urls")),
+
+    # Sitemap
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-handler404 = 'dreamsfitness.views.handler404'
+
+handler404 = "dreamsfitness.views.handler404"
