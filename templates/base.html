@@ -198,28 +198,16 @@
     {% include "includes/footer.html" %}
 </footer>
 
-<script src="{% static 'newsletter/js/newsletter.js' %}"></script>
-
-{% block postloadjs %}
-<script>
-    $('.toast').toast('show');
-</script>
-{% endblock %}
-
 <!-- ================= NEWSLETTER MODAL ================= -->
 {% if messages %}
     {% for message in messages %}
         {% if "newsletter" in message.tags %}
             {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
-
-            <!-- ================= NEWSLETTER MODAL SCRIPT ================= -->
-            <script>
-                $(document).ready(function () {
-                    $('#newsletterModal').modal('show');
-                });
-            </script>
         {% endif %}
     {% endfor %}
 {% endif %}
+
+<script src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'newsletter/js/newsletter.js' %}"></script>
 </body>
 </html>
