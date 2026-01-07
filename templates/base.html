@@ -165,7 +165,6 @@
 
 </header>
 
-<!-- ================= TOASTS & NEWSLETTER MODAL ================= -->
 <!-- ================= TOASTS ================= -->
 {% if messages %}
     <div class="message-container">
@@ -199,13 +198,6 @@
     {% include "includes/footer.html" %}
 </footer>
 
-<!-- ================= NEWSLETTER MODAL ================= -->
-{% for message in messages %}
-    {% if "newsletter" in message.tags %}
-        {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
-    {% endif %}
-{% endfor %}
-
 <script src="{% static 'newsletter/js/newsletter.js' %}"></script>
 
 {% block postloadjs %}
@@ -214,15 +206,20 @@
 </script>
 {% endblock %}
 
-{% for message in messages %}
-    {% if "newsletter" in message.tags %}
-        <script>
-            $(document).ready(function () {
-                $('#newsletterModal').modal('show');
-            });
-        </script>
-    {% endif %}
-{% endfor %}
+<!-- ================= NEWSLETTER MODAL ================= -->
+{% if messages %}
+    {% for message in messages %}
+        {% if "newsletter" in message.tags %}
+            {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
 
+            <!-- ================= NEWSLETTER MODAL SCRIPT ================= -->
+            <script>
+                $(document).ready(function () {
+                    $('#newsletterModal').modal('show');
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 </body>
 </html>
