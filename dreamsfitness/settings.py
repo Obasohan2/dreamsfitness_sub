@@ -226,7 +226,6 @@ DEFAULT_FROM_EMAIL = 'Dreams Fitness Center <no-reply@dreamsfitness.com>'
 if 'DEVELOPMENT' in os.environ:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = 'Dreams Fitness Center <no-reply@dreamsfitness.com>'
-    SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
