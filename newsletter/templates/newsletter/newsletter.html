@@ -1,0 +1,39 @@
+<form
+    id="newsletter-form"
+    method="POST"
+    action="{% url 'newsletter:subscribe' %}"
+>
+    {% csrf_token %}
+
+    <label class="font-weight-bold mb-2">
+        Subscribe for workout tips and promotions
+    </label>
+
+    <div class="input-group mb-2">
+        <input
+            type="email"
+            name="email"
+            class="form-control"
+            placeholder="Your email"
+            required
+        >
+        <div class="input-group-append">
+            <button class="btn btn-danger" type="submit">
+                Join
+            </button>
+        </div>
+    </div>
+
+    <div class="form-check">
+        <input
+            class="form-check-input"
+            type="checkbox"
+            required
+            id="newsletterConsent"
+        >
+        <label class="form-check-label small" for="newsletterConsent">
+            I agree to receive emails and accept the
+            <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.
+        </label>
+    </div>
+</form>

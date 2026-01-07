@@ -1,37 +1,49 @@
-{% if newsletter_success %}
+<!-- ================= NEWSLETTER CONFIRMATION MODAL ================= -->
 <div
-  class="modal fade"
-  id="newsletterSuccessModal"
-  tabindex="-1"
-  role="dialog"
-  aria-hidden="true"
+    class="modal fade"
+    id="newsletterConfirmationModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="newsletterConfirmationTitle"
+    aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
 
-      <div class="modal-body text-center py-4">
-        {% if newsletter_success == "exists" %}
-          <p class="mb-3">You’re already subscribed. Thanks for being with us!</p>
-        {% else %}
-          <p class="mb-3">Thanks for subscribing to our newsletter!</p>
-        {% endif %}
+            <div class="modal-header">
+                <h5 class="modal-title" id="newsletterConfirmationTitle">
+                    Subscription Confirmed
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-dismiss="modal"
-        >
-          Got it
-        </button>
-      </div>
+            <div class="modal-body text-center">
+                <p class="mb-2">
+                    🎉 Thank you for subscribing!
+                </p>
+                <p class="mb-0">
+                    You’ll now receive workout tips, promotions, and updates from
+                    <strong>Dreams Fitness Center</strong>.
+                </p>
+            </div>
 
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-black"
+                    data-dismiss="modal"
+                >
+                    Got it
+                </button>
+            </div>
+
+        </div>
     </div>
-  </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    $('#newsletterSuccessModal').modal('show');
-  });
-</script>
-{% endif %}
