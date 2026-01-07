@@ -1,34 +1,37 @@
-{% if request.session.newsletter_success %}
-  <div
-    class="modal fade"
-    id="newsletterSuccessModal"
-    tabindex="-1"
-    role="dialog"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Subscription Status</h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
+{% if newsletter_success %}
+<div
+  class="modal fade"
+  id="newsletterSuccessModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
 
-        <div class="modal-body">
-          {% if request.session.newsletter_success == "exists" %}
-            You’re already subscribed. Thanks for being with us!
-          {% else %}
-            Thanks for subscribing to our newsletter!
-          {% endif %}
-        </div>
+      <div class="modal-body text-center py-4">
+        {% if newsletter_success == "exists" %}
+          <p class="mb-3">You’re already subscribed. Thanks for being with us!</p>
+        {% else %}
+          <p class="mb-3">Thanks for subscribing to our newsletter!</p>
+        {% endif %}
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">
-            Got it
-          </button>
-        </div>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-dismiss="modal"
+        >
+          Got it
+        </button>
       </div>
+
     </div>
   </div>
+</div>
 
-  {% request.session.pop "newsletter_success" %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    $('#newsletterSuccessModal').modal('show');
+  });
+</script>
 {% endif %}

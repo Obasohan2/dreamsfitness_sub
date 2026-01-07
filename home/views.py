@@ -14,7 +14,3 @@ def terms(request):
 
 def nutrition_guides(request):
     return render(request, "nutrition_guides.html")
-
-
-
-
