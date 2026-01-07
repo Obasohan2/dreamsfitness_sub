@@ -200,7 +200,7 @@
 <!-- ================= NEWSLETTER MODAL ================= -->
 {% if messages %}
     {% for message in messages %}
-        {% if "newsletter" in message.tags %}
+        {% if message.extra_tags == "newsletter" %}
             {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
         {% endif %}
     {% endfor %}
