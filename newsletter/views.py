@@ -22,9 +22,11 @@ def subscribe(request):
                 subscriber = form.save()
 
             except IntegrityError:
+                # Already subscribed → still show modal
                 messages.success(
                     request,
-                    "You’re already subscribed. Thanks for being with us!"
+                    "You’re already subscribed. Thanks for being with us!",
+                    extra_tags="newsletter",
                 )
                 return redirect(request.META.get("HTTP_REFERER", "/"))
 
@@ -47,8 +49,14 @@ def subscribe(request):
                 email.send(fail_silently=True)
 
             except Exception:
+                # Email failure should never block signup
                 pass
 
-            messages.success(request, "TEST MODAL", extra_tags="newsletter")
+            # THIS IS THE MODAL TRIGGER
+            messages.success(
+                request,
+                "Thanks for subscribing to our newsletter!",
+                extra_tags="newsletter",
+            )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
