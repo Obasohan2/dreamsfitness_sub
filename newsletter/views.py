@@ -53,7 +53,7 @@ def subscribe(request):
                 pass
 
             # THIS IS THE MODAL TRIGGER
-            messages.success(
+            messages.add_message(
                 request,
                 "Thanks for subscribing to our newsletter!",
                 extra_tags="newsletter",
