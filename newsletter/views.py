@@ -4,7 +4,6 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.db import IntegrityError
-from django.contrib import messages
 
 from .forms import NewsletterForm
 
@@ -21,18 +20,17 @@ def subscribe(request):
             try:
                 subscriber = form.save()
 
+                # ✅ SUCCESS FLAG (this triggers modal)
+                request.session["newsletter_success"] = "success"
+
             except IntegrityError:
-                # Already subscribed → still show modal
-                messages.success(
-                    request,
-                    "You’re already subscribed. Thanks for being with us!",
-                    extra_tags="newsletter",
-                )
+                # ✅ ALREADY SUBSCRIBED FLAG
+                request.session["newsletter_success"] = "exists"
                 return redirect(request.META.get("HTTP_REFERER", "/"))
 
-            website_url = request.build_absolute_uri("/")
-
+            # Send welcome email (non-blocking)
             try:
+                website_url = request.build_absolute_uri("/")
                 html_message = render_to_string(
                     "emails/newsletter_welcome.html",
                     {"website_url": website_url},
@@ -49,14 +47,6 @@ def subscribe(request):
                 email.send(fail_silently=True)
 
             except Exception:
-                # Email failure should never block signup
                 pass
-
-            # THIS IS THE MODAL TRIGGER
-            messages.add_message(
-                request,
-                "Thanks for subscribing to our newsletter!",
-                extra_tags="newsletter",
-            )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
