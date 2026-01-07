@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.db import IntegrityError
+from django.contrib import messages
 
 from .forms import NewsletterForm
 
@@ -11,10 +12,6 @@ from .forms import NewsletterForm
 def subscribe(request):
     """
     Handle newsletter subscriptions safely.
-    - Validates input via NewsletterForm
-    - Saves subscriber
-    - Sends welcome email (fails silently)
-    - Sets success flag in session
     """
 
     if request.method == "POST":
@@ -22,11 +19,13 @@ def subscribe(request):
 
         if form.is_valid():
             try:
-                subscriber = form.save(commit=True)
+                subscriber = form.save()
 
             except IntegrityError:
-                # Email already exists → treat as success, no crash
-                request.session["newsletter_success"] = True
+                messages.success(
+                    request,
+                    "You’re already subscribed. Thanks for being with us!"
+                )
                 return redirect(request.META.get("HTTP_REFERER", "/"))
 
             website_url = request.build_absolute_uri("/")
@@ -48,9 +47,11 @@ def subscribe(request):
                 email.send(fail_silently=True)
 
             except Exception:
-                # Email failure should never block signup
                 pass
 
-            request.session["newsletter_success"] = True
+            messages.success(
+                request,
+                "Thanks for subscribing! Please check your email."
+            )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
