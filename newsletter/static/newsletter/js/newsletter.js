@@ -1,4 +1,6 @@
-$('#newsletter-form').on('submit', function (e) {
+console.log('newsletter js loaded');
+
+$(document).on('submit', '#newsletter-form', function (e) {
     e.preventDefault();
 
     const form = $(this);

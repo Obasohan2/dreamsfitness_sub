@@ -203,12 +203,14 @@
 
 <!-- ================= NEWSLETTER MODAL ================= -->
 {% include "includes/newsletter_success_modal.html" %}
+{% include "includes/newsletter_success_modal.html" %}
+
+<script src="{% static 'newsletter/js/newsletter.js' %}"></script>
 
 {% block postloadjs %}
 <script>
     $('.toast').toast('show');
 </script>
 {% endblock %}
-
 </body>
 </html>

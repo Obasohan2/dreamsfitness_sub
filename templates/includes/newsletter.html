@@ -4,9 +4,9 @@
     </h6>
 
     <form
-        id="newsletterForm"
+        id="newsletter-form"
+        method="post"
         action="{% url 'newsletter_subscribe' %}"
-        method="POST"
         class="newsletter-form"
     >
         {% csrf_token %}
@@ -16,15 +16,15 @@
             <input
                 type="email"
                 name="email"
-                placeholder="Your email"
                 class="form-control form-control-sm"
+                placeholder="Your email"
                 required
             >
+
             <div class="input-group-append">
                 <button
-                    class="btn btn-danger px-4"
                     type="submit"
-                    style="min-width: 90px;"
+                    class="btn btn-danger px-4 newsletter-submit-btn"
                 >
                     Join
                 </button>
@@ -40,6 +40,7 @@
                 class="form-check-input"
                 required
             >
+
             <label
                 for="newsletter-consent"
                 class="form-check-label small ml-1"
