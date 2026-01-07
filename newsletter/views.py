@@ -49,10 +49,6 @@ def subscribe(request):
             except Exception:
                 pass
 
-            messages.success(
-                request,
-                "Thanks for subscribing! Please check your email.",
-                extra_tags="newsletter"
-            )
+            messages.success(request, "TEST MODAL", extra_tags="newsletter")
 
     return redirect(request.META.get("HTTP_REFERER", "/"))

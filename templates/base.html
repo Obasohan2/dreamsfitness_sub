@@ -177,7 +177,7 @@
             </button>
 
             {% include "includes/main-nav.html" %}
-            {% include "includes/mobile-top-header.html" %}
+            {% include "includes/newsletter_success_modal.html" with all_messages=all_messages %}
             
         </nav>
     </div>
@@ -192,10 +192,14 @@
 </header>
 
 
+{% load messages %}
+
 <!-- ================= TOASTS ================= -->
-{% if messages %}
+{% get_messages as all_messages %}
+
+{% if all_messages %}
 <div class="message-container">
-    {% for message in messages %}
+    {% for message in all_messages %}
         {% if "newsletter" not in message.tags %}
             {% with message.level as level %}
                 {% if level == 40 %}
@@ -212,7 +216,6 @@
     {% endfor %}
 </div>
 {% endif %}
-
 
 
 <!-- ================= MAIN CONTENT ================= -->
