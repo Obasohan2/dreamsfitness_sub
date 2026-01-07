@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("newsletterModal");
-    if (modal) {
+
+    if (modal && typeof $ !== "undefined") {
         $('#newsletterModal').modal('show');
     }
 });
