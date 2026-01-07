@@ -8,6 +8,10 @@ def subscribe_newsletter(request):
     if request.method == "POST":
         email = request.POST.get("email")
 
+        if not email:
+            messages.error(request, "Please enter a valid email address.")
+            return redirect(request.META.get("HTTP_REFERER", "/"))
+
         subscriber, created = NewsletterSubscriber.objects.get_or_create(
             email=email,
             defaults={"consent": True}
@@ -23,9 +27,10 @@ def subscribe_newsletter(request):
         else:
             messages.info(
                 request,
-                "You are already subscribed."
+                "You are already subscribed.",
+                extra_tags="newsletter"
             )
 
-        return redirect("newsletter")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
 
-    return render(request, "newsletter.html")
+    return redirect("/")

@@ -192,7 +192,6 @@
     {% block page_header %}{% endblock %}
     {% block content %}{% endblock %}
 </main>
-
 <!-- ================= FOOTER ================= -->
 <footer class="site-footer mt-auto">
     {% include "includes/footer.html" %}
@@ -207,7 +206,9 @@
     {% endfor %}
 {% endif %}
 
+<!-- ================= SCRIPTS ================= -->
 <script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'newsletter/js/newsletter.js' %}"></script>
+
 </body>
 </html>

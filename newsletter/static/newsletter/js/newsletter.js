@@ -1,7 +1,6 @@
-$(document).ready(function () {
-    const modal = $('#newsletterModal');
-    if (modal.length) {
-        modal.modal('show');
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("newsletterModal");
+    if (modal) {
+        $('#newsletterModal').modal('show');
     }
 });
-
