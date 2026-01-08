@@ -1,0 +1,86 @@
+/* ============================
+   Subscription Admin Dashboard
+   ============================ */
+
+body {
+    background: limegreen !important;
+}
+
+
+.subscription-admin {
+    max-width: 1200px;
+    padding: 20px 30px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Headings */
+.subscription-admin h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.subscription-admin h2 {
+    font-size: 20px;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+}
+
+/* Tables */
+.subscription-admin table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin-bottom: 20px;
+}
+
+.subscription-admin thead {
+    background: #f5f5f5;
+}
+
+.subscription-admin th,
+.subscription-admin td {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+    font-size: 14px;
+}
+
+.subscription-admin th {
+    font-weight: 600;
+}
+
+/* Action links */
+.subscription-admin a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.subscription-admin a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+.subscription-admin .button {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #417690; /* Django admin blue */
+    color: #fff !important;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.subscription-admin .button:hover {
+    background: #2f5f77;
+}
+
+/* Spacing between sections */
+.subscription-admin hr {
+    margin: 30px 0;
+}
+
+/* Hide frontend-only elements if leaking */
+#delivery-banner {
+    display: none !important;
+}

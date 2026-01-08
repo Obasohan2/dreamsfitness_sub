@@ -1,0 +1,23 @@
+/* ================================================= */
+/* =============== REACTION BUTTON FIX ============= */
+/* ================================================= */
+
+/* Override Bootstrap btn-link underline & focus */
+.react-btn,
+.react-btn:hover,
+.react-btn:focus,
+.react-btn:active {
+    text-decoration: none !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    cursor: pointer;
+}
+
+/* Extra safety: override Bootstrap directly */
+.btn-link:hover,
+.btn-link:focus {
+    text-decoration: none !important;
+    box-shadow: none !important;
+}

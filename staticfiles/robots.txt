@@ -1,0 +1,51 @@
+# robots.txt for Dreams Fitness
+# Last updated: 2026-01-07
+
+User-agent: *
+Disallow: /accounts/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /api/
+Disallow: /ajax/
+Disallow: /static/admin/
+Disallow: /media/admin/
+
+# Block redirect & filter query spam
+Disallow: /*?next=
+Disallow: /*?sort=
+Disallow: /*?filter=
+Disallow: /*?search=
+
+# Block non-canonical file types
+Disallow: /*.php$
+
+# Allow public pages
+Allow: /
+Allow: /products/
+Allow: /products/*/
+Allow: /blog/
+Allow: /blog/*/
+Allow: /nutrition-guides/
+Allow: /subscriptions/
+Allow: /contact/
+Allow: /terms/
+
+# Block aggressive crawlers
+User-agent: Yandex
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# Sitemap
+Sitemap: https://dreamsfitness-f17a7a33b0ee.herokuapp.com/sitemap.xml
