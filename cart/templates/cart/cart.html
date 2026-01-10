@@ -23,7 +23,6 @@
 
         <div class="table-responsive">
 
-            <!-- SINGLE, VALID TABLE -->
             <table class="table table-sm cart-table align-middle">
 
                 <thead class="table-info">
@@ -40,25 +39,25 @@
                         <tr class="d-block d-md-table-row border rounded mb-3 mb-md-0 p-2 p-md-0">
 
                             <!-- PRODUCT -->
-                            <td class="d-flex d-md-table-cell align-items-center">
+                            <td class="d-md-table-cell align-items-center">
                                 <span class="d-md-none font-weight-bold mr-2">Product:</span>
                                 {% include "cart/product_image.html" %}
                             </td>
 
                             <!-- PRICE -->
-                            <td class="d-flex d-md-table-cell justify-content-between">
+                            <td class="d-md-table-cell">
                                 <span class="d-md-none font-weight-bold">Price:</span>
                                 £{{ item.product.price|floatformat:2 }}
                             </td>
 
                             <!-- QUANTITY -->
-                            <td class="d-flex d-md-table-cell justify-content-between text-md-center">
+                            <td class="d-md-table-cell text-md-center">
                                 <span class="d-md-none font-weight-bold">Qty:</span>
                                 {% include "cart/quantity_form.html" %}
                             </td>
 
                             <!-- SUBTOTAL -->
-                            <td class="d-flex d-md-table-cell justify-content-between text-md-right pr-md-5">
+                            <td class="d-md-table-cell text-md-right pr-md-3">
                                 <span class="d-md-none font-weight-bold">Subtotal:</span>
                                 <strong>£{{ item.line_total|floatformat:2 }}</strong>
                             </td>
@@ -106,6 +105,5 @@
 
 {% block postloadjs %}
     {{ block.super }}
-    {% include "products/includes/quantity_input_script.html" %}
     {% include "cart/cart_scripts.html" %}
 {% endblock %}
