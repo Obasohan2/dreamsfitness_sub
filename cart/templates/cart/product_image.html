@@ -7,8 +7,8 @@
         >
     {% else %}
         <img
-            src="{{ MEDIA_URL }}photos/products/noimage.png"
-            alt="No image"
+            src="{% static 'images/noimage.png' %}"
+            alt="No image available"
             class="rounded cart-img"
         >
     {% endif %}
