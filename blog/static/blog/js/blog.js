@@ -2,17 +2,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getCookie(name) {
         let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                    cookieValue = decodeURIComponent(
-                        cookie.substring(name.length + 1)
-                    );
-                    break;
+        if (document.cookie) {
+            document.cookie.split(";").forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 }
-            }
+            });
         }
         return cookieValue;
     }
@@ -23,34 +19,27 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function () {
 
             const postId = this.dataset.id;
-            const action = this.dataset.action;
+            const reaction = this.dataset.action;
 
             fetch(POST_REACTION_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken
+                    "X-CSRFToken": csrftoken,
                 },
                 body: JSON.stringify({
                     post_id: postId,
-                    reaction: action
-                })
+                    reaction: reaction,
+                }),
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById(`likes-${postId}`).innerText = data.likes;
-                    document.getElementById(`unlikes-${postId}`).innerText = data.unlikes;
+                    document.getElementById(`likes-${postId}`).textContent = data.likes;
+                    document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
                 }
             })
-            .catch(error => {
-                console.error("Reaction error:", error);
-            });
+            .catch(err => console.error("Reaction error:", err));
         });
     });
 

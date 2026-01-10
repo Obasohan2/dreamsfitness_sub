@@ -182,12 +182,7 @@ def delete_post(request, slug):
 @require_POST
 def post_reaction(request):
     data = json.loads(request.body)
-
-    post = get_object_or_404(
-        BlogPost,
-        id=data.get("post_id")
-    )
-
+    post = get_object_or_404(BlogPost, id=data.get("post_id"))
     reaction = data.get("reaction")
     user = request.user
 
@@ -207,10 +202,9 @@ def post_reaction(request):
 
     return JsonResponse({
         "success": True,
-        "likes": post.total_likes,
-        "unlikes": post.total_unlikes,
+        "likes": post.likes.count(),
+        "unlikes": post.unlikes.count(),
     })
-
 
 # ====================================================
 # EDIT COMMENT

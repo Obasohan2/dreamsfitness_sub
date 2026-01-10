@@ -123,6 +123,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# AM I RESPONSIVE TO EMBEDDED
+X_FRAME_OPTIONS = 'ALLOWALL'
+
 SITE_ID = 1
 
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
