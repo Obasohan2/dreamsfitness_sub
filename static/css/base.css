@@ -594,15 +594,17 @@ input[name="q"]::placeholder {
 }
 
 /* Cart product image fix */
-.cart-img-wrapper {
-    width: 90px;
-    height: 90px;
-    flex-shrink: 0;
-}
-
+/* Force cart product image size */
 .cart-img {
-    width: 100%;
-    height: 100%;
+    width: 80px !important;
+    height: 80px !important;
     object-fit: cover;
     display: block;
+}
+
+
+.cart-img-wrapper {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
 }
