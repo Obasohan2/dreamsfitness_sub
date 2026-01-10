@@ -593,18 +593,10 @@ input[name="q"]::placeholder {
 	/* Ensure images fill the space without distortion */
 }
 
-/* Cart product image fix */
-/* Force cart product image size */
+
 .cart-img {
-    width: 80px !important;
-    height: 80px !important;
-    object-fit: cover;
-    display: block;
-}
-
-
-.cart-img-wrapper {
     width: 80px;
     height: 80px;
-    flex-shrink: 0;
+    object-fit: cover;
+    display: block;
 }

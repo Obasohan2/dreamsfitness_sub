@@ -19,16 +19,14 @@
 
 <div class="container mb-5">
 
-{% if cart_items or subscription_item %}
+    {% if cart_items or subscription_item %}
 
-    <div class="table-responsive">
+        <div class="table-responsive">
 
-        <table class="table table-sm align-middle">
+            <!-- SINGLE, VALID TABLE -->
+            <table class="table table-sm cart-table align-middle">
 
-            <!-- DESKTOP HEADERS ONLY -->
-
-            <table class="table cart-table">
-                <thead class="table-info">               
+                <thead class="table-info">
                     <tr>
                         <th>Product</th>
                         <th>Price</th>
@@ -38,84 +36,76 @@
                 </thead>
 
                 <tbody>
+                    {% for item in cart_items %}
+                        <tr class="d-block d-md-table-row border rounded mb-3 mb-md-0 p-2 p-md-0">
 
-                {% for item in cart_items %}
-                    <tr class="d-block d-md-table-row border rounded mb-3 mb-md-0 p-2 p-md-0">
+                            <!-- PRODUCT -->
+                            <td class="d-flex d-md-table-cell align-items-center">
+                                <span class="d-md-none font-weight-bold mr-2">Product:</span>
+                                {% include "cart/product_image.html" %}
+                            </td>
 
-                        <!-- PRODUCT -->
-                        <td class="d-flex d-md-table-cell align-items-center">
-                            <span class="d-md-none font-weight-bold mr-2">Product:</span>
-                            {% include "cart/product_image.html" %}
-                        </td>
+                            <!-- PRICE -->
+                            <td class="d-flex d-md-table-cell justify-content-between">
+                                <span class="d-md-none font-weight-bold">Price:</span>
+                                £{{ item.product.price|floatformat:2 }}
+                            </td>
 
-                        <!-- PRICE -->
-                        <td class="d-flex d-md-table-cell justify-content-between">
-                            <span class="d-md-none font-weight-bold">Price:</span>
-                            £{{ item.product.price|floatformat:2 }}
-                        </td>
+                            <!-- QUANTITY -->
+                            <td class="d-flex d-md-table-cell justify-content-between text-md-center">
+                                <span class="d-md-none font-weight-bold">Qty:</span>
+                                {% include "cart/quantity_form.html" %}
+                            </td>
 
-                        <!-- QTY -->
-                        <td class="d-flex d-md-table-cell justify-content-between text-md-center">
-                            <span class="d-md-none font-weight-bold">Qty:</span>
-                            {% include "cart/quantity_form.html" %}
-                        </td>
+                            <!-- SUBTOTAL -->
+                            <td class="d-flex d-md-table-cell justify-content-between text-md-right pr-md-5">
+                                <span class="d-md-none font-weight-bold">Subtotal:</span>
+                                <strong>£{{ item.line_total|floatformat:2 }}</strong>
+                            </td>
 
-                        <!-- SUBTOTAL -->
-                        <td class="d-flex d-md-table-cell justify-content-between text-md-right pr-md-5">
-                            <span class="d-md-none font-weight-bold">Subtotal:</span>
-                            <strong>£{{ item.line_total|floatformat:2 }}</strong>
-                        </td>
+                        </tr>
+                    {% endfor %}
 
-                    </tr>
-                {% endfor %}
-
-                {% if subscription_item %}
-                    <tr class="d-block d-md-table-row table-info border rounded p-2">
-                        {% include "cart/subscription_row.html" %}
-                    </tr>
-                {% endif %}
-
+                    {% if subscription_item %}
+                        <tr class="d-block d-md-table-row table-info border rounded p-2">
+                            {% include "cart/subscription_row.html" %}
+                        </tr>
+                    {% endif %}
                 </tbody>
 
                 <tfoot>
-
                     <tr>
                         <td colspan="4" class="text-center text-md-right pt-4">
                             {% include "cart/cart_totals.html" %}
                         </td>
                     </tr>
-
                     <tr>
                         <td colspan="4" class="text-center text-md-right">
                             {% include "cart/checkout_buttons.html" %}
                         </td>
                     </tr>
-
                 </tfoot>
 
             </table>
+        </div>
 
-        </table>
+    {% else %}
 
-    </div>
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted"></i>
+            <p class="lead mt-3">Your cart is empty.</p>
+            <a href="{% url 'products' %}" class="btn btn-outline-dark mt-2">
+                <i class="fas fa-chevron-left mr-1"></i> Visit Shop
+            </a>
+        </div>
 
-{% else %}
-
-    <div class="text-center py-5">
-        <i class="fas fa-shopping-cart fa-4x text-muted"></i>
-        <p class="lead mt-3">Your cart is empty.</p>
-        <a href="{% url 'products' %}" class="btn btn-outline-dark mt-2">
-            <i class="fas fa-chevron-left mr-1"></i> Visit Shop
-        </a>
-    </div>
-
-{% endif %}
+    {% endif %}
 
 </div>
 {% endblock %}
 
 {% block postloadjs %}
-{{ block.super }}
-{% include "products/includes/quantity_input_script.html" %}
-{% include "cart/cart_scripts.html" %}
+    {{ block.super }}
+    {% include "products/includes/quantity_input_script.html" %}
+    {% include "cart/cart_scripts.html" %}
 {% endblock %}
