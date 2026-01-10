@@ -592,3 +592,16 @@ input[name="q"]::placeholder {
 	object-fit: cover;
 	/* Ensure images fill the space without distortion */
 }
+
+.cart-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+@media (min-width: 768px) {
+    .cart-img {
+        width: 100px;
+        height: 100px;
+    }
+}
