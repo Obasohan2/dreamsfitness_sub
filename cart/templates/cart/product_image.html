@@ -1,23 +1,34 @@
 {% load static %}
 
-<div class="d-flex align-items-center cart-product-image">
-    <div class="cart-img-wrapper">
+<div class="d-flex align-items-center">
+
+    <!-- PRODUCT IMAGE -->
+    <div class="mr-3">
         {% if item.product.images %}
             <img
                 src="{{ item.product.images.url }}"
                 alt="{{ item.product.name }}"
-                class="cart-img"
+                class="img-fluid rounded"
+                style="width: 80px; height: 80px; object-fit: cover;"
             >
         {% else %}
             <img
                 src="{% static 'images/noimage.png' %}"
                 alt="No image available"
-                class="cart-img"
+                class="img-fluid rounded"
+                style="width: 80px; height: 80px; object-fit: cover;"
             >
         {% endif %}
     </div>
 
-    <strong class="ml-3 text-black">
+    <!-- PRODUCT NAME -->
+    <strong class="text-black mb-0">
         {{ item.product.name }}
     </strong>
+
 </div>
+
+
+
+
+
