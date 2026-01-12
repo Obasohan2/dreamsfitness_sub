@@ -1,11 +1,11 @@
-# 🧪 Testing Documentation
+# Testing Documentation
 
 ## Overview
 Manual testing was conducted to ensure correct functionality, security, and responsiveness across the application.
 
 ---
 
-## ✅ Authentication Testing
+## Authentication Testing
 
 | Test | Expected Result | Outcome |
 |---|---|---|
@@ -16,7 +16,7 @@ User access to dashboard | 403 Forbidden | Pass |
 
 ---
 
-## 🧭 Navigation Testing
+## Navigation Testing
 
 | Feature | Result |
 |---|---|
@@ -26,7 +26,7 @@ Logout | Pass |
 
 ---
 
-## 🛒 Checkout & Payments
+## Checkout & Payments
 
 | Feature | Result |
 |---|---|
@@ -37,7 +37,7 @@ Order confirmation | Pass |
 
 ---
 
-## 🧩 CRUD Functionality
+## CRUD Functionality
 
 | Area | Result |
 |---|---|
@@ -49,7 +49,7 @@ Admin delete product | Pass |
 
 ---
 
-## 🌐 Browser Testing
+## Browser Testing
 - Chrome
 - Firefox
 - Edge
@@ -57,7 +57,7 @@ Admin delete product | Pass |
 
 ---
 
-## 📱 Responsive Testing
+## Responsive Testing
 - Mobile phones
 - Tablets
 - Desktop screens
@@ -66,5 +66,5 @@ Bootstrap grid system ensures responsiveness.
 
 ---
 
-## 🐞 Known Bugs
+## Known Bugs
 - None at time of submission

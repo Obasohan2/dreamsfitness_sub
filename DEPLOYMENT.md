@@ -1,11 +1,11 @@
-# 🚀 Deployment Documentation
+# Deployment Documentation
 
 ## Overview
 Dreams Fitness Center was deployed using a production-ready Django setup with PostgreSQL and Stripe integration.
 
 ---
 
-## 🔧 Local Deployment
+## Local Deployment
 
 1. Clone the repository
 2. Create virtual environment
@@ -17,12 +17,12 @@ Dreams Fitness Center was deployed using a production-ready Django setup with Po
 
 ---
 
-## 🌍 Production Deployment
+## Production Deployment
 
 ### Environment Variables
 
 
-## 🚀 Deployment
+## Deployment
 
 - Platform: **Heroku**
 - Web Server: **Gunicorn**
@@ -39,12 +39,12 @@ Deployment Steps:
 6. Deploy via GitHub integration
 
 
-## 📦 Static & Media Files
+## Static & Media Files
 - Static files collected using `collectstatic`
 - Media files served via cloud storage or platform configuration
 
 
-## ✅ Deployment Verification
+## Deployment Verification
 
 | Check | Status |
 |---|---|

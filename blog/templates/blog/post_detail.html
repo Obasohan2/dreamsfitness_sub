@@ -37,9 +37,7 @@
         <!-- CONTENT -->
         <div class="col-12 col-md-6">
 
-            <h1 class="mb-2">
-                {{ post.title }}
-            </h1>
+            <h1 class="mb-2">{{ post.title }}</h1>
 
             <p class="text-muted small mb-3">
                 By {{ post.author.username }} ·
@@ -54,88 +52,29 @@
             <div class="mb-3 d-flex align-items-center">
 
                 {% if user.is_authenticated %}
-
-                    <!-- LIKE -->
-                    <button
-                        type="button"
-                        class="btn btn-link p-0 mr-3 d-inline-flex align-items-center react-btn"
-                        data-id="{{ post.id }}"
-                        data-action="like"
-                        aria-label="Like post"
-                    >
+                    <button type="button"
+                            class="btn btn-link p-0 mr-3 d-inline-flex align-items-center react-btn"
+                            data-id="{{ post.id }}"
+                            data-action="like">
                         <i class="fas fa-heart text-danger"></i>
-                        <span class="text-danger ml-1">
-                            {{ post.likes.count }}
-                        </span>
+                        <span class="ml-1 text-danger">{{ post.likes.count }}</span>
                     </button>
 
-                    <!-- UNLIKE -->
-                    <button
-                        type="button"
-                        class="btn btn-link p-0 mr-3 d-inline-flex align-items-center react-btn"
-                        data-id="{{ post.id }}"
-                        data-action="unlike"
-                        aria-label="Unlike post"
-                    >
+                    <button type="button"
+                            class="btn btn-link p-0 mr-3 d-inline-flex align-items-center react-btn"
+                            data-id="{{ post.id }}"
+                            data-action="unlike">
                         <i class="far fa-heart text-secondary"></i>
-                        <span class="text-secondary ml-1">
-                            {{ post.unlikes.count }}
-                        </span>
+                        <span class="ml-1 text-secondary">{{ post.unlikes.count }}</span>
                     </button>
-
-                {% else %}
-
-                    <!-- GUEST VIEW -->
-                    <span class="d-inline-flex align-items-center mr-3 text-danger">
-                        <i class="fas fa-heart mr-1"></i>
-                        {{ post.likes.count }}
-                    </span>
-
-                    <span class="d-inline-flex align-items-center mr-3 text-secondary">
-                        <i class="far fa-heart mr-1"></i>
-                        {{ post.unlikes.count }}
-                    </span>
-
                 {% endif %}
 
-                <!-- COMMENTS (CLICKABLE, NO HOVER) -->
-                <a
-                    href="#comments"
-                    class="btn btn-link p-0 text-secondary d-inline-flex align-items-center"
-                    aria-label="View comments"
-                >
+                <a href="#comments"
+                   class="btn btn-link p-0 text-secondary d-inline-flex align-items-center">
                     <i class="fas fa-comment mr-1"></i>
                     {{ comments.count }}
                 </a>
-
             </div>
-
-            <!-- ================= POST ACTIONS ================= -->
-            {% if user.is_authenticated %}
-                {% if user == post.author or user.is_superuser %}
-                    <div class="mt-3">
-
-                        <button
-                            class="btn btn-sm btn-outline-primary mr-2"
-                            data-toggle="modal"
-                            data-target="#editPostModal"
-                            data-url="{% url 'edit_post' post.slug %}"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            class="btn btn-sm btn-outline-danger"
-                            data-toggle="modal"
-                            data-target="#deletePostModal"
-                            data-url="{% url 'delete_post' post.slug %}"
-                        >
-                            Delete
-                        </button>
-
-                    </div>
-                {% endif %}
-            {% endif %}
 
         </div>
     </div>
@@ -143,78 +82,75 @@
     <hr class="content-divider">
 
     <!-- ================= COMMENTS ================= -->
-    <div class="comments-wrapper mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-7">
 
-        <h4 id="comments" class="mb-4">
-            Comments ({{ comments.count }})
-        </h4>
+            <h4 id="comments" class="mb-4">
+                Comments ({{ comments.count }})
+            </h4>
 
-        {% for comment in comments %}
-            <div class="card mb-3">
-                <div class="card-body">
+            {% for comment in comments %}
+                <div class="card mb-3 ml-md-4">
+                    <div class="card-body">
 
-                    <strong>
-                        {{ comment.user.username }}
-                    </strong>
-
-                    <span class="text-muted small">
-                        · {{ comment.created_on|date:"M d, Y H:i" }}
-                    </span>
-
-                    <p class="mt-2 mb-0">
-                        {{ comment.body }}
-                    </p>
-
-                    {% if user == comment.user or user.is_superuser %}
-                        <div class="mt-2">
-
-                            <a
-                                href="{% url 'edit_comment' comment.id %}"
-                                class="btn btn-sm btn-outline-primary mr-2"
-                            >
-                                Edit
-                            </a>
-
-                            <button
-                                class="btn btn-sm btn-outline-danger"
-                                data-toggle="modal"
-                                data-target="#deleteCommentModal"
-                                data-url="{% url 'delete_comment' comment.id %}"
-                            >
-                                Delete
-                            </button>
-
+                        <div class="d-flex align-items-center mb-2">
+                            <strong class="mr-2">
+                                {{ comment.user.username }}
+                            </strong>
+                            <span class="text-muted small">
+                                {{ comment.created_on|date:"M d, Y H:i" }}
+                            </span>
                         </div>
-                    {% endif %}
 
+                        <p class="mb-2">
+                            {{ comment.body }}
+                        </p>
+
+                        {% if user == comment.user or user.is_superuser %}
+                            <div class="mt-2">
+                                <a href="{% url 'edit_comment' comment.id %}"
+                                   class="btn btn-sm btn-outline-primary mr-2">
+                                    Edit
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        data-toggle="modal"
+                                        data-target="#deleteCommentModal"
+                                        data-url="{% url 'delete_comment' comment.id %}">
+                                    Delete
+                                </button>
+                            </div>
+                        {% endif %}
+
+                    </div>
                 </div>
-            </div>
-        {% empty %}
-            <p class="text-muted">
-                No comments yet.
-            </p>
-        {% endfor %}
+            {% empty %}
+                <p class="text-muted ml-md-4">
+                    No comments yet.
+                </p>
+            {% endfor %}
 
-        <!-- ADD COMMENT -->
-        {% if user.is_authenticated %}
-            <h5 class="mt-4">
-                Add a Comment
-            </h5>
+            <!-- ================= ADD COMMENT ================= -->
+            {% if user.is_authenticated %}
+                <h5 class="mt-4">
+                    Add a Comment
+                </h5>
 
-            <form method="POST">
-                {% csrf_token %}
-                {{ comment_form.body }}
-                <button type="submit" class="btn btn-dark mt-2">
-                    Submit
-                </button>
-            </form>
-        {% else %}
-            <p class="mt-3">
-                <a href="{% url 'account_login' %}">Log in</a>
-                to comment.
-            </p>
-        {% endif %}
+                <form method="POST" class="ml-md-4">
+                    {% csrf_token %}
 
+                    {{ comment_form.body }}
+
+                    <button type="submit" class="btn btn-dark mt-2">
+                        Submit
+                    </button>
+                </form>
+            {% else %}
+                <p class="mt-3 ml-md-4">
+                    <a href="{% url 'account_login' %}">Log in</a> to comment.
+                </p>
+            {% endif %}
+
+        </div>
     </div>
 
     <div class="mt-5 text-center">
@@ -225,17 +161,14 @@
 
 </div>
 
-<!-- ================= MODALS ================= -->
 {% include "blog/includes/post_modals.html" %}
 
 {% endblock %}
 
 {% block postloadjs %}
 {{ block.super }}
-
 <script>
     const REACT_URL = "{% url 'post_reaction' %}";
 </script>
-
 <script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}
