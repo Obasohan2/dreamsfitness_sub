@@ -87,7 +87,8 @@ def adjust_cart(request, item_id):
     cart[item_id] = quantity
     messages.success(request, f"Updated {product.name} quantity to {quantity}.")
     request.session['cart'] = cart
-
+    
+    # return HttpResponse(status=204)
     return redirect(reverse("view_cart"))
 
 

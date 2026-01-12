@@ -9,13 +9,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!qtyInput || !decrementBtn) return;
 
-        decrementBtn.disabled = parseInt(qtyInput.value) <= 1;
+        if (parseInt(qtyInput.value) <= 1) {
+            decrementBtn.disabled = true;
+        } else {
+            decrementBtn.disabled = false;
+        }
     }
 
     /* ================= UPDATE LINK ================= */
     document.querySelectorAll(".update-link").forEach(link => {
         link.addEventListener("click", function () {
-            this.closest(".update-form").submit();
+            this.closest("td").querySelector("form").submit();
         });
     });
 
@@ -75,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    /* ================= INIT ================= */
+    /* ================= INIT STATE ================= */
     document.querySelectorAll(".qty_input").forEach(input => {
         updateDecrementState(input.dataset.item_id);
     });
