@@ -181,7 +181,11 @@ def delete_post(request, slug):
 @login_required
 @require_POST
 def post_reaction(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False}, status=400)
+
     post = get_object_or_404(BlogPost, id=data.get("post_id"))
     reaction = data.get("reaction")
     user = request.user
@@ -205,6 +209,7 @@ def post_reaction(request):
         "likes": post.likes.count(),
         "unlikes": post.unlikes.count(),
     })
+
 
 # ====================================================
 # EDIT COMMENT

@@ -27,3 +27,13 @@
     transition: none !important;
     animation: none !important;
 }
+
+
+.blog-page .card {
+    min-height: unset;
+}
+
+.blog-page .card-body {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
