@@ -253,6 +253,16 @@
         $('.toast').toast('show');
     });
 </script>
+
+<script>
+    $(window).on("load", function () {
+        const modal = $("#newsletterModal");
+        if (modal.length) {
+            modal.modal("show");
+        }
+    });
+</script>
+
 {% endblock %}
 </body>
 </html>
