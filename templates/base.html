@@ -232,13 +232,31 @@
 
 
 <!-- ================= NEWSLETTER MODAL ================= -->
+
+<!-- ================= NEWSLETTER MODAL ================= -->
 {% if messages %}
+    {% for message in messages %}
+        {% if message.extra_tags == "newsletter" %}
+
+            <!-- DEBUG MARKER -->
+            <div style="background: green; color: white; padding: 5px;">
+                Newsletter modal injected
+            </div>
+
+            {% include "includes/newsletter_modal.html"
+               with newsletter_message=message %}
+
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% comment %} {% if messages %}
     {% for message in messages %}
         {% if message.extra_tags == "newsletter" %}
             {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
         {% endif %}
     {% endfor %}
-{% endif %}
+{% endif %} {% endcomment %}
 
 <!-- ================= SCRIPTS ================= -->
 <script src="{% static 'newsletter/js/newsletter.js' %}"></script>
