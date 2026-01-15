@@ -1,15 +1,6 @@
 {% load static %}
 {% load tz %}
 
-<!-- DEBUG -->
-{% if messages %}
-    <div style="background:red;color:white;padding:10px;">
-        Messages detected: {{ messages|length }}
-    </div>
-{% endif %}
-
-
-
 <!doctype html>
 <html lang="en">
 
@@ -200,24 +191,38 @@
 
 <!-- ================= TOASTS ================= -->
 {% if messages %}
-    <div class="message-container">
-        {% for message in messages %}
-            {% if "newsletter" not in message.tags %}
-                {% with message.level as level %}
-                    {% if level == 40 %}
-                        {% include "includes/toasts/toast_error.html" %}
-                    {% elif level == 30 %}
-                        {% include "includes/toasts/toast_warning.html" %}
-                    {% elif level == 25 %}
-                        {% include "includes/toasts/toast_success.html" %}
-                    {% else %}
-                        {% include "includes/toasts/toast_info.html" %}
-                    {% endif %}
-                {% endwith %}
+    {% with messages as all_messages %}
+
+        <!-- ================= TOASTS ================= -->
+        <div class="message-container">
+            {% for message in all_messages %}
+                {% if "newsletter" not in message.tags %}
+                    {% with message.level as level %}
+                        {% if level == 40 %}
+                            {% include "includes/toasts/toast_error.html" %}
+                        {% elif level == 30 %}
+                            {% include "includes/toasts/toast_warning.html" %}
+                        {% elif level == 25 %}
+                            {% include "includes/toasts/toast_success.html" %}
+                        {% else %}
+                            {% include "includes/toasts/toast_info.html" %}
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- ================= NEWSLETTER MODAL ================= -->
+        {% for message in all_messages %}
+            {% if message.extra_tags == "newsletter" %}
+                {% include "includes/newsletter_success_modal.html"
+                   with newsletter_message=message %}
             {% endif %}
         {% endfor %}
-    </div>
+
+    {% endwith %}
 {% endif %}
+
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="flex-fill">
@@ -234,27 +239,10 @@
 {% if messages %}
     {% for message in messages %}
         {% if message.extra_tags == "newsletter" %}
-
-            <!-- DEBUG -->
-            <div style="background: green; color: white; padding: 5px;">
-                Newsletter modal injected
-            </div>
-
-            {% include "includes/newsletter_modal.html"
-               with newsletter_message=message %}
-
-        {% endif %}
-    {% endfor %}
-{% endif %}
-
-
-{% comment %} {% if messages %}
-    {% for message in messages %}
-        {% if message.extra_tags == "newsletter" %}
             {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
         {% endif %}
     {% endfor %}
-{% endif %} {% endcomment %}
+{% endif %}
 
 <!-- ================= SCRIPTS ================= -->
 <script src="{% static 'newsletter/js/newsletter.js' %}"></script>
