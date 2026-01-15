@@ -33,6 +33,12 @@
                         alt="{{ post.title }}"
                         class="img-fluid rounded"
                     >
+                {% else %}
+                    <img
+                        src="{{ MEDIA_URL }}photos/products/noimage.png"
+                        alt="No image available"
+                        class="img-fluid rounded"
+                    >
                 {% endif %}
             </div>
 

@@ -55,27 +55,37 @@ def checkout(request):
 
     cart = cart_contents(request)
 
-    # Use totals computed once (single source of truth)
+    # ---------------- PRODUCTS ----------------
     product_items = cart["cart_items"]
     product_total = cart["product_total"]
     delivery = cart["delivery"]
 
-    subscription_item = cart["subscription_item"]
-    subscription_total = cart["subscription_after_discount_total"]
+    # ---------------- SUBSCRIPTION ----------------
+    subscription_item = cart.get("subscription_item")
+    subscription_total = cart.get("subscription_after_discount_total")
 
+    subscription = None
+    if subscription_item:
+        subscription = {
+            "plan": subscription_item["plan"],
+            "months": subscription_item["months"],
+            "total": subscription_total,
+            "discount": subscription_item.get("discount"),
+        }
+
+    # ---------------- TOTALS ----------------
     grand_total = cart["grand_total"].quantize(Decimal("0.01"))
 
+    # ---------------- FORM ----------------
     order_form = OrderForm()
 
+    # ---------------- STRIPE ----------------
     client_secret = None
     if grand_total > 0:
-        amount = int(grand_total * 100)
         intent = stripe.PaymentIntent.create(
-            amount=amount,
+            amount=int(grand_total * 100),
             currency="gbp",
-            payment_method_types=["card"],  # Ensure only card payments are accepted
-            # Optional: you can also set metadata here.
-            # It will show in payment_intent.created events immediately.
+            payment_method_types=["card"],
             metadata={
                 "cart": json.dumps(request.session.get("cart", {})),
                 "subscription_plan_id": str(
@@ -92,11 +102,12 @@ def checkout(request):
                     if request.user.is_authenticated
                     else "AnonymousUser"
                 ),
-            }
+            },
         )
         client_secret = intent.client_secret
 
     context = {
+        # Form
         "order_form": order_form,
 
         # Products
@@ -104,15 +115,12 @@ def checkout(request):
         "product_total": product_total,
         "delivery": delivery,
 
-        # Subscription (aligned with context processor)
-        "subscription_item": subscription_item,
-        "subscription_total": subscription_total,
-        "subscription_pre_discount_total": cart["subscription_pre_discount_total"],
-        "subscription_discount_amount": cart["subscription_discount_amount"],
+        # Subscription (KEY FIX)
+        "subscription": subscription,
 
         # Totals
-        "final_total": grand_total,   # keep your template variable name working
-        "grand_total": grand_total,   # optional convenience
+        "final_total": grand_total,
+        "grand_total": grand_total,
 
         # Stripe
         "stripe_public_key": stripe_public_key,
@@ -159,14 +167,11 @@ def process_order(request):
 
     # ---------------- PRODUCT LINE ITEMS ----------------
     for item in cart["cart_items"]:
-        price = Decimal(item["product"].price)
-        qty = Decimal(item["quantity"])
-
         OrderLineItem.objects.create(
             order=order,
             product=item["product"],
             quantity=item["quantity"],
-            lineitem_total=price * qty,
+            lineitem_total=Decimal(item["product"].price) * item["quantity"],
         )
 
     # ---------------- SUBSCRIPTION LINE ITEM ----------------
@@ -179,7 +184,7 @@ def process_order(request):
             discount = get_object_or_404(
                 PlanDiscount,
                 pk=subscription["discount_id"],
-                subplan=plan
+                subplan=plan,
             )
             price -= price * Decimal(discount.total_discount) / 100
 
@@ -230,10 +235,11 @@ def checkout_success(request, order_number):
         f"Order {order.order_number} processed successfully!"
     )
 
-    return render(request, "checkout/checkout_success.html", {
-        "order": order,
-        "from_profile": False,
-    })
-
-
-
+    return render(
+        request,
+        "checkout/checkout_success.html",
+        {
+            "order": order,
+            "from_profile": False,
+        },
+    )
