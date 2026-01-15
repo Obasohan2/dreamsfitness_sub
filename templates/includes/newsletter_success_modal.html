@@ -1,20 +1,32 @@
 <div class="modal fade" id="newsletterModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
+        <div class="modal-content bg-light">
 
-            <div class="modal-header">
-                <h5 class="modal-title">Subscription Successful</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <!-- HEADER -->
+            <div class="modal-header justify-content-center border-0">
+                <h5 class="modal-title text-success text-center">
+                    Subscription Successful
+                </h5>
+
+                <button
+                    type="button"
+                    class="close position-absolute"
+                    style="right: 15px;"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
-            <div class="modal-body">
+            <!-- BODY -->
+            <div class="modal-body text-center text-dark">
                 {{ newsletter_message }}
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-dark" data-dismiss="modal">
+            <!-- FOOTER -->
+            <div class="modal-footer justify-content-center border-0">
+                <button type="button" class="btn btn-success" data-dismiss="modal">
                     Got it!
                 </button>
             </div>
