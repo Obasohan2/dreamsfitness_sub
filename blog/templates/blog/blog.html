@@ -190,8 +190,9 @@
     {{ block.super }}
 
     <script>
-        const POST_REACTION_URL = "{% url 'post_reaction' %}";
+    const POST_REACTION_URL = "{% url 'post_reaction' %}";
     </script>
 
     <script src="{% static 'blog/js/blog.js' %}"></script>
+
 {% endblock %}
