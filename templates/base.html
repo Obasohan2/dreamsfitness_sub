@@ -1,6 +1,15 @@
 {% load static %}
 {% load tz %}
 
+<!-- DEBUG -->
+{% if messages %}
+    <div style="background:red;color:white;padding:10px;">
+        Messages detected: {{ messages|length }}
+    </div>
+{% endif %}
+
+
+
 <!doctype html>
 <html lang="en">
 
@@ -232,10 +241,15 @@
 {% endif %}
 
 <!-- ================= SCRIPTS ================= -->
-<script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'newsletter/js/newsletter.js' %}"></script>
 
-{% block postloadjs %}{% endblock %}
+{% block postloadjs %}
+<script>
+    $(document).ready(function () {
+        $('.toast').toast('show');
+    });
+</script>
+{% endblock %}
 </body>
 </html>
 
