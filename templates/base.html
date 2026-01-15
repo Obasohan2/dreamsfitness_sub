@@ -230,15 +230,12 @@
     {% include "includes/footer.html" %}
 </footer>
 
-
-<!-- ================= NEWSLETTER MODAL ================= -->
-
 <!-- ================= NEWSLETTER MODAL ================= -->
 {% if messages %}
     {% for message in messages %}
         {% if message.extra_tags == "newsletter" %}
 
-            <!-- DEBUG MARKER -->
+            <!-- DEBUG -->
             <div style="background: green; color: white; padding: 5px;">
                 Newsletter modal injected
             </div>
@@ -249,6 +246,7 @@
         {% endif %}
     {% endfor %}
 {% endif %}
+
 
 {% comment %} {% if messages %}
     {% for message in messages %}
