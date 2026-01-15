@@ -593,10 +593,6 @@ input[name="q"]::placeholder {
 	/* Ensure images fill the space without distortion */
 }
 
-
-.cart-img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    display: block;
+.cart-table td {
+    vertical-align: middle;
 }
