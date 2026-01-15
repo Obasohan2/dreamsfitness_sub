@@ -244,8 +244,7 @@
     {% endfor %}
 {% endif %}
 
-<!-- ================= SCRIPTS ================= -->
-<script src="{% static 'newsletter/js/newsletter.js' %}"></script>
+<!-- ================= SCRIPTS TOASTS================= -->
 
 {% block postloadjs %}
 <script>
@@ -254,6 +253,7 @@
     });
 </script>
 
+<!-- ================= SCRIPTS MODAL================= -->
 <script>
     $(window).on("load", function () {
         const modal = $("#newsletterModal");
