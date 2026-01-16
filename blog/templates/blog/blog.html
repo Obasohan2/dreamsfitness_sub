@@ -6,10 +6,6 @@
     <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
-{% block extra_meta %}
-  <meta name="reaction-url" content="{% url 'post_reaction' %}">
-{% endblock %}
-
 
 {% block page_header %}
     <div class="container header-container">
@@ -98,7 +94,7 @@
                                 </p>
 
                                 <!-- ================= REACTIONS ================= -->
-                                <div class="d-flex align-items-center mt-auto">
+                                <div class="d-flex align-items-center mt-auto">{% csrf_token %}
                                     {% if user.is_authenticated %}
                                         <!-- LIKE -->
                                         <button
