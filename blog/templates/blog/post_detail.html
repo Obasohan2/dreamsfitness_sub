@@ -321,5 +321,23 @@
 
 {% block postloadjs %}
 {{ block.super }}
+
+<script>
+    const POST_REACTION_URL =
+        document.querySelector('meta[name="reaction-url"]').getAttribute('content');
+
+    const csrftoken =
+        document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+</script>
+
+<script>
+    document.addEventListener("contextmenu", function (e) {
+        if (e.target.tagName === "IMG") {
+            e.preventDefault();
+        }
+    });
+</script>
+
 <script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}
+
