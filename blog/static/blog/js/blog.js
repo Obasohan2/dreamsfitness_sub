@@ -1,9 +1,6 @@
-// static/blog/js/blog.js
-
 document.addEventListener("DOMContentLoaded", function () {
     console.log("blog.js loaded");
 
-    // Get the reaction endpoint from the meta tag
     let reactionUrl = document.querySelector('meta[name="reaction-url"]');
     reactionUrl = reactionUrl ? reactionUrl.content : null;
 
@@ -12,14 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    // Get CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
             for (let cookie of cookies) {
                 cookie = cookie.trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                if (cookie.startsWith(name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
@@ -29,9 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const csrftoken = getCookie('csrftoken');
-    console.log("CSRF token:", csrftoken ? "Found" : "Not found");
 
-    // Use jQuery to delegate click events to dynamically loaded content
     $(document).on('click', '.react-btn', function (e) {
         e.preventDefault();
 
@@ -44,7 +38,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Disable button while processing
         $button.prop('disabled', true);
 
         $.ajax({
@@ -64,16 +57,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     $(`#likes-${postId}`).text(response.likes);
                     $(`#unlikes-${postId}`).text(response.unlikes);
 
-                    // Toggle visual states based on action
                     if (action === 'like') {
-                        $(`.react-btn[data-action="like"][data-id="${postId}"] i`).addClass('fas text-danger').removeClass('far');
-                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`).removeClass('fas').addClass('far');
+                        $(`.react-btn[data-action="like"][data-id="${postId}"] i`)
+                            .addClass('fas text-danger').removeClass('far');
+                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`)
+                            .removeClass('fas').addClass('far');
                     } else {
-                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`).addClass('fas').removeClass('far');
-                        $(`.react-btn[data-action="like"][data-id="${postId}"] i`).removeClass('fas').addClass('far text-danger');
+                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`)
+                            .addClass('fas').removeClass('far');
+                        $(`.react-btn[data-action="like"][data-id="${postId}"] i`)
+                            .removeClass('fas').addClass('far text-danger');
                     }
                 } else {
-                    alert("Error: " + (response.error || "Something went wrong."));
+                    alert(response.error || "Reaction failed");
                 }
             },
             error: function (xhr) {
@@ -82,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert("Login required to react.");
                     window.location.href = "/accounts/login/?next=" + window.location.pathname;
                 } else {
-                    alert("Failed to react. Please try again.");
+                    alert("Error occurred. Try again later.");
                 }
             },
             complete: function () {
