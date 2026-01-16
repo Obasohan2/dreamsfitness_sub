@@ -1,24 +1,17 @@
 $(document).ready(function () {
-    console.log("blog.js loaded");
-
-    // Get reaction endpoint from meta tag or fallback
     let reactionUrl = $('meta[name="reaction-url"]').attr("content");
     if (!reactionUrl) {
-        reactionUrl = `${window.location.origin}/blog/post-reaction/`;
-        console.warn("Meta tag missing. Using fallback reaction URL:", reactionUrl);
-    } else {
-        console.log("Using meta tag reaction URL:", reactionUrl);
+        reactionUrl = window.location.origin + '/blog/post-reaction/';
     }
 
-    // CSRF token retrieval
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
                 if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
             }
@@ -27,24 +20,21 @@ $(document).ready(function () {
     }
 
     const csrftoken = getCookie('csrftoken');
-    console.log("CSRF token retrieved:", !!csrftoken);
 
-    // AJAX handler for Like/Unlike
     $(document).on("click", ".react-btn", function (e) {
         e.preventDefault();
-        console.log("Reaction button clicked");
 
         const $button = $(this);
         const postId = $button.data("id");
         const action = $button.data("action");
 
         if (!postId || !action) {
-            console.error("Missing post ID or action");
+            console.error("Missing data attributes");
             return;
         }
 
-        const originalHTML = $button.html();
-        $button.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+        // Add loading class
+        $button.addClass("loading").prop("disabled", true);
 
         $.ajax({
             url: reactionUrl,
@@ -60,56 +50,49 @@ $(document).ready(function () {
                 reaction: action
             }),
             success: function (response) {
-                console.log("AJAX success:", response);
-                $button.html(originalHTML).prop('disabled', false);
+                $button.removeClass("loading").prop("disabled", false);
 
                 if (response.success) {
-                    // Update like/unlike counters
+                    // Update like/unlike counts
                     $(`#likes-${postId}`).text(response.likes);
                     $(`#unlikes-${postId}`).text(response.unlikes);
 
-                    // Toggle icons visually
-                    if (action === 'like') {
-                        $button.find('i').removeClass('far text-secondary').addClass('fas text-danger');
-                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`)
-                            .removeClass('fas text-secondary').addClass('far text-secondary');
-                    } else {
-                        $button.find('i').removeClass('far text-danger').addClass('fas text-secondary');
+                    // Update icons
+                    if (action === "like") {
                         $(`.react-btn[data-action="like"][data-id="${postId}"] i`)
-                            .removeClass('fas text-danger').addClass('far text-danger');
+                            .removeClass("far text-secondary").addClass("fas text-danger");
+                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`)
+                            .removeClass("fas text-secondary").addClass("far text-secondary");
+                    } else if (action === "unlike") {
+                        $(`.react-btn[data-action="unlike"][data-id="${postId}"] i`)
+                            .removeClass("far text-danger").addClass("fas text-secondary");
+                        $(`.react-btn[data-action="like"][data-id="${postId}"] i`)
+                            .removeClass("fas text-danger").addClass("far text-danger");
                     }
 
-                    // Flash check mark ✓ briefly
-                    const $countSpan = $button.find('span');
-                    const originalText = $countSpan.text();
-                    $countSpan.text('✓');
+                    // Show success tick briefly (change span text)
+                    const $span = $button.find('.btn-text');
+                    const originalText = $span.text();
+                    $span.text('✓');
                     setTimeout(() => {
-                        $countSpan.text(originalText);
-                    }, 500);
+                        $span.text(originalText);
+                    }, 600);
                 } else {
-                    console.warn("Server returned success: false", response);
-                    if (response.error) {
-                        alert("Error: " + response.error);
-                    }
+                    alert("Error: " + (response.error || "Something went wrong."));
                 }
             },
-            error: function (xhr, status, error) {
-                console.error("AJAX error:", xhr.status, error);
-                $button.html(originalHTML).prop('disabled', false);
+            error: function (xhr) {
+                $button.removeClass("loading").prop("disabled", false);
 
                 if (xhr.status === 403) {
-                    alert("Login required to react.");
+                    alert("Please login to react to posts.");
                     window.location.href = '/accounts/login/?next=' + window.location.pathname;
                 } else if (xhr.status === 404) {
-                    alert("Reaction failed: Post not found.");
-                } else if (xhr.status === 500) {
-                    alert("Server error. Please try again later.");
+                    alert("Post not found or reaction URL incorrect.");
                 } else {
-                    alert("Unexpected error: " + error);
+                    alert("Server error. Please try again later.");
                 }
             }
         });
     });
-
-    console.log("Reaction handler registered");
 });
