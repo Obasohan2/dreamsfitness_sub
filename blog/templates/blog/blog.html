@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
+{% block extra_meta %}
+    <meta name="reaction-url" content="{% url 'post_reaction' %}">
+{% endblock %}
 
 {% block page_header %}
     <div class="container header-container">
