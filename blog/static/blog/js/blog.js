@@ -1,60 +1,70 @@
-$(document).ready(function () {
-    const POST_REACTION_URL = $('meta[name="reaction-url"]').attr("content");
+$(function () {
+    const POST_REACTION_URL = $('meta[name="reaction-url"]').attr('content');
 
     if (!POST_REACTION_URL) {
-        console.warn("POST_REACTION_URL not found.");
+        console.warn('Reaction URL missing');
         return;
     }
 
+    // Simple CSRF getter
     function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie) {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
     }
 
-    const csrftoken = getCookie("csrftoken");
+    const csrftoken = getCookie('csrftoken');
 
-    // AJAX handler
-    $(document).on("click", ".react-btn", function () {
-        const postId = $(this).data("id");
-        const action = $(this).data("action");
+    if (!csrftoken) {
+        console.warn('CSRF token not found');
+    }
 
-        // Debug log
-        console.log("Reaction clicked:", { postId, action });
+    // Use delegated event (important!)
+    $(document).on('click', '.react-btn', function (e) {
+        e.preventDefault();
+
+        const $btn = $(this);
+
+        // prevent double clicks
+        if ($btn.data('loading')) return;
+        $btn.data('loading', true);
+
+        const postId = $btn.data('id');
+        const action = $btn.data('action');
+
+        console.log('React:', postId, action);
 
         $.ajax({
             url: POST_REACTION_URL,
-            method: "POST",
+            type: 'POST',
             headers: {
-                "X-CSRFToken": csrftoken,
+                'X-CSRFToken': csrftoken
             },
-            contentType: "application/json",
+            contentType: 'application/json',
             data: JSON.stringify({
                 post_id: postId,
-                reaction: action,
+                reaction: action
             }),
-            success: function (response) {
-                if (response.success) {
-                    $("#likes-" + postId).text(response.likes);
-                    $("#unlikes-" + postId).text(response.unlikes);
-                } else {
-                    console.warn("Reaction failed:", response);
+            success: function (data) {
+                if (data.success) {
+                    $('#likes-' + postId).text(data.likes);
+                    $('#unlikes-' + postId).text(data.unlikes);
                 }
             },
             error: function (xhr) {
-                console.error("Reaction AJAX error:", xhr.status, xhr.responseText);
-                if (xhr.status === 403 || xhr.status === 401) {
-                    alert("You must be logged in to react.");
+                console.error('Reaction failed:', xhr.status);
+
+                // Heroku / Django login redirect
+                if (xhr.status === 302 || xhr.status === 401) {
+                    alert('Please log in to like or unlike.');
                 }
+
+                // CSRF rejection
+                if (xhr.status === 403) {
+                    alert('Security check failed. Refresh the page.');
+                }
+            },
+            complete: function () {
+                $btn.data('loading', false);
             }
         });
     });
