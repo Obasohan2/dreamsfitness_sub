@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView
+from django.views.decorators.csrf import csrf_protect
 
 from .models import BlogPost, Comment, Category
 from .forms import AddPostForm, PostForm, CommentForm
+from django.views.generic import ListView
 
 
 # ====================================================
@@ -178,30 +179,47 @@ def delete_post(request, slug):
 # ====================================================
 # LIKE / UNLIKE (AJAX)
 # ====================================================
+
 @login_required
 @require_POST
+@csrf_protect
 def post_reaction(request):
     try:
+        # Parse JSON data from request body
         data = json.loads(request.body)
-        post = get_object_or_404(BlogPost, id=data.get("post_id"))
+        post_id = data.get("post_id")
         reaction = data.get("reaction")
+
+        # Get the blog post object
+        post = get_object_or_404(BlogPost, id=post_id)
         user = request.user
 
+        # Process "like" reaction
         if reaction == "like":
             if post.likes.filter(id=user.id).exists():
                 post.likes.remove(user)
             else:
-                post.unlikes.remove(user)
+                if post.unlikes.filter(id=user.id).exists():
+                    post.unlikes.remove(user)
                 post.likes.add(user)
+
+        # Process "unlike" reaction
         elif reaction == "unlike":
             if post.unlikes.filter(id=user.id).exists():
                 post.unlikes.remove(user)
             else:
-                post.likes.remove(user)
+                if post.likes.filter(id=user.id).exists():
+                    post.likes.remove(user)
                 post.unlikes.add(user)
-        else:
-            return JsonResponse({"success": False, "error": "Invalid reaction"}, status=400)
 
+        # Invalid reaction
+        else:
+            return JsonResponse({
+                "success": False,
+                "error": "Invalid reaction type."
+            }, status=400)
+
+        # Return updated counts
         return JsonResponse({
             "success": True,
             "likes": post.likes.count(),
@@ -209,9 +227,12 @@ def post_reaction(request):
         })
 
     except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=400)
-
-
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=400)
+        
+        
 # ====================================================
 # EDIT COMMENT
 # ====================================================
