@@ -96,16 +96,19 @@ class PostForm(BasePostForm):
 
 
 # ====================================================
-# COMMENT FORM
+# COMMENT FORM (Used for Add/Edit)
 # ====================================================
 class CommentForm(forms.ModelForm):
     """
-    Form for authenticated users to comment on posts
+    Form used to create or edit a comment
     """
 
     class Meta:
         model = Comment
         fields = ["body"]
+        labels = {
+            "body": "",
+        }
         widgets = {
             "body": forms.Textarea(
                 attrs={
