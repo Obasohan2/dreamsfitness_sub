@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block extra_meta %}
-    <meta name="reaction-url" content="{% url 'post_reaction' %}">
+  <meta name="reaction-url" content="{% url 'post_reaction' %}">
 {% endblock %}
 
 {% block page_header %}
@@ -237,6 +237,8 @@
             }
         });
     </script>
+    <!-- Make sure jQuery is loaded first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}

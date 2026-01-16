@@ -183,32 +183,33 @@ def delete_post(request, slug):
 def post_reaction(request):
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"success": False}, status=400)
+        post = get_object_or_404(BlogPost, id=data.get("post_id"))
+        reaction = data.get("reaction")
+        user = request.user
 
-    post = get_object_or_404(BlogPost, id=data.get("post_id"))
-    reaction = data.get("reaction")
-    user = request.user
-
-    if reaction == "like":
-        if post.likes.filter(id=user.id).exists():
-            post.likes.remove(user)
+        if reaction == "like":
+            if post.likes.filter(id=user.id).exists():
+                post.likes.remove(user)
+            else:
+                post.unlikes.remove(user)
+                post.likes.add(user)
+        elif reaction == "unlike":
+            if post.unlikes.filter(id=user.id).exists():
+                post.unlikes.remove(user)
+            else:
+                post.likes.remove(user)
+                post.unlikes.add(user)
         else:
-            post.unlikes.remove(user)
-            post.likes.add(user)
+            return JsonResponse({"success": False, "error": "Invalid reaction"}, status=400)
 
-    elif reaction == "unlike":
-        if post.unlikes.filter(id=user.id).exists():
-            post.unlikes.remove(user)
-        else:
-            post.likes.remove(user)
-            post.unlikes.add(user)
+        return JsonResponse({
+            "success": True,
+            "likes": post.likes.count(),
+            "unlikes": post.unlikes.count()
+        })
 
-    return JsonResponse({
-        "success": True,
-        "likes": post.likes.count(),
-        "unlikes": post.unlikes.count(),
-    })
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=400)
 
 
 # ====================================================
