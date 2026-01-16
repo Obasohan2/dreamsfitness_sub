@@ -27,32 +27,30 @@
 <div class="container my-5">
     <!-- ================= POST ================= -->
     <div class="row mb-5 justify-content-center align-items-start">
-       <!-- IMAGE COLUMN -->
-<div class="col-12 col-md-4 mb-4 text-center">
 
-    {% if post.image and post.image.url %}
-        <a href="#" data-toggle="modal" data-target="#imageModal">
-            <img
-                src="{{ post.image.url }}"
-                alt="{{ post.title }}"
-                class="img-fluid rounded shadow-sm"
-                style="max-width: 80%; cursor: zoom-in;"
-                draggable="false"
-                onerror="this.onerror=null;this.src='{{ MEDIA_URL }}photos/products/noimage.png';"
-            >
-        </a>
-    {% else %}
-        <img
-            src="{{ MEDIA_URL }}photos/products/noimage.png"
-            alt="No image available"
-            class="img-fluid rounded shadow-sm"
-            style="max-width: 80%; cursor: default;"
-            draggable="false"
-        >
-    {% endif %}
-
-</div>
-
+        <!-- IMAGE COLUMN -->
+        <div class="col-12 col-md-4 mb-4 text-center">
+            {% if post.image and post.image.url %}
+                <a href="#" data-toggle="modal" data-target="#imageModal">
+                    <img
+                        src="{{ post.image.url }}"
+                        alt="{{ post.title }}"
+                        class="img-fluid rounded shadow-sm"
+                        style="max-width: 80%; cursor: zoom-in;"
+                        draggable="false"
+                        onerror="this.onerror=null;this.src='{{ MEDIA_URL }}photos/products/noimage.png';"
+                    >
+                </a>
+            {% else %}
+                <img
+                    src="{{ MEDIA_URL }}photos/products/noimage.png"
+                    alt="No image available"
+                    class="img-fluid rounded shadow-sm"
+                    style="max-width: 80%; cursor: default;"
+                    draggable="false"
+                >
+            {% endif %}
+        </div>
 
         <!-- CONTENT COLUMN -->
         <div class="col-12 col-md-6 pl-md-4">
@@ -73,6 +71,7 @@
                         <i class="fas fa-heart text-danger"></i>
                         <span id="likes-{{ post.id }}" class="ml-1 text-danger">{{ post.likes.count }}</span>
                     </button>
+
                     <button type="button" class="btn btn-link p-0 mr-3 d-inline-flex align-items-center react-btn"
                             data-id="{{ post.id }}" data-action="unlike">
                         <i class="far fa-heart text-secondary"></i>
@@ -94,7 +93,6 @@
                     <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary mr-2" title="Edit Post">
                         <i class="fas fa-edit"></i>
                     </a>
-
                     <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
                             data-target="#deletePostModal" title="Delete Post">
                         <i class="fas fa-trash-alt"></i>
@@ -124,7 +122,8 @@
 
                         {% if user == comment.user or user.is_superuser %}
                             <div class="d-flex">
-                                <a href="{% url 'edit_comment' comment.id %}" class="btn btn-sm btn-outline-primary mr-2"
+                                <a href="{% url 'edit_comment' comment.id %}"
+                                   class="btn btn-sm btn-outline-primary mr-2"
                                    title="Edit Comment">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -141,15 +140,12 @@
                 </div>
 
                 <!-- DELETE COMMENT MODAL -->
-                <div class="modal fade" id="deleteCommentModal-{{ comment.id }}" tabindex="-1" role="dialog"
-                     aria-hidden="true">
+                <div class="modal fade" id="deleteCommentModal-{{ comment.id }}" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h6 class="modal-title text-danger">Delete Comment</h6>
-                                <button type="button" class="close" data-dismiss="modal">
-                                    <span>&times;</span>
-                                </button>
+                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                             </div>
                             <div class="modal-body">
                                 Are you sure you want to delete this comment?

@@ -1,4 +1,7 @@
 $(document).ready(function () {
+
+    console.log("blog.js loaded");
+
     const reactionUrl = $('meta[name="reaction-url"]').attr("content");
 
     if (!reactionUrl) {
