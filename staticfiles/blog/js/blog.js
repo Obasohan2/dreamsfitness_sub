@@ -1,83 +1,61 @@
-document.addEventListener("DOMContentLoaded", function () {
+$(document).ready(function () {
+    const POST_REACTION_URL = $('meta[name="reaction-url"]').attr("content");
 
-    /* ================= CSRF ================= */
+    if (!POST_REACTION_URL) {
+        console.warn("POST_REACTION_URL not found.");
+        return;
+    }
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie) {
-            document.cookie.split(";").forEach(cookie => {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(
-                        cookie.substring(name.length + 1)
-                    );
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
-            });
+            }
         }
         return cookieValue;
     }
 
     const csrftoken = getCookie("csrftoken");
 
-    /* ================= LIKE / UNLIKE ================= */
-    document.querySelectorAll(".react-btn").forEach(button => {
-        button.addEventListener("click", function () {
+    // AJAX handler
+    $(document).on("click", ".react-btn", function () {
+        const postId = $(this).data("id");
+        const action = $(this).data("action");
 
-            const postId = this.dataset.id;
-            const reaction = this.dataset.action;
+        // Debug log
+        console.log("Reaction clicked:", { postId, action });
 
-            fetch(POST_REACTION_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                },
-                body: JSON.stringify({
-                    post_id: postId,
-                    reaction: reaction,
-                }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById(`likes-${postId}`).textContent = data.likes;
-                    document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
+        $.ajax({
+            url: POST_REACTION_URL,
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrftoken,
+            },
+            contentType: "application/json",
+            data: JSON.stringify({
+                post_id: postId,
+                reaction: action,
+            }),
+            success: function (response) {
+                if (response.success) {
+                    $("#likes-" + postId).text(response.likes);
+                    $("#unlikes-" + postId).text(response.unlikes);
+                } else {
+                    console.warn("Reaction failed:", response);
                 }
-            })
-            .catch(err => console.error("Reaction error:", err));
+            },
+            error: function (xhr) {
+                console.error("Reaction AJAX error:", xhr.status, xhr.responseText);
+                if (xhr.status === 403 || xhr.status === 401) {
+                    alert("You must be logged in to react.");
+                }
+            }
         });
     });
-
-    /* ================= EDIT POST MODAL ================= */
-    $('#editPostModal').on('show.bs.modal', function (event) {
-        const button = $(event.relatedTarget);
-        const url = button.data('url');
-
-        const editLink = document.getElementById('editPostLink');
-        if (editLink) {
-            editLink.href = url;
-        }
-    });
-
-    /* ================= DELETE POST MODAL ================= */
-    $('#deletePostModal').on('show.bs.modal', function (event) {
-        const button = $(event.relatedTarget);
-        const url = button.data('url');
-
-        const form = document.getElementById('deletePostForm');
-        if (form) {
-            form.action = url;
-        }
-    });
-
-    /* ================= DELETE COMMENT MODAL ================= */
-    $('#deleteCommentModal').on('show.bs.modal', function (event) {
-        const button = $(event.relatedTarget);
-        const url = button.data('url');
-
-        const form = document.getElementById('deleteCommentForm');
-        if (form) {
-            form.action = url;
-        }
-    });
-
 });

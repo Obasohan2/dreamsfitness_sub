@@ -9,6 +9,11 @@
 {{ post.title }}
 {% endblock %}
 
+{% block extra_meta %}
+    <meta name="reaction-url" content="{% url 'post_reaction' %}">
+{% endblock %}
+
+
 {% block page_header %}
 <div class="container header-container">
     <div class="row">
@@ -229,8 +234,6 @@
 {{ block.super }}
 
 <script>
-    const POST_REACTION_URL = "{% url 'post_reaction' %}";
-
     document.addEventListener("contextmenu", function (e) {
         if (e.target.tagName === "IMG") {
             e.preventDefault();
