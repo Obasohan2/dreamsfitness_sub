@@ -1,64 +1,52 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const buttons = document.querySelectorAll(".react-btn");
+document.addEventListener("DOMContentLoaded", function () {
 
-    const reactionUrlMeta = document.querySelector('meta[name="reaction-url"]');
-    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const reactionMeta = document.querySelector('meta[name="reaction-url"]');
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
 
-    if (!reactionUrlMeta || !csrfTokenMeta) {
-        console.error("Missing required meta tags for CSRF or reaction URL.");
+    if (!reactionMeta || !csrfMeta) {
+        console.error("Reaction meta tags missing");
         return;
     }
 
-    const POST_REACTION_URL = reactionUrlMeta.getAttribute("content");
-    const csrfToken = csrfTokenMeta.getAttribute("content");
+    const reactionUrl = reactionMeta.getAttribute("content");
+    const csrftoken = csrfMeta.getAttribute("content");
 
-    buttons.forEach(button => {
-        button.addEventListener("click", async () => {
-            const postId = button.getAttribute("data-id");
-            const action = button.getAttribute("data-action");
+    document.querySelectorAll(".react-btn").forEach(button => {
 
-            if (!postId || !action) {
-                console.error("Missing post ID or action.");
-                return;
-            }
+        button.addEventListener("click", function () {
 
-            try {
-                const response = await fetch(POST_REACTION_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": csrfToken,
-                    },
-                    body: JSON.stringify({
-                        post_id: postId,
-                        reaction: action,
-                    }),
-                });
+            const postId = this.dataset.id;
+            const action = this.dataset.action;
 
+            fetch(reactionUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    action: action
+                })
+            })
+            .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
                 }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Update like and unlike counts in the DOM
-                    const likesSpan = document.getElementById(`likes-${postId}`);
-                    const unlikesSpan = document.getElementById(`unlikes-${postId}`);
-
-                    if (likesSpan) {
-                        likesSpan.textContent = data.likes;
-                    }
-
-                    if (unlikesSpan) {
-                        unlikesSpan.textContent = data.unlikes;
-                    }
-                } else {
-                    console.error("Server error:", data.error);
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "ok") {
+                    document.getElementById(`likes-${postId}`).innerText = data.likes;
+                    document.getElementById(`unlikes-${postId}`).innerText = data.unlikes;
                 }
-            } catch (error) {
-                console.error("Error sending reaction:", error);
-            }
+            })
+            .catch(error => {
+                console.error("Reaction error:", error.message);
+            });
         });
     });
 });

@@ -5,11 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_protect
+from django.views.generic import ListView
 
 from .models import BlogPost, Comment, Category
 from .forms import AddPostForm, PostForm, CommentForm
-from django.views.generic import ListView
 
 
 # ====================================================
@@ -43,7 +42,7 @@ class CategoryPostList(ListView):
     def get_queryset(self):
         self.category = get_object_or_404(
             Category,
-            slug=self.kwargs["category_slug"]
+            slug=self.kwargs["category_slug"],
         )
 
         return (
@@ -92,7 +91,7 @@ def post_detail(request, slug):
             "post": post,
             "comments": comments,
             "comment_form": comment_form,
-        }
+        },
     )
 
 
@@ -104,7 +103,7 @@ def add_post(request):
     if request.method == "POST":
         form = AddPostForm(
             request.POST,
-            request.FILES
+            request.FILES,
         )
 
         if form.is_valid():
@@ -120,7 +119,7 @@ def add_post(request):
     return render(
         request,
         "blog/add_post.html",
-        {"form": form}
+        {"form": form},
     )
 
 
@@ -139,7 +138,7 @@ def edit_post(request, slug):
         form = PostForm(
             request.POST,
             request.FILES,
-            instance=post
+            instance=post,
         )
 
         if form.is_valid():
@@ -155,7 +154,7 @@ def edit_post(request, slug):
         {
             "form": form,
             "post": post,
-        }
+        },
     )
 
 
@@ -179,60 +178,39 @@ def delete_post(request, slug):
 # ====================================================
 # LIKE / UNLIKE (AJAX)
 # ====================================================
-
 @login_required
 @require_POST
-@csrf_protect
 def post_reaction(request):
+    if not request.body:
+        return JsonResponse({"status": "error"}, status=400)
+
     try:
-        # Parse JSON data from request body
-        data = json.loads(request.body)
-        post_id = data.get("post_id")
-        reaction = data.get("reaction")
+        data = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error"}, status=400)
 
-        # Get the blog post object
-        post = get_object_or_404(BlogPost, id=post_id)
-        user = request.user
+    post_id = data.get("post_id")
+    action = data.get("action")
 
-        # Process "like" reaction
-        if reaction == "like":
-            if post.likes.filter(id=user.id).exists():
-                post.likes.remove(user)
-            else:
-                if post.unlikes.filter(id=user.id).exists():
-                    post.unlikes.remove(user)
-                post.likes.add(user)
+    post = get_object_or_404(BlogPost, id=post_id)
 
-        # Process "unlike" reaction
-        elif reaction == "unlike":
-            if post.unlikes.filter(id=user.id).exists():
-                post.unlikes.remove(user)
-            else:
-                if post.likes.filter(id=user.id).exists():
-                    post.likes.remove(user)
-                post.unlikes.add(user)
+    if action == "like":
+        post.likes.add(request.user)
+        post.unlikes.remove(request.user)
 
-        # Invalid reaction
-        else:
-            return JsonResponse({
-                "success": False,
-                "error": "Invalid reaction type."
-            }, status=400)
+    elif action == "unlike":
+        post.unlikes.add(request.user)
+        post.likes.remove(request.user)
 
-        # Return updated counts
-        return JsonResponse({
-            "success": True,
+    return JsonResponse(
+        {
+            "status": "ok",
             "likes": post.likes.count(),
-            "unlikes": post.unlikes.count()
-        })
+            "unlikes": post.unlikes.count(),
+        }
+    )
 
-    except Exception as e:
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=400)
-        
-        
+
 # ====================================================
 # EDIT COMMENT
 # ====================================================
@@ -247,7 +225,7 @@ def edit_comment(request, comment_id):
     if request.method == "POST":
         form = CommentForm(
             request.POST,
-            instance=comment
+            instance=comment,
         )
 
         if form.is_valid():
@@ -263,7 +241,7 @@ def edit_comment(request, comment_id):
         {
             "form": form,
             "comment": comment,
-        }
+        },
     )
 
 

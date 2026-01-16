@@ -19,154 +19,152 @@
 {% endblock %}
 
 {% block content %}
-    <div class="overlay"></div>
+<div class="overlay"></div>
 
-    <div class="blog-page">
-        <div class="container mt-5">
+<div class="blog-page">
+    <div class="container mt-5">
 
-            <!-- ================= SHARE UPDATE ================= -->
-            <div class="row">
-                <div class="col-12">
-                    {% if user.is_authenticated %}
-                        <div class="card mb-4">
-                            <div class="card-body text-center py-3">
-                                <h5 class="mb-2">Share Your Success Update</h5>
-                                <a href="{% url 'add_post' %}" class="btn btn-success btn-sm">
-                                    Create Post
-                                </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info mb-4 text-center">
-                            You’re viewing as a guest.
-                            <a href="{% url 'account_login' %}">Login</a> or
-                            <a href="{% url 'account_signup' %}">sign up</a>
-                            to post, like, and comment.
-                        </div>
-                    {% endif %}
-                </div>
+        <!-- ================= SHARE UPDATE ================= -->
+        <div class="row">
+            <div class="col-12 text-center">
+
+                {% if user.is_authenticated %}
+                    <div class="mb-4">
+                        <h5 class="mb-4">Share Your Success Update</h5>
+                        <a href="{% url 'add_post' %}" class="btn btn-success btn-sm">
+                            Create Post
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mb-4 text-center">
+                        You’re viewing as a guest.
+                        <a href="{% url 'account_login' %}">Login</a> or
+                        <a href="{% url 'account_signup' %}">sign up</a>
+                        to post, like, and comment.
+                    </div>
+                {% endif %}
+
             </div>
+        </div>
 
-            <!-- ================= COMMUNITY BLOG ================= -->
-            <div class="row">
-                {% for post in posts %}
-                    <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body d-flex flex-column p-3">
+        <!-- ================= COMMUNITY BLOG ================= -->
+        <div class="row">
+            {% for post in posts %}
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column p-3">
 
-                                <!-- ================= AUTHOR ================= -->
-                                <div class="d-flex align-items-center mb-2">
-                                    {% if post.image %}
-                                        <img
-                                            src="{{ post.image.url }}"
-                                            class="rounded-circle mr-2"
-                                            width="100"
-                                            height="100"
-                                            alt="{{ post.title }}"
-                                            onerror="this.onerror=null;this.src='/media/photos/products/noimage.png';"
-                                        >
-                                    {% else %}
-                                        <img
-                                            src="/media/photos/products/noimage.png"
-                                            class="rounded-circle mr-2"
-                                            width="100"
-                                            height="100"
-                                            alt="No image"
-                                        >
-                                    {% endif %}
+                            <!-- ================= AUTHOR ================= -->
+                            <div class="d-flex align-items-center mb-2">
+                                {% if post.image %}
+                                    <img
+                                        src="{{ post.image.url }}"
+                                        class="rounded-circle mr-2"
+                                        width="100"
+                                        height="100"
+                                        alt="{{ post.title }}"
+                                        onerror="this.onerror=null;this.src='/media/photos/products/noimage.png';"
+                                    >
+                                {% else %}
+                                    <img
+                                        src="/media/photos/products/noimage.png"
+                                        class="rounded-circle mr-2"
+                                        width="100"
+                                        height="100"
+                                        alt="No image"
+                                    >
+                                {% endif %}
 
-                                    <div>
-                                        <strong>
-                                            {{ post.author.get_full_name|default:post.author.username }}
-                                        </strong><br>
-                                        <small class="text-muted">
-                                            {{ post.created_on|date:"M d, Y" }}
-                                        </small>
-                                    </div>
+                                <div>
+                                    <strong>
+                                        {{ post.author.get_full_name|default:post.author.username }}
+                                    </strong><br>
+                                    <small class="text-muted">
+                                        {{ post.created_on|date:"M d, Y" }}
+                                    </small>
                                 </div>
+                            </div>
 
-                                <!-- ================= POST TITLE ================= -->
-                                <h6 class="font-weight-bold mb-1">
-                                    {{ post.title }}
-                                </h6>
+                            <!-- ================= POST TITLE ================= -->
+                            <h6 class="font-weight-bold mb-1">
+                                {{ post.title }}
+                            </h6>
 
-                                <!-- ================= CATEGORY ================= -->
-                                {% if post.category %}
-                                    <span class="badge badge-info mb-2 align-self-start">
-                                        {{ post.category.name }}
+                            <!-- ================= CATEGORY ================= -->
+                            {% if post.category %}
+                                <span class="badge badge-info mb-2 align-self-start">
+                                    {{ post.category.name }}
+                                </span>
+                            {% endif %}
+
+                            <!-- ================= POST BODY ================= -->
+                            <p class="mb-2 text-muted small flex-grow-1">
+                                {{ post.body|striptags|cut:"&nbsp;"|truncatewords:20 }}
+                                <a href="{% url 'post_detail' post.slug %}" class="font-weight-bold">
+                                    Read more
+                                </a>
+                            </p>
+
+                            <!-- ================= REACTIONS ================= -->
+                            <div class="d-flex align-items-center mt-auto">
+                                {% if user.is_authenticated %}
+                                    <button
+                                        type="button"
+                                        class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
+                                        data-id="{{ post.id }}"
+                                        data-action="like"
+                                    >
+                                        <i class="fas fa-heart text-danger"></i>
+                                        <span id="likes-{{ post.id }}" class="text-danger ml-1">
+                                            {{ post.likes.count }}
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
+                                        data-id="{{ post.id }}"
+                                        data-action="unlike"
+                                    >
+                                        <i class="far fa-heart text-secondary"></i>
+                                        <span id="unlikes-{{ post.id }}" class="text-secondary ml-1">
+                                            {{ post.unlikes.count }}
+                                        </span>
+                                    </button>
+                                {% else %}
+                                    <span class="mr-3 text-danger d-flex align-items-center">
+                                        <i class="fas fa-heart mr-1"></i>
+                                        {{ post.likes.count }}
+                                    </span>
+                                    <span class="mr-3 text-secondary d-flex align-items-center">
+                                        <i class="far fa-heart mr-1"></i>
+                                        {{ post.unlikes.count }}
                                     </span>
                                 {% endif %}
 
-                                <!-- ================= POST BODY ================= -->
-                                <p class="mb-2 text-muted small flex-grow-1">
-                                    {{ post.body|striptags|cut:"&nbsp;"|truncatewords:20 }}
-                                    <a
-                                        href="{% url 'post_detail' post.slug %}"
-                                        class="font-weight-bold"
-                                    >
-                                        Read more
-                                    </a>
-                                </p>
-
-                                <!-- ================= REACTIONS ================= -->
-                                <div class="d-flex align-items-center mt-auto">
-                                    {% if user.is_authenticated %}
-                                        <button
-                                            type="button"
-                                            class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
-                                            data-id="{{ post.id }}"
-                                            data-action="like"
-                                        >
-                                            <i class="fas fa-heart text-danger"></i>
-                                            <span id="likes-{{ post.id }}" class="text-danger ml-1">
-                                                {{ post.likes.count }}
-                                            </span>
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
-                                            data-id="{{ post.id }}"
-                                            data-action="unlike"
-                                        >
-                                            <i class="far fa-heart text-secondary"></i>
-                                            <span id="unlikes-{{ post.id }}" class="text-secondary ml-1">
-                                                {{ post.unlikes.count }}
-                                            </span>
-                                        </button>
-                                    {% else %}
-                                        <span class="mr-3 text-danger d-flex align-items-center">
-                                            <i class="fas fa-heart mr-1"></i>
-                                            {{ post.likes.count }}
-                                        </span>
-                                        <span class="mr-3 text-secondary d-flex align-items-center">
-                                            <i class="far fa-heart mr-1"></i>
-                                            {{ post.unlikes.count }}
-                                        </span>
-                                    {% endif %}
-
-                                    <a
-                                        href="{% url 'post_detail' post.slug %}#comments"
-                                        class="text-secondary d-flex align-items-center text-decoration-none"
-                                    >
-                                        <i class="fas fa-comment mr-1"></i>
-                                        {{ post.comments.count }}
-                                    </a>
-                                </div>
-
+                                <a
+                                    href="{% url 'post_detail' post.slug %}#comments"
+                                    class="text-secondary d-flex align-items-center text-decoration-none"
+                                >
+                                    <i class="fas fa-comment mr-1"></i>
+                                    {{ post.comments.count }}
+                                </a>
                             </div>
+
                         </div>
                     </div>
-                {% empty %}
-                    <div class="col-12">
-                        <p class="text-muted text-center">
-                            No community updates yet.
-                        </p>
-                    </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="text-muted text-center">
+                        No community updates yet.
+                    </p>
+                </div>
+            {% endfor %}
         </div>
+
     </div>
+</div>
 {% endblock %}
 
 {% block postloadjs %}
