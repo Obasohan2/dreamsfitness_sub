@@ -49,6 +49,7 @@
                     class="img-fluid rounded shadow-sm"
                     style="max-width: 80%; cursor: default;"
                     draggable="false"
+                    onerror="this.onerror=null;this.src='{{ MEDIA_URL }}photos/products/noimage.png';"
                 >
             {% endif %}
         </div>
