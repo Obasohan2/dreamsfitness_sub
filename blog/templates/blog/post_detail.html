@@ -6,15 +6,12 @@
 {% endblock %}
 
 {% block extra_meta %}
-  <meta name="reaction-url" content="{% url 'post_reaction' %}">
+    <meta name="reaction-url" content="{% url 'post_reaction' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 
 {% block extra_title %}
     {{ post.title }}
-{% endblock %}
-
-{% block extra_meta %}
-    <meta name="reaction-url" content="{% url 'post_reaction' %}">
 {% endblock %}
 
 {% block page_header %}
@@ -59,42 +56,30 @@
             </div>
 
             <!-- ================= REACTIONS ================= -->
-             <!-- ================= REACTIONS ================= -->
-                                <div class="d-flex align-items-center mt-auto">
-                                    {% if user.is_authenticated %}
-                                        <!-- LIKE -->
-                                        <button
-                                            type="button"
-                                            class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
-                                            data-id="{{ post.id }}"
-                                            data-action="like"
-                                        >
-                                            <i class="fas fa-heart text-danger"></i>
-                                            <span id="likes-{{ post.id }}" class="text-danger ml-1">
-                                                {{ post.likes.count }}
-                                            </span>
-                                        </button>
+            <div class="d-flex align-items-center mt-auto">
+                {% if user.is_authenticated %}
+                    <!-- LIKE -->
+                    <button type="button" class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
+                            data-id="{{ post.id }}" data-action="like">
+                        <i class="fas fa-heart text-danger"></i>
+                        <span id="likes-{{ post.id }}" class="text-danger ml-1">{{ post.likes.count }}</span>
+                    </button>
 
-                                        <!-- UNLIKE -->
-                                        <button
-                                            type="button"
-                                            class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
-                                            data-id="{{ post.id }}"
-                                            data-action="unlike"
-                                        >
-                                            <i class="far fa-heart text-secondary"></i>
-                                            <span id="unlikes-{{ post.id }}" class="text-secondary ml-1">
-                                                {{ post.unlikes.count }}
-                                            </span>
-                                        </button>
-                                    {% else %}
-                                        <span class="mr-3 text-danger d-flex align-items-center">
-                                            <i class="fas fa-heart mr-1"></i> {{ post.likes.count }}
-                                        </span>
-                                        <span class="mr-3 text-secondary d-flex align-items-center">
-                                            <i class="far fa-heart mr-1"></i> {{ post.unlikes.count }}
-                                        </span>
-                                    {% endif %}
+                    <!-- UNLIKE -->
+                    <button type="button" class="btn btn-link p-0 mr-3 react-btn d-flex align-items-center"
+                            data-id="{{ post.id }}" data-action="unlike">
+                        <i class="far fa-heart text-secondary"></i>
+                        <span id="unlikes-{{ post.id }}" class="text-secondary ml-1">{{ post.unlikes.count }}</span>
+                    </button>
+                {% else %}
+                    <span class="mr-3 text-danger d-flex align-items-center">
+                        <i class="fas fa-heart mr-1"></i> {{ post.likes.count }}
+                    </span>
+                    <span class="mr-3 text-secondary d-flex align-items-center">
+                        <i class="far fa-heart mr-1"></i> {{ post.unlikes.count }}
+                    </span>
+                {% endif %}
+            </div>
 
             <!-- ================= POST ACTIONS ================= -->
             {% if user.is_authenticated and user == post.author or user.is_superuser %}
@@ -102,7 +87,6 @@
                     <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary mr-2" title="Edit Post">
                         <i class="fas fa-edit"></i>
                     </a>
-
                     <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
                             data-target="#deletePostModal" title="Delete Post">
                         <i class="fas fa-trash-alt"></i>
@@ -136,11 +120,8 @@
                                    title="Edit Comment">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger"
-                                        data-toggle="modal"
-                                        data-target="#deleteCommentModal-{{ comment.id }}"
-                                        title="Delete Comment">
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
+                                        data-target="#deleteCommentModal-{{ comment.id }}" title="Delete Comment">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
@@ -149,8 +130,7 @@
                 </div>
 
                 <!-- DELETE COMMENT MODAL -->
-                <div class="modal fade" id="deleteCommentModal-{{ comment.id }}" tabindex="-1" role="dialog"
-                     aria-hidden="true">
+                <div class="modal fade" id="deleteCommentModal-{{ comment.id }}" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -241,8 +221,14 @@
 {% block postloadjs %}
     {{ block.super }}
 
+    <!-- Set global JS constants safely -->
     <script>
-        // Disable right-click on images
+        const POST_REACTION_URL = document.querySelector('meta[name="reaction-url"]').getAttribute('content');
+        const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    </script>
+
+    <!-- Disable right-click on images -->
+    <script>
         document.addEventListener("contextmenu", function (e) {
             if (e.target.tagName === "IMG") {
                 e.preventDefault();

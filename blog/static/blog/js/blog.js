@@ -1,61 +1,64 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Get the URL from meta tag
-    const metaTag = document.querySelector('meta[name="reaction-url"]');
-    const reactionUrl = metaTag ? metaTag.getAttribute("content") : null;
+document.addEventListener("DOMContentLoaded", () => {
+    const buttons = document.querySelectorAll(".react-btn");
 
-    if (!reactionUrl) {
-        console.error("Reaction URL not found in meta tag.");
+    const reactionUrlMeta = document.querySelector('meta[name="reaction-url"]');
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+
+    if (!reactionUrlMeta || !csrfTokenMeta) {
+        console.error("Missing required meta tags for CSRF or reaction URL.");
         return;
     }
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+    const POST_REACTION_URL = reactionUrlMeta.getAttribute("content");
+    const csrfToken = csrfTokenMeta.getAttribute("content");
+
+    buttons.forEach(button => {
+        button.addEventListener("click", async () => {
+            const postId = button.getAttribute("data-id");
+            const action = button.getAttribute("data-action");
+
+            if (!postId || !action) {
+                console.error("Missing post ID or action.");
+                return;
             }
-        }
-        return cookieValue;
-    }
 
-    const csrftoken = getCookie('csrftoken');
+            try {
+                const response = await fetch(POST_REACTION_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        reaction: action,
+                    }),
+                });
 
-    document.querySelectorAll(".react-btn").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            const postId = this.dataset.id;
-            const action = this.dataset.action;
-
-            fetch(reactionUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({
-                    post_id: postId,
-                    reaction: action
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById(`likes-${postId}`).textContent = data.likes;
-                    document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
-                } else {
-                    console.error("Server responded with error:", data.error);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
                 }
-            })
-            .catch(error => {
-                console.error("Error sending request:", error);
-            });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update like and unlike counts in the DOM
+                    const likesSpan = document.getElementById(`likes-${postId}`);
+                    const unlikesSpan = document.getElementById(`unlikes-${postId}`);
+
+                    if (likesSpan) {
+                        likesSpan.textContent = data.likes;
+                    }
+
+                    if (unlikesSpan) {
+                        unlikesSpan.textContent = data.unlikes;
+                    }
+                } else {
+                    console.error("Server error:", data.error);
+                }
+            } catch (error) {
+                console.error("Error sending reaction:", error);
+            }
         });
     });
 });
