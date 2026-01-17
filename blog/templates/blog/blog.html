@@ -169,5 +169,12 @@
 
 {% block postloadjs %}
     {{ block.super }}
+
+    <script>
+        const POST_REACTION_URL =
+            document.querySelector('meta[name="reaction-url"]').getAttribute('content');
+    </script>
+
     <script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}
+
