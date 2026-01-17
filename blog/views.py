@@ -170,30 +170,25 @@ def delete_post(request, slug):
 # ====================================================
 # LIKE / UNLIKE (AJAX)
 # ====================================================
-@require_POST
 @login_required
-def post_reaction(request):
-    if request.method != "POST":
-        return JsonResponse({"status": "error"}, status=405)
+def blog_reaction(request):
+    post_id = request.POST.get("post_id")
+    post = get_object_or_404(BlogPost, id=post_id)
 
-    data = json.loads(request.body)
+    reaction, created = Reaction.objects.get_or_create(
+        user=request.user,
+        post=post,
+    )
 
-    post_id = data.get("post_id")
-    action = data.get("action")
-
-    post = BlogPost.objects.get(id=post_id)
-
-    if action == "like":
-        post.likes.add(request.user)
-        post.unlikes.remove(request.user)
-    elif action == "unlike":
-        post.unlikes.add(request.user)
-        post.likes.remove(request.user)
+    if not created:
+        reaction.delete()
+        liked = False
+    else:
+        liked = True
 
     return JsonResponse({
-        "status": "ok",
-        "likes": post.likes.count(),
-        "unlikes": post.unlikes.count(),
+        "liked": liked,
+        "count": post.reactions.count()
     })
 
 
