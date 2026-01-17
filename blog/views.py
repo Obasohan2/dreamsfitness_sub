@@ -10,9 +10,6 @@ from django.views.generic import ListView
 from .models import BlogPost, Comment, Category
 from .forms import AddPostForm, PostForm, CommentForm
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 # ====================================================
 # BLOG LIST (ALL POSTS)
@@ -173,37 +170,23 @@ def delete_post(request, slug):
 # ====================================================
 # LIKE / UNLIKE (AJAX)
 # ====================================================
-
-@login_required
 @require_POST
+@login_required
 def post_reaction(request):
-    logger.error("REACTION HIT")
+    if request.method != "POST":
+        return JsonResponse({"status": "error"}, status=405)
 
-    try:
-        body = request.body.decode("utf-8")
-        logger.error(f"BODY: {body}")
-        data = json.loads(body)
-        logger.error(f"DATA: {data}")
-    except Exception as e:
-        logger.error(f"JSON ERROR: {e}")
-        return JsonResponse({"status": "error"}, status=400)
+    data = json.loads(request.body)
 
     post_id = data.get("post_id")
     action = data.get("action")
 
-    logger.error(f"POST_ID: {post_id}")
-    logger.error(f"ACTION: {action}")
-
-    if not post_id or action not in ["like", "unlike"]:
-        logger.error("FAILED VALIDATION")
-        return JsonResponse({"status": "error"}, status=400)
-
-    post = get_object_or_404(BlogPost, id=post_id)
+    post = BlogPost.objects.get(id=post_id)
 
     if action == "like":
         post.likes.add(request.user)
         post.unlikes.remove(request.user)
-    else:
+    elif action == "unlike":
         post.unlikes.add(request.user)
         post.likes.remove(request.user)
 
