@@ -11,7 +11,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class BlogPostAdmin(admin.ModelAdmin):
     list_display = ("title", "author", "category", "created_on")
     list_filter = ("created_on", "category")
-    search_fields = ("title", "content")
+    search_fields = ("title", "body")
     ordering = ("-created_on",)
 
 
