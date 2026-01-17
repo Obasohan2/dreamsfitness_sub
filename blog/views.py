@@ -10,6 +10,9 @@ from django.views.generic import ListView
 from .models import BlogPost, Comment, Category
 from .forms import AddPostForm, PostForm, CommentForm
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 # ====================================================
 # BLOG LIST (ALL POSTS)
@@ -170,26 +173,30 @@ def delete_post(request, slug):
 # ====================================================
 # LIKE / UNLIKE (AJAX)
 # ====================================================
+
 @login_required
 @require_POST
 def post_reaction(request):
+    logger.error("REACTION HIT")
+
     try:
         body = request.body.decode("utf-8")
+        logger.error(f"BODY: {body}")
         data = json.loads(body)
-    except Exception:
-        return JsonResponse(
-            {"status": "error", "message": "Invalid JSON"},
-            status=400
-        )
+        logger.error(f"DATA: {data}")
+    except Exception as e:
+        logger.error(f"JSON ERROR: {e}")
+        return JsonResponse({"status": "error"}, status=400)
 
     post_id = data.get("post_id")
     action = data.get("action")
 
+    logger.error(f"POST_ID: {post_id}")
+    logger.error(f"ACTION: {action}")
+
     if not post_id or action not in ["like", "unlike"]:
-        return JsonResponse(
-            {"status": "error", "message": "Invalid data"},
-            status=400
-        )
+        logger.error("FAILED VALIDATION")
+        return JsonResponse({"status": "error"}, status=400)
 
     post = get_object_or_404(BlogPost, id=post_id)
 
