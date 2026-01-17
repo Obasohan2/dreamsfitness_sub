@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="overlay"></div>
+
+<div class="container my-5">
+
+    <!-- ================= POST ================= -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+
+            <h2 class="mb-2">{{ post.title }}</h2>
+
+            <p class="text-muted small mb-3">
+                By {{ post.author.get_full_name|default:post.author.username }}
+                · {{ post.created_on|date:"M d, Y" }}
+            </p>
+
+            <!-- CATEGORIES -->
+            {% if post.categories.all %}
+                <div class="mb-3">
+                    {% for category in post.categories.all %}
+                        <span class="badge badge-info mr-1">
+                            {{ category.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- CONTENT -->
+            <div class="mb-4">
+                {{ post.content|safe }}
+            </div>
+
+            <!-- ================= REACTIONS ================= -->
+            <div class="d-flex align-items-center mb-4">
+
+                <!-- LIKE -->
+                <span class="text-danger d-flex align-items-center mr-4">
+                    <i class="fa-solid fa-heart mr-1"></i>
+                    {{ post.likes.count }}
+                </span>
+
+                <!-- COMMENTS -->
+                <a
+                    href="#comments"
+                    class="text-secondary d-flex align-items-center text-decoration-none"
+                >
+                    <i class="fa-regular fa-comment mr-1"></i>
+                    {{ comments.count }}
+                </a>
+
+            </div>
+
+            <!-- ================= ACTIONS ================= -->
+            {% if post.can_edit %}
+                <div class="mb-4">
+
+                    <button
+                        class="btn btn-warning btn-sm mr-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmEditModal"
+                        data-url="{% url 'edit_post' post.pk %}"
+                        data-message="Edit this post?"
+                    >
+                        <i class="fa-solid fa-pen-to-square mr-1"></i>
+                        Edit
+                    </button>
+
+                    <button
+                        class="btn btn-danger btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmDeleteModal"
+                        data-url="{% url 'delete_post' post.pk %}"
+                        data-message="Delete this post permanently?"
+                    >
+                        <i class="fa-solid fa-trash mr-1"></i>
+                        Delete
+                    </button>
+
+                </div>
+            {% endif %}
+
+            <hr>
+
+            <!-- ================= COMMENTS ================= -->
+            <h4 id="comments" class="mb-4">
+                <i class="fa-regular fa-comment mr-1"></i>
+                Comments ({{ comments.count }})
+            </h4>
+
+            {% for comment in comments %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+
+                        <strong>{{ comment.name }}</strong>
+                        <small class="text-muted d-block mb-2">
+                            {{ comment.created_on|date:"M d, Y H:i" }}
+                        </small>
+
+                        <p>{{ comment.body }}</p>
+
+                        {% if user.is_staff %}
+                            <button
+                                class="btn btn-link btn-sm text-danger p-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmDeleteModal"
+                                data-url="{% url 'delete_comment' comment.id %}"
+                                data-message="Delete this comment permanently?"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        {% endif %}
+
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No comments yet.</p>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
