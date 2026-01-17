@@ -1,32 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const reactionMeta = document.querySelector(
-        'meta[name="reaction-url"]'
-    );
+    const reactionMeta = document.querySelector('meta[name="reaction-url"]');
 
-    const csrfMeta = document.querySelector(
-        'meta[name="csrf-token"]'
-    );
-
-    if (!reactionMeta || !csrfMeta) {
-        console.error("Missing reaction-url or csrf-token meta tag");
+    if (!reactionMeta) {
+        console.error("Reaction URL meta tag missing");
         return;
     }
 
     const POST_REACTION_URL = reactionMeta.getAttribute("content");
-    const csrftoken = csrfMeta.getAttribute("content");
 
-    document.querySelectorAll(".react-btn").forEach((button) => {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            document.cookie.split(";").forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(
+                        cookie.substring(name.length + 1)
+                    );
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+    document.querySelectorAll(".react-btn").forEach(button => {
 
         button.addEventListener("click", function () {
 
             const postId = this.dataset.id;
-            const action = this.dataset.action;
-
-            if (!postId || !action) {
-                console.error("Missing post ID or action");
-                return;
-            }
+            let action = this.dataset.action;
 
             fetch(POST_REACTION_URL, {
                 method: "POST",
@@ -40,38 +45,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     action: action,
                 }),
             })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Reaction request failed");
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-                    if (data.status === "ok") {
+            .then(response => response.json())
+            .then(data => {
 
-                        const likesEl = document.getElementById(
-                            `likes-${postId}`
-                        );
+                if (data.status !== "ok") {
+                    console.error("Reaction failed");
+                    return;
+                }
 
-                        const unlikesEl = document.getElementById(
-                            `unlikes-${postId}`
-                        );
+                // Update counts
+                document.getElementById(`likes-${postId}`).textContent = data.likes;
+                document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
 
-                        if (likesEl) {
-                            likesEl.textContent = data.likes;
-                        }
-
-                        if (unlikesEl) {
-                            unlikesEl.textContent = data.unlikes;
-                        }
-                    }
-                })
-                .catch((error) => {
-                    console.error("Reaction error:", error);
-                });
-
+                // Toggle action + UI
+                if (action === "like") {
+                    this.dataset.action = "unlike";
+                    this.classList.add("active");
+                } else {
+                    this.dataset.action = "like";
+                    this.classList.remove("active");
+                }
+            })
+            .catch(error => {
+                console.error("Reaction error:", error);
+            });
         });
-
     });
-
 });
