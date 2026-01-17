@@ -86,7 +86,7 @@
 
                             <!-- CONTENT PREVIEW -->
                             <p class="mb-2 text-muted small flex-grow-1">
-                                {{ post.content|striptags|truncatewords:20 }}
+                                {{ post.body|striptags|truncatewords:20 }}
                                 <a href="{% url 'blog_detail' post.pk %}" class="font-weight-bold">
                                     Read more
                                 </a>
