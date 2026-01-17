@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
+from django.contrib import messages
+from django.urls import reverse
+
 from .models import BlogPost, Comment
 from .forms import CommentForm, AddPostForm, PostForm
 
@@ -24,19 +26,24 @@ def BlogList(request):
 # =========================
 # BLOG DETAIL
 # =========================
-def blog_detail(request, pk):
-    post = get_object_or_404(BlogPost, pk=pk)
+def post_detail(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug)
     comments = post.comments.all()
 
     if request.method == "POST":
-        comment_form = CommentForm(request.POST)
-        if comment_form.is_valid():
-            comment = comment_form.save(commit=False)
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to comment.")
+            return redirect("blog_detail", slug=slug)
+
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
             comment.blog_post = post
+            comment.user = request.user
             comment.save()
-            return redirect("blog_detail", pk=pk)
+            return redirect("blog_detail", slug=slug)
     else:
-        comment_form = CommentForm()
+        form = CommentForm()
 
     return render(
         request,
@@ -44,7 +51,7 @@ def blog_detail(request, pk):
         {
             "post": post,
             "comments": comments,
-            "comment_form": comment_form,
+            "comment_form": form,
         },
     )
 
@@ -56,25 +63,18 @@ def blog_detail(request, pk):
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if not (request.user.is_staff or comment.email == request.user.email):
+    if not (request.user.is_staff or comment.user == request.user):
         return HttpResponseForbidden("You are not allowed to edit this comment.")
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
-            return redirect("blog_detail", pk=comment.blog_post.pk)
+            return redirect("blog_detail", slug=comment.blog_post.slug)
     else:
         form = CommentForm(instance=comment)
 
-    return render(
-        request,
-        "blog/edit_comment.html",
-        {
-            "form": form,
-            "comment": comment,
-        },
-    )
+    return render(request, "blog/edit_comment.html", {"form": form})
 
 
 @login_required
@@ -84,9 +84,9 @@ def delete_comment(request, comment_id):
     if not request.user.is_staff:
         return HttpResponseForbidden("Admins only")
 
-    post_pk = comment.blog_post.pk
+    slug = comment.blog_post.slug
     comment.delete()
-    return redirect("blog_detail", pk=post_pk)
+    return redirect("blog_detail", slug=slug)
 
 
 # =========================
@@ -119,7 +119,7 @@ def edit_post(request, pk):
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
-            return redirect("blog_detail", pk=pk)
+            return redirect("blog_detail", slug=post.slug)
     else:
         form = PostForm(instance=post)
 
@@ -137,6 +137,9 @@ def delete_post(request, pk):
     return redirect("blog")
 
 
+# =========================
+# LIKES
+# =========================
 @login_required
 def toggle_like(request, post_id):
     post = get_object_or_404(BlogPost, id=post_id)
