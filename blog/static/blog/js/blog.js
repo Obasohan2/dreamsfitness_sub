@@ -1,11 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const reactionMeta = document.querySelector(
-        'meta[name="reaction-url"]'
-    );
-
+    const reactionMeta = document.querySelector('meta[name="reaction-url"]');
     if (!reactionMeta) {
-        console.error("❌ reaction-url meta tag missing");
+        console.error("Reaction URL meta tag missing");
         return;
     }
 
@@ -13,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getCookie(name) {
         let cookieValue = null;
-
         if (document.cookie && document.cookie !== "") {
             document.cookie.split(";").forEach(cookie => {
                 cookie = cookie.trim();
@@ -34,17 +30,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const button = event.target.closest(".react-btn");
         if (!button) return;
 
-        event.preventDefault();
-
-        const postId = button.getAttribute("data-id");
-        const action = button.getAttribute("data-action");
+        const postId = button.dataset.id;
+        const action = button.dataset.action;
 
         if (!postId || !action) {
-            console.error("❌ Missing post_id or action", { postId, action });
+            console.error("Missing postId or action");
             return;
         }
-
-        button.disabled = true;
 
         fetch(POST_REACTION_URL, {
             method: "POST",
@@ -60,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+                throw new Error("Request failed");
             }
             return response.json();
         })
@@ -68,15 +60,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.status === "ok") {
                 document.getElementById(`likes-${postId}`).textContent = data.likes;
                 document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
-            } else {
-                console.error("❌ Server rejected:", data);
             }
         })
         .catch(error => {
-            console.error("❌ Reaction failed:", error);
-        })
-        .finally(() => {
-            button.disabled = false;
+            console.error("Reaction error:", error);
         });
     });
 
