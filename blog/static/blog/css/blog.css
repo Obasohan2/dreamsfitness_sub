@@ -1,0 +1,101 @@
+/* ================= HEART REACTIONS ================= */
+
+.heart-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.heart-btn:hover,
+.heart-btn:focus {
+    background: none;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+/* LIKE – red filled heart */
+.heart-like {
+    color: #e63946;   /* red */
+    font-size: 1.05rem;
+}
+
+/* UNLIKE – plain GREY heart */
+.heart-unlike {
+    color: #9ca3af;   /* soft grey */
+    font-size: 1.05rem;
+}
+
+
+/* ===============================
+   ADD COMMENT FORM WIDTH
+================================ */
+
+.comment-form {
+    max-width: 50%;
+}
+
+/* Full width on mobile */
+@media (max-width: 768px) {
+    .comment-form {
+        max-width: 100%;
+    }
+}
+
+/* ===============================
+   EDIT / DELETE ICON BUTTONS
+================================ */
+
+.icon-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: color 0.15s ease-in-out;
+}
+
+/* spacing between icons */
+.icon-btn + .icon-btn {
+    margin-left: 12px;
+}
+
+/* EDIT icon – blue */
+.icon-btn.edit {
+    color: #0d6efd; /* Bootstrap blue */
+}
+
+/* DELETE icon – red */
+.icon-btn.delete {
+    color: #dc3545; /* Bootstrap red */
+}
+
+/* subtle hover (optional but nice) */
+.icon-btn.edit:hover {
+    color: #084298;
+}
+
+.icon-btn.delete:hover {
+    color: #a71d2a;
+}
+
+
+/* ================= HEART REACTIONS (ALTERNATE) ================= */
+.heart-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.heart-like {
+    color: #e63946; /* red */
+    font-size: 1.2rem;
+}
+
+.heart-unlike {
+    color: #6c757d; /* grey */
+    font-size: 1.2rem;
+}

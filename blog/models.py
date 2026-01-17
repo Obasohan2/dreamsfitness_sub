@@ -19,18 +19,24 @@ class BlogPost(models.Model):
         User, on_delete=models.CASCADE, related_name="blog_posts"
     )
     content = models.TextField()
-
     image = models.ImageField(null=True, blank=True)
 
-    categories = models.ManyToManyField(
-        Category, related_name="posts", blank=True
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="posts",
     )
 
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
     likes = models.ManyToManyField(
-        User, related_name="blogpost_likes", blank=True
+        User, related_name="liked_posts", blank=True
+    )
+    unlikes = models.ManyToManyField(
+        User, related_name="unliked_posts", blank=True
     )
 
     class Meta:

@@ -2,113 +2,67 @@
 {% load static %}
 
 {% block extra_title %}
-    Edit Comment
+Edit Comment
 {% endblock %}
 
 {% block page_header %}
-    <div class="container header-container">
-        <div class="row">
-            <div class="col"></div>
-        </div>
+<div class="container header-container">
+    <div class="row">
+        <div class="col"></div>
     </div>
+</div>
 {% endblock %}
 
 {% block content %}
-    <div class="overlay"></div>
+<div class="overlay"></div>
 
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8">
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
 
-                <h3 class="mb-4 text-center">
-                    Edit Comment
-                </h3>
+            <h3 class="mb-4 text-center">
+                Edit Comment
+            </h3>
 
-                <!-- ================= EDIT COMMENT FORM ================= -->
-                <form
-                    id="editCommentForm"
-                    method="POST"
-                    action="{% url 'edit_comment' comment.id %}"
-                >
-                    {% csrf_token %}
+            <!-- ================= EDIT COMMENT FORM ================= -->
+            <form
+                id="editCommentForm"
+                method="POST"
+                action="{% url 'edit_comment' comment.id %}"
+            >
+                {% csrf_token %}
 
-                    <div class="form-group">
-                        {{ form.body }}
-                    </div>
+                <div class="form-group">
+                    {{ form.body }}
+                </div>
 
-                    <div class="mt-4 d-flex justify-content-start">
+                <div class="mt-4 d-flex justify-content-start">
 
-                        <!-- Trigger Modal -->
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            data-toggle="modal"
-                            data-target="#confirmSaveModal"
-                        >
-                            Save Changes
-                        </button>
-
-                        <a
-                            href="{% url 'post_detail' comment.post.slug %}"
-                            class="btn btn-outline-secondary ml-2"
-                        >
-                            Cancel
-                        </a>
-
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= CONFIRM SAVE MODAL ================= -->
-    <div
-        class="modal fade"
-        id="confirmSaveModal"
-        tabindex="-1"
-        role="dialog"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Confirm Save
-                    </h5>
+                    <!-- Trigger Save Modal -->
                     <button
                         type="button"
-                        class="close"
-                        data-dismiss="modal"
+                        class="btn btn-primary"
+                        data-toggle="modal"
+                        data-target="#confirmSaveModal"
                     >
-                        <span>&times;</span>
+                        Save Changes
                     </button>
-                </div>
 
-                <div class="modal-body">
-                    Save changes to this comment?
-                </div>
-
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary btn-sm"
-                        data-dismiss="modal"
+                    <!-- Cancel -->
+                    <a
+                        href="{% url 'blog_detail' comment.post.pk %}"
+                        class="btn btn-outline-secondary ml-2"
                     >
                         Cancel
-                    </button>
+                    </a>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary btn-sm"
-                        form="editCommentForm"
-                    >
-                        Yes, Save
-                    </button>
                 </div>
+            </form>
 
-            </div>
         </div>
     </div>
+</div>
+
+{% include "blog/includes/modal_confirm_save.html" %}
+
 {% endblock %}

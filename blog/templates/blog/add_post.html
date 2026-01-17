@@ -3,20 +3,19 @@
 {% load crispy_forms_tags %}
 
 {% block extra_title %}
-    Add Post
+Add Post
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
-
 {% block page_header %}
-    <div class="container header-container">
-        <div class="row">
-            <div class="col"></div>
-        </div>
+<div class="container header-container">
+    <div class="row">
+        <div class="col"></div>
     </div>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -95,10 +94,19 @@
                 </div>
 
                 <!-- ================= ACTIONS ================= -->
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-black">
+                <div class="mt-4 d-flex align-items-center">
+
+                    <button type="submit" class="btn btn-black mr-2">
                         Submit
                     </button>
+
+                    <a
+                        href="{% url 'blog' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+
                 </div>
 
             </form>
