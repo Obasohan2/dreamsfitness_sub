@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 
-from .models import BlogPost, Comment, Category
+from .models import BlogPost, Comment, Category, Reaction
 from .forms import AddPostForm, PostForm, CommentForm
 
 
@@ -168,23 +168,25 @@ def delete_post(request, slug):
 
 
 # ====================================================
-# LIKE / UNLIKE (AJAX)
+# LIKE / UNLIKE (AJAX) 
 # ====================================================
 @login_required
-def blog_reaction(request):
+@require_POST
+def post_reaction(request):
     post_id = request.POST.get("post_id")
+
     post = get_object_or_404(BlogPost, id=post_id)
 
     reaction, created = Reaction.objects.get_or_create(
         user=request.user,
-        post=post,
+        post=post
     )
 
-    if not created:
+    if created:
+        liked = True
+    else:
         reaction.delete()
         liked = False
-    else:
-        liked = True
 
     return JsonResponse({
         "liked": liked,
