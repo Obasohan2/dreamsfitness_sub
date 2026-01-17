@@ -1,38 +1,67 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Read reaction URL from meta tag
-    const reactionMeta = document.querySelector('meta[name="reaction-url"]');
+    /* ====================================================
+       GET REACTION URL FROM META TAG
+    ==================================================== */
+    const reactionMeta = document.querySelector(
+        'meta[name="reaction-url"]'
+    );
 
     if (!reactionMeta) {
-        console.error("Reaction URL meta tag missing");
+        console.error("❌ reaction-url meta tag missing");
         return;
     }
 
     const POST_REACTION_URL = reactionMeta.getAttribute("content");
 
-    // Get CSRF token
+    /* ====================================================
+       CSRF TOKEN HELPER (DJANGO SAFE)
+    ==================================================== */
     function getCookie(name) {
         let cookieValue = null;
+
         if (document.cookie && document.cookie !== "") {
-            document.cookie.split(";").forEach(cookie => {
+            const cookies = document.cookie.split(";");
+
+            for (let cookie of cookies) {
                 cookie = cookie.trim();
                 if (cookie.startsWith(name + "=")) {
                     cookieValue = decodeURIComponent(
                         cookie.substring(name.length + 1)
                     );
+                    break;
                 }
-            });
+            }
         }
+
         return cookieValue;
     }
 
     const csrftoken = getCookie("csrftoken");
 
+    if (!csrftoken) {
+        console.error("❌ CSRF token not found");
+        return;
+    }
+
+    /* ====================================================
+       LIKE / UNLIKE BUTTON HANDLER
+    ==================================================== */
     document.querySelectorAll(".react-btn").forEach(button => {
-        button.addEventListener("click", function () {
+
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
 
             const postId = this.dataset.id;
-            const action = this.dataset.action; // ✅ MUST be "action"
+            const action = this.dataset.action; // "like" or "unlike"
+
+            if (!postId || !action) {
+                console.error("❌ Missing post ID or action");
+                return;
+            }
+
+            // Prevent double clicks
+            this.disabled = true;
 
             fetch(POST_REACTION_URL, {
                 method: "POST",
@@ -48,20 +77,29 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("Request failed");
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
                 if (data.status === "ok") {
-                    document.getElementById(`likes-${postId}`).textContent = data.likes;
-                    document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
+                    const likesEl = document.getElementById(`likes-${postId}`);
+                    const unlikesEl = document.getElementById(`unlikes-${postId}`);
+
+                    if (likesEl) likesEl.textContent = data.likes;
+                    if (unlikesEl) unlikesEl.textContent = data.unlikes;
+                } else {
+                    console.error("❌ Server error:", data);
                 }
             })
             .catch(error => {
-                console.error("Reaction error:", error);
+                console.error("❌ Reaction error:", error);
+            })
+            .finally(() => {
+                this.disabled = false;
             });
         });
+
     });
 
 });
