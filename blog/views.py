@@ -65,7 +65,7 @@ class CategoryPostList(ListView):
 # ====================================================
 def post_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
-    comments = post.comments.select_related("user")
+    comments = post.comments.select_related("user").order_by("created_on")
     comment_form = CommentForm()
 
     can_edit_post = (
@@ -107,10 +107,7 @@ def post_detail(request, slug):
 @login_required
 def add_post(request):
     if request.method == "POST":
-        form = AddPostForm(
-            request.POST,
-            request.FILES,
-        )
+        form = AddPostForm(request.POST, request.FILES)
 
         if form.is_valid():
             post = form.save(commit=False)
@@ -122,13 +119,7 @@ def add_post(request):
     else:
         form = AddPostForm()
 
-    return render(
-        request,
-        "blog/add_post.html",
-        {
-            "form": form,
-        },
-    )
+    return render(request, "blog/add_post.html", {"form": form})
 
 
 # ====================================================
@@ -143,11 +134,7 @@ def edit_post(request, slug):
         return redirect("post_detail", slug=slug)
 
     if request.method == "POST":
-        form = PostForm(
-            request.POST,
-            request.FILES,
-            instance=post,
-        )
+        form = PostForm(request.POST, request.FILES, instance=post)
 
         if form.is_valid():
             form.save()
@@ -159,10 +146,7 @@ def edit_post(request, slug):
     return render(
         request,
         "blog/edit_post.html",
-        {
-            "form": form,
-            "post": post,
-        },
+        {"form": form, "post": post},
     )
 
 
@@ -192,19 +176,13 @@ def post_reaction(request):
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
-        return JsonResponse(
-            {"status": "error", "message": "Invalid JSON"},
-            status=400
-        )
+        return JsonResponse({"status": "error"}, status=400)
 
     post_id = data.get("post_id")
     action = data.get("action")
 
-    if not post_id or action not in ["like", "unlike"]:
-        return JsonResponse(
-            {"status": "error", "message": "Invalid data"},
-            status=400
-        )
+    if not post_id or action not in ("like", "unlike"):
+        return JsonResponse({"status": "error"}, status=400)
 
     post = get_object_or_404(BlogPost, id=post_id)
 
@@ -212,17 +190,15 @@ def post_reaction(request):
         post.likes.add(request.user)
         post.unlikes.remove(request.user)
 
-    elif action == "unlike":
+    if action == "unlike":
         post.unlikes.add(request.user)
         post.likes.remove(request.user)
 
-    return JsonResponse(
-        {
-            "status": "ok",
-            "likes": post.likes.count(),
-            "unlikes": post.unlikes.count(),
-        }
-    )
+    return JsonResponse({
+        "status": "ok",
+        "likes": post.likes.count(),
+        "unlikes": post.unlikes.count(),
+    })
 
 
 # ====================================================
@@ -232,20 +208,12 @@ def post_reaction(request):
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    can_edit_comment = (
-        request.user == comment.user or
-        request.user.is_superuser
-    )
-
-    if not can_edit_comment:
+    if request.user != comment.user and not request.user.is_superuser:
         messages.error(request, "You are not allowed to edit this comment.")
         return redirect("post_detail", slug=comment.post.slug)
 
     if request.method == "POST":
-        form = CommentForm(
-            request.POST,
-            instance=comment,
-        )
+        form = CommentForm(request.POST, instance=comment)
 
         if form.is_valid():
             form.save()
@@ -257,10 +225,7 @@ def edit_comment(request, comment_id):
     return render(
         request,
         "blog/edit_comment.html",
-        {
-            "form": form,
-            "comment": comment,
-        },
+        {"form": form, "comment": comment},
     )
 
 
