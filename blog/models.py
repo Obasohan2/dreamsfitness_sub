@@ -18,7 +18,7 @@ class BlogPost(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="blog_posts"
     )
-    content = models.TextField()
+    body = models.TextField()
     image = models.ImageField(null=True, blank=True)
 
     category = models.ForeignKey(

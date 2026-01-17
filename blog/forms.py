@@ -17,11 +17,11 @@ class BasePostForm(forms.ModelForm):
 
     class Meta:
         model = BlogPost
-        fields = ["title", "category", "content", "image"]
+        fields = ["title", "category", "body", "image"]
         labels = {
             "title": "Title",
             "category": "Category",
-            "content": "",
+            "body": "Body",
         }
 
     def __init__(self, *args, **kwargs):
