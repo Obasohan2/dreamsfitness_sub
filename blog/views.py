@@ -1,239 +1,134 @@
-import json
-
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.http import require_POST
-from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from .models import BlogPost, Comment, Category
+from .forms import CommentForm, BlogPostForm
 
-from .models import BlogPost, Comment, Category, Reaction
-from .forms import AddPostForm, PostForm, CommentForm
 
+def BlogList(request):
+    posts = BlogPost.objects.all().order_by("-created_on")
 
-# ====================================================
-# BLOG LIST (ALL POSTS)
-# ====================================================
-class PostList(ListView):
-    model = BlogPost
-    template_name = "blog/blog.html"
-    context_object_name = "posts"
-    paginate_by = 8
-
-    def get_queryset(self):
-        return (
-            BlogPost.objects
-            .exclude(slug__isnull=True)
-            .exclude(slug="")
-            .select_related("author", "category")
-            .order_by("-created_on")
+    for post in posts:
+        post.can_edit = (
+            request.user.is_authenticated
+            and (
+                request.user.is_staff
+                or post.author_id == request.user.id
+            )
         )
 
-
-# ====================================================
-# CATEGORY POSTS
-# ====================================================
-class CategoryPostList(ListView):
-    model = BlogPost
-    template_name = "blog/category.html"
-    context_object_name = "posts"
-    paginate_by = 8
-
-    def get_queryset(self):
-        self.category = get_object_or_404(
-            Category,
-            slug=self.kwargs["category_slug"],
-        )
-
-        return (
-            BlogPost.objects
-            .filter(category=self.category)
-            .exclude(slug__isnull=True)
-            .exclude(slug="")
-            .select_related("author", "category")
-            .order_by("-created_on")
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["category"] = self.category
-        return context
+    return render(request, "blog/blog.html", {"posts": posts})
 
 
-# ====================================================
-# POST DETAIL + COMMENTS
-# ====================================================
-def post_detail(request, slug):
-    post = get_object_or_404(BlogPost, slug=slug)
-    comments = post.comments.select_related("user").order_by("created_on")
-    comment_form = CommentForm()
-
-    can_edit_post = (
-        request.user.is_authenticated and
-        (request.user == post.author or request.user.is_superuser)
-    )
+def blog_detail(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
+    comments = post.comments.all()
 
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            messages.error(request, "You must be logged in to comment.")
-            return redirect("account_login")
-
         comment_form = CommentForm(request.POST)
-
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
-            comment.post = post
-            comment.user = request.user
+            comment.blog_post = post
             comment.save()
-
-            messages.success(request, "Comment added successfully.")
-            return redirect("post_detail", slug=slug)
+            return redirect("blog_detail", pk=pk)
+    else:
+        comment_form = CommentForm()
 
     return render(
         request,
-        "blog/post_detail.html",
+        "blog/blog_detail.html",
         {
             "post": post,
             "comments": comments,
             "comment_form": comment_form,
-            "can_edit_post": can_edit_post,
         },
     )
 
+# =========================
+# COMMENTS
+# =========================
 
-# ====================================================
-# ADD POST
-# ====================================================
-@login_required
-def add_post(request):
-    if request.method == "POST":
-        form = AddPostForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-
-            messages.success(request, "Post created successfully.")
-            return redirect("blog")
-    else:
-        form = AddPostForm()
-
-    return render(request, "blog/add_post.html", {"form": form})
-
-
-# ====================================================
-# EDIT POST
-# ====================================================
-@login_required
-def edit_post(request, slug):
-    post = get_object_or_404(BlogPost, slug=slug)
-
-    if request.user != post.author and not request.user.is_superuser:
-        messages.error(request, "You are not allowed to edit this post.")
-        return redirect("post_detail", slug=slug)
-
-    if request.method == "POST":
-        form = PostForm(request.POST, request.FILES, instance=post)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Post updated successfully.")
-            return redirect("post_detail", slug=slug)
-    else:
-        form = PostForm(instance=post)
-
-    return render(
-        request,
-        "blog/edit_post.html",
-        {"form": form, "post": post},
-    )
-
-
-# ====================================================
-# DELETE POST
-# ====================================================
-@login_required
-@require_POST
-def delete_post(request, slug):
-    post = get_object_or_404(BlogPost, slug=slug)
-
-    if request.user != post.author and not request.user.is_superuser:
-        messages.error(request, "You are not allowed to delete this post.")
-        return redirect("post_detail", slug=slug)
-
-    post.delete()
-    messages.success(request, "Post deleted successfully.")
-    return redirect("blog")
-
-
-# ====================================================
-# LIKE / UNLIKE (AJAX) 
-# ====================================================
-@login_required
-@require_POST
-def post_reaction(request):
-    post_id = request.POST.get("post_id")
-
-    post = get_object_or_404(BlogPost, id=post_id)
-
-    reaction, created = Reaction.objects.get_or_create(
-        user=request.user,
-        post=post
-    )
-
-    if created:
-        liked = True
-    else:
-        reaction.delete()
-        liked = False
-
-    return JsonResponse({
-        "liked": liked,
-        "count": post.reactions.count()
-    })
-
-
-# ====================================================
-# EDIT COMMENT
-# ====================================================
 @login_required
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if request.user != comment.user and not request.user.is_superuser:
-        messages.error(request, "You are not allowed to edit this comment.")
-        return redirect("post_detail", slug=comment.post.slug)
+    # Admin can edit ANY comment
+    # Non-admin can edit ONLY their own (email-based)
+    if not (request.user.is_staff or comment.email == request.user.email):
+        return HttpResponseForbidden("You are not allowed to edit this comment.")
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
-
         if form.is_valid():
             form.save()
-            messages.success(request, "Comment updated successfully.")
-            return redirect("post_detail", slug=comment.post.slug)
+            return redirect("blog_detail", pk=comment.blog_post.pk)
     else:
         form = CommentForm(instance=comment)
 
-    return render(
-        request,
-        "blog/edit_comment.html",
-        {"form": form, "comment": comment},
-    )
+    return render(request, "blog/edit_comment.html", {"form": form})
 
 
-# ====================================================
-# DELETE COMMENT
-# ====================================================
 @login_required
-@require_POST
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if request.user != comment.user and not request.user.is_superuser:
-        messages.error(request, "You are not allowed to delete this comment.")
-        return redirect("post_detail", slug=comment.post.slug)
+    # ADMIN CAN DELETE ANY COMMENT
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Admins only")
 
+    post_pk = comment.blog_post.pk
     comment.delete()
-    messages.success(request, "Comment deleted successfully.")
-    return redirect("post_detail", slug=comment.post.slug)
+    return redirect("blog_detail", pk=post_pk)
+
+
+# =========================
+# POSTS
+# =========================
+
+@login_required
+def add_post(request):
+    if request.method == "POST":
+        form = BlogPostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            form.save_m2m()
+            return redirect("blog")
+    else:
+        form = BlogPostForm()
+
+    return render(request, "blog/post_form.html", {"form": form})
+
+
+@login_required
+def edit_post(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
+
+    # Author OR Admin
+    if not (request.user == post.author or request.user.is_staff):
+        return HttpResponseForbidden("You are not allowed to edit this post.")
+
+    if request.method == "POST":
+        form = BlogPostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect("blog_detail", pk=pk)
+    else:
+        form = BlogPostForm(instance=post)
+
+    return render(request, "blog/post_form.html", {"form": form})
+
+
+@login_required
+def delete_post(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
+
+    # ADMIN CAN DELETE ANY POST
+    # Author can delete their own
+    if not (request.user == post.author or request.user.is_staff):
+        return HttpResponseForbidden("Not allowed")
+
+    post.delete()
+    return redirect("blog")
+
