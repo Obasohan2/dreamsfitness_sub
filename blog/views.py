@@ -174,23 +174,29 @@ def delete_post(request, slug):
 @require_POST
 def post_reaction(request):
     try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"status": "error"}, status=400)
+        body = request.body.decode("utf-8")
+        data = json.loads(body)
+    except Exception:
+        return JsonResponse(
+            {"status": "error", "message": "Invalid JSON"},
+            status=400
+        )
 
     post_id = data.get("post_id")
     action = data.get("action")
 
-    if not post_id or action not in ("like", "unlike"):
-        return JsonResponse({"status": "error"}, status=400)
+    if not post_id or action not in ["like", "unlike"]:
+        return JsonResponse(
+            {"status": "error", "message": "Invalid data"},
+            status=400
+        )
 
     post = get_object_or_404(BlogPost, id=post_id)
 
     if action == "like":
         post.likes.add(request.user)
         post.unlikes.remove(request.user)
-
-    if action == "unlike":
+    else:
         post.unlikes.add(request.user)
         post.likes.remove(request.user)
 
