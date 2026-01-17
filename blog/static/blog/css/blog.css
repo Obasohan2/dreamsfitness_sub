@@ -37,3 +37,23 @@
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
 }
+/* =========================================
+   BOOTSTRAP 4 LAYOUT RESET (CANONICAL)
+   ========================================= */
+
+html {
+    font-size: 16px;           /* lock Bootstrap base */
+}
+
+body {
+    margin: 0;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    background-color: #fff;
+    color: #212529;
+
+    display: block;
+    position: relative;
+    overflow-x: hidden;
+}

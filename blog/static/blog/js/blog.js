@@ -1,18 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const reactionMeta = document.querySelector('meta[name="reaction-url"]');
-    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-
-    if (!reactionMeta || !csrfMeta) {
-        console.error("Reaction meta tags missing");
-        return;
-    }
-
-    const reactionUrl = reactionMeta.getAttribute("content");
-    const csrftoken = csrfMeta.getAttribute("content");
+    const reactionUrl = document.querySelector('meta[name="reaction-url"]').content;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     document.querySelectorAll(".react-btn").forEach(button => {
-
         button.addEventListener("click", function () {
 
             const postId = this.dataset.id;
@@ -22,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
+                    "X-CSRFToken": csrfToken,
                     "X-Requested-With": "XMLHttpRequest"
                 },
                 body: JSON.stringify({
@@ -30,23 +21,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     action: action
                 })
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(text);
-                    });
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.status === "ok") {
-                    document.getElementById(`likes-${postId}`).innerText = data.likes;
-                    document.getElementById(`unlikes-${postId}`).innerText = data.unlikes;
+                    document.getElementById(`likes-${postId}`).textContent = data.likes;
+                    document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
                 }
             })
-            .catch(error => {
-                console.error("Reaction error:", error.message);
-            });
+            .catch(error => console.error("Reaction error:", error));
         });
     });
 });

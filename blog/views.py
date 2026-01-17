@@ -68,6 +68,11 @@ def post_detail(request, slug):
     comments = post.comments.select_related("user")
     comment_form = CommentForm()
 
+    can_edit_post = (
+        request.user.is_authenticated and
+        (request.user == post.author or request.user.is_superuser)
+    )
+
     if request.method == "POST":
         if not request.user.is_authenticated:
             messages.error(request, "You must be logged in to comment.")
@@ -91,6 +96,7 @@ def post_detail(request, slug):
             "post": post,
             "comments": comments,
             "comment_form": comment_form,
+            "can_edit_post": can_edit_post,
         },
     )
 
@@ -119,7 +125,9 @@ def add_post(request):
     return render(
         request,
         "blog/add_post.html",
-        {"form": form},
+        {
+            "form": form,
+        },
     )
 
 
@@ -218,7 +226,12 @@ def post_reaction(request):
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if comment.user != request.user and not request.user.is_superuser:
+    can_edit_comment = (
+        request.user == comment.user or
+        request.user.is_superuser
+    )
+
+    if not can_edit_comment:
         messages.error(request, "You are not allowed to edit this comment.")
         return redirect("post_detail", slug=comment.post.slug)
 
@@ -253,7 +266,7 @@ def edit_comment(request, comment_id):
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if comment.user != request.user and not request.user.is_superuser:
+    if request.user != comment.user and not request.user.is_superuser:
         messages.error(request, "You are not allowed to delete this comment.")
         return redirect("post_detail", slug=comment.post.slug)
 
