@@ -1,8 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    /* ====================================================
-       GET REACTION URL FROM META TAG
-    ==================================================== */
     const reactionMeta = document.querySelector(
         'meta[name="reaction-url"]'
     );
@@ -14,92 +11,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const POST_REACTION_URL = reactionMeta.getAttribute("content");
 
-    /* ====================================================
-       CSRF TOKEN HELPER (DJANGO SAFE)
-    ==================================================== */
     function getCookie(name) {
         let cookieValue = null;
 
         if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-
-            for (let cookie of cookies) {
+            document.cookie.split(";").forEach(cookie => {
                 cookie = cookie.trim();
                 if (cookie.startsWith(name + "=")) {
                     cookieValue = decodeURIComponent(
                         cookie.substring(name.length + 1)
                     );
-                    break;
                 }
-            }
+            });
         }
-
         return cookieValue;
     }
 
     const csrftoken = getCookie("csrftoken");
 
-    if (!csrftoken) {
-        console.error("❌ CSRF token not found");
-        return;
-    }
+    document.addEventListener("click", function (event) {
 
-    /* ====================================================
-       LIKE / UNLIKE BUTTON HANDLER
-    ==================================================== */
-    document.querySelectorAll(".react-btn").forEach(button => {
+        const button = event.target.closest(".react-btn");
+        if (!button) return;
 
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
+        event.preventDefault();
 
-            const postId = this.dataset.id;
-            const action = this.dataset.action; // "like" or "unlike"
+        const postId = button.getAttribute("data-id");
+        const action = button.getAttribute("data-action");
 
-            if (!postId || !action) {
-                console.error("❌ Missing post ID or action");
-                return;
+        if (!postId || !action) {
+            console.error("❌ Missing post_id or action", { postId, action });
+            return;
+        }
+
+        button.disabled = true;
+
+        fetch(POST_REACTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify({
+                post_id: postId,
+                action: action,
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
-
-            // Prevent double clicks
-            this.disabled = true;
-
-            fetch(POST_REACTION_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({
-                    post_id: postId,
-                    action: action
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === "ok") {
-                    const likesEl = document.getElementById(`likes-${postId}`);
-                    const unlikesEl = document.getElementById(`unlikes-${postId}`);
-
-                    if (likesEl) likesEl.textContent = data.likes;
-                    if (unlikesEl) unlikesEl.textContent = data.unlikes;
-                } else {
-                    console.error("❌ Server error:", data);
-                }
-            })
-            .catch(error => {
-                console.error("❌ Reaction error:", error);
-            })
-            .finally(() => {
-                this.disabled = false;
-            });
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === "ok") {
+                document.getElementById(`likes-${postId}`).textContent = data.likes;
+                document.getElementById(`unlikes-${postId}`).textContent = data.unlikes;
+            } else {
+                console.error("❌ Server rejected:", data);
+            }
+        })
+        .catch(error => {
+            console.error("❌ Reaction failed:", error);
+        })
+        .finally(() => {
+            button.disabled = false;
         });
-
     });
 
 });
