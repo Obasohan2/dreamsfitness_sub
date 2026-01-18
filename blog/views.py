@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
-from django.urls import reverse
 
 from .models import BlogPost, Comment
 from .forms import CommentForm, AddPostForm, PostForm
@@ -12,7 +11,13 @@ from .forms import CommentForm, AddPostForm, PostForm
 # BLOG LIST
 # =========================
 def BlogList(request):
-    posts = BlogPost.objects.all().order_by("-created_on")
+    posts = (
+        BlogPost.objects
+        .select_related("author", "category")
+        .prefetch_related("likes", "unlikes", "comments")
+        .filter(slug__isnull=False)
+        .order_by("-created_on")
+    )
 
     for post in posts:
         post.can_edit = (
@@ -28,7 +33,7 @@ def BlogList(request):
 # =========================
 def post_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
-    comments = post.comments.all()
+    comments = post.comments.select_related("user").order_by("created_on")
 
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -41,6 +46,7 @@ def post_detail(request, slug):
             comment.blog_post = post
             comment.user = request.user
             comment.save()
+            messages.success(request, "Comment added successfully.")
             return redirect("blog_detail", slug=slug)
     else:
         form = CommentForm()
@@ -70,6 +76,7 @@ def edit_comment(request, comment_id):
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
+            messages.success(request, "Comment updated.")
             return redirect("blog_detail", slug=comment.blog_post.slug)
     else:
         form = CommentForm(instance=comment)
@@ -86,6 +93,7 @@ def delete_comment(request, comment_id):
 
     slug = comment.blog_post.slug
     comment.delete()
+    messages.success(request, "Comment deleted.")
     return redirect("blog_detail", slug=slug)
 
 
@@ -101,6 +109,7 @@ def add_post(request):
             post.author = request.user
             post.save()
             form.save_m2m()
+            messages.success(request, "Post created successfully.")
             return redirect("blog")
     else:
         form = AddPostForm()
@@ -119,6 +128,7 @@ def edit_post(request, pk):
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
+            messages.success(request, "Post updated successfully.")
             return redirect("blog_detail", slug=post.slug)
     else:
         form = PostForm(instance=post)
@@ -134,6 +144,7 @@ def delete_post(request, pk):
         return HttpResponseForbidden("Not allowed")
 
     post.delete()
+    messages.success(request, "Post deleted.")
     return redirect("blog")
 
 
