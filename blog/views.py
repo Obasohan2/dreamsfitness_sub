@@ -31,7 +31,7 @@ def BlogList(request):
 # =========================
 # BLOG DETAIL
 # =========================
-def post_detail(request, slug):
+def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
     comments = post.comments.select_related("user").order_by("created_on")
 
