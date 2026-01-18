@@ -63,11 +63,7 @@
                                 >
                                 <div>
                                     <strong>
-                                        {% if post.author.get_full_name %}
-                                            {{ post.author.get_full_name }}
-                                        {% else %}
-                                            {{ post.author.username }}
-                                        {% endif %}
+                                        {{ post.author.get_full_name|default:post.author.username }}
                                     </strong>
                                     <br>
                                     <small class="text-muted">
@@ -91,7 +87,7 @@
                             <!-- CONTENT PREVIEW -->
                             <p class="mb-2 text-muted small flex-grow-1">
                                 {{ post.body|striptags|truncatewords:20 }}
-                                <a href="{% url 'blog_detail' post.pk %}" class="font-weight-bold">
+                                <a href="{% url 'blog_detail' post.slug %}" class="font-weight-bold">
                                     Read more
                                 </a>
                             </p>
@@ -143,7 +139,7 @@
 
                                 <!-- COMMENTS -->
                                 <a
-                                    href="{% url 'blog_detail' post.pk %}#comments"
+                                    href="{% url 'blog_detail' post.slug %}#comments"
                                     class="text-secondary d-flex align-items-center text-decoration-none"
                                 >
                                     <i class="fas fa-comment-dots mr-2"></i>
