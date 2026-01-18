@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("blog", "0003_auto_20240110_1423"),
+        ("blog", "0003_alter_blogpost_slug"),
     ]
 
     operations = [
