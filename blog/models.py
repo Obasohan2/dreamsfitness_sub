@@ -58,7 +58,11 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name="comments"
     )
-    name = models.CharField(max_length=80)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="comments"
+    )
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
@@ -66,5 +70,6 @@ class Comment(models.Model):
         ordering = ["created_on"]
 
     def __str__(self):
-        return f"Comment by {self.name}"
+        return f"Comment by {self.user.username}"
+
 

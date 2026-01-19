@@ -15,7 +15,4 @@ class BlogPostAdmin(admin.ModelAdmin):
     ordering = ("-created_on",)
 
 
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ("name", "blog_post", "created_on")
-    ordering = ("-created_on",)
+admin.site.register(Comment)
