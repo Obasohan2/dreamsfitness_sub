@@ -5,29 +5,16 @@
 .heart-btn {
     background: none;
     border: none;
-    padding: 0;
     cursor: pointer;
-    box-shadow: none;
+    padding: 0;
 }
 
-.heart-btn:hover,
-.heart-btn:focus {
-    background: none;
-    border: none;
-    outline: none;
-    box-shadow: none;
+.heart-like.active {
+    color: red;
 }
 
-/* LIKE – red filled heart */
-.heart-like {
-    color: #e63946;          /* red */
-    font-size: 1.1rem;
-}
-
-/* UNLIKE – soft grey heart */
-.heart-unlike {
-    color: #9ca3af;          /* grey */
-    font-size: 1.1rem;
+.heart-unlike.active {
+    color: #555;
 }
 
 
@@ -93,40 +80,5 @@
 
 .card {
     border-radius: 0.5rem;
-}
-
-
-
-
-/* Force crispy + bootstrap inputs to align */
-.blog-form .form-control,
-.blog-form select {
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-/* CKEditor / rich text editor FIX */
-.blog-form .django-ckeditor-widget {
-    width: 100% !important;
-    display: block !important;
-}
-
-.blog-form .cke {
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.blog-form .cke_contents {
-    width: 100% !important;
-}
-
-.blog-form .cke_top {
-    width: 100% !important;
-}
-
-/* Normalize spacing */
-.blog-form .form-group {
-    width: 100%;
-    margin-bottom: 1.25rem;
 }
 
