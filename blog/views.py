@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 
 from .models import BlogPost, Comment
 from .forms import CommentForm, AddPostForm, PostForm
@@ -149,11 +150,12 @@ def delete_post(request, pk):
 
 
 # =========================
-# LIKES
+# REACTIONS (AJAX)
 # =========================
 @login_required
-def toggle_like(request, post_id):
-    post = get_object_or_404(BlogPost, id=post_id)
+@require_POST
+def toggle_like(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
 
     if request.user in post.likes.all():
         post.likes.remove(request.user)
@@ -171,8 +173,9 @@ def toggle_like(request, post_id):
 
 
 @login_required
-def toggle_unlike(request, post_id):
-    post = get_object_or_404(BlogPost, id=post_id)
+@require_POST
+def toggle_unlike(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
 
     if request.user in post.unlikes.all():
         post.unlikes.remove(request.user)

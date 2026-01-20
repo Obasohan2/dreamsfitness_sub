@@ -16,8 +16,9 @@
 
 {% block content %}
 <div class="overlay"></div>
+
 <div class="blog-page">
-    <div class="container mt-5">
+    <div class="container my-5">
 
         <!-- ================= SHARE UPDATE ================= -->
         <div class="row">
@@ -26,7 +27,10 @@
                 {% if user.is_authenticated %}
                     <div class="mb-4">
                         <h3 class="mb-3">Share Your Success Update</h3>
-                        <a href="{% url 'add_post' %}" class="btn btn-success btn-sm">
+                        <a
+                            href="{% url 'add_post' %}"
+                            class="btn btn-success btn-sm"
+                        >
                             Create Post
                         </a>
                     </div>
@@ -56,8 +60,8 @@
                                 <img
                                     src="{% if post.image %}{{ post.image.url }}{% else %}{% static 'images/noimage.png' %}{% endif %}"
                                     class="rounded-circle mr-2"
-                                    width="150"
-                                    height="150"
+                                    width="60"
+                                    height="60"
                                     alt="{{ post.title }}"
                                     loading="lazy"
                                 >
@@ -87,9 +91,15 @@
                             <!-- CONTENT PREVIEW -->
                             <p class="mb-2 text-muted small flex-grow-1">
                                 {{ post.body|striptags|truncatewords:20 }}
-                                <a href="{% url 'blog_detail' post.slug %}" class="font-weight-bold">
-                                    Read more
-                                </a>
+
+                                {% if post.slug %}
+                                    <a
+                                        href="{% url 'blog_detail' post.slug %}"
+                                        class="font-weight-bold"
+                                    >
+                                        Read more
+                                    </a>
+                                {% endif %}
                             </p>
 
                             <!-- ================= REACTIONS ================= -->
@@ -138,19 +148,22 @@
                                 </div>
 
                                 <!-- COMMENTS -->
-                                <a
-                                    href="{% url 'blog_detail' post.slug %}#comments"
-                                    class="text-secondary d-flex align-items-center text-decoration-none"
-                                >
-                                    <i class="fas fa-comment-dots mr-2"></i>
-                                    {{ post.comments.count }}
-                                </a>
+                                {% if post.slug %}
+                                    <a
+                                        href="{% url 'blog_detail' post.slug %}#comments"
+                                        class="text-secondary d-flex align-items-center text-decoration-none"
+                                    >
+                                        <i class="fas fa-comment-dots mr-2"></i>
+                                        {{ post.comments.count }}
+                                    </a>
+                                {% endif %}
 
                             </div>
 
                         </div>
                     </div>
                 </div>
+
             {% empty %}
                 <div class="col-12">
                     <p class="text-muted text-center">

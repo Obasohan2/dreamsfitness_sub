@@ -1,4 +1,6 @@
-/* ================= HEART REACTIONS ================= */
+/* ====================================================
+   HEART REACTIONS (LIKE / UNLIKE)
+==================================================== */
 
 .heart-btn {
     background: none;
@@ -18,20 +20,20 @@
 
 /* LIKE – red filled heart */
 .heart-like {
-    color: #e63946;   /* red */
-    font-size: 1.05rem;
+    color: #e63946;          /* red */
+    font-size: 1.1rem;
 }
 
-/* UNLIKE – plain GREY heart */
+/* UNLIKE – soft grey heart */
 .heart-unlike {
-    color: #9ca3af;   /* soft grey */
-    font-size: 1.05rem;
+    color: #9ca3af;          /* grey */
+    font-size: 1.1rem;
 }
 
 
-/* ===============================
+/* ====================================================
    ADD COMMENT FORM WIDTH
-================================ */
+==================================================== */
 
 .comment-form {
     max-width: 50%;
@@ -44,9 +46,10 @@
     }
 }
 
-/* ===============================
+
+/* ====================================================
    EDIT / DELETE ICON BUTTONS
-================================ */
+==================================================== */
 
 .icon-btn {
     background: none;
@@ -64,38 +67,66 @@
 
 /* EDIT icon – blue */
 .icon-btn.edit {
-    color: #0d6efd; /* Bootstrap blue */
+    color: #0d6efd;
+}
+
+.icon-btn.edit:hover {
+    color: #084298;
 }
 
 /* DELETE icon – red */
 .icon-btn.delete {
-    color: #dc3545; /* Bootstrap red */
-}
-
-/* subtle hover (optional but nice) */
-.icon-btn.edit:hover {
-    color: #084298;
+    color: #dc3545;
 }
 
 .icon-btn.delete:hover {
     color: #a71d2a;
 }
 
-
-/* ================= HEART REACTIONS (ALTERNATE) ================= */
-.heart-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
+.blog-form label {
+    font-weight: 600;
 }
 
-.heart-like {
-    color: #e63946; /* red */
-    font-size: 1.2rem;
+.blog-form textarea {
+    resize: vertical;
 }
 
-.heart-unlike {
-    color: #6c757d; /* grey */
-    font-size: 1.2rem;
+.card {
+    border-radius: 0.5rem;
 }
+
+
+
+
+/* Force crispy + bootstrap inputs to align */
+.blog-form .form-control,
+.blog-form select {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* CKEditor / rich text editor FIX */
+.blog-form .django-ckeditor-widget {
+    width: 100% !important;
+    display: block !important;
+}
+
+.blog-form .cke {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.blog-form .cke_contents {
+    width: 100% !important;
+}
+
+.blog-form .cke_top {
+    width: 100% !important;
+}
+
+/* Normalize spacing */
+.blog-form .form-group {
+    width: 100%;
+    margin-bottom: 1.25rem;
+}
+

@@ -13,9 +13,9 @@ urlpatterns = [
     path("comment/edit/<int:comment_id>/", views.edit_comment, name="edit_comment"),
     path("comment/delete/<int:comment_id>/", views.delete_comment, name="delete_comment"),
 
-    # Likes
-    path("like/<int:post_id>/", views.toggle_like, name="toggle_like"),
-    path("unlike/<int:post_id>/", views.toggle_unlike, name="toggle_unlike"),
+    # Reactions (MATCH VIEW SIGNATURES)
+    path("like/<int:pk>/", views.toggle_like, name="toggle_like"),
+    path("unlike/<int:pk>/", views.toggle_unlike, name="toggle_unlike"),
 
     # Blog detail (slug MUST be last)
     path("<slug:slug>/", views.blog_detail, name="blog_detail"),
