@@ -1,0 +1,89 @@
+/* ===============================
+   BORDERLESS ICON BUTTONS
+   =============================== */
+
+/* Like / Unlike buttons */
+.heart-btn,
+.reaction-btn,
+.react-btn {
+    background: none !important;
+    border: none !important;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: none !important;
+    line-height: 1;
+}
+
+/* Remove focus outline */
+.heart-btn:focus,
+.reaction-btn:focus,
+.react-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* ===============================
+   HEART ICON COLORS
+   =============================== */
+
+.heart-like {
+    color: #dc3545; /* red */
+}
+
+.heart-unlike {
+    color: #6c757d; /* muted gray */
+}
+
+/* Active states */
+.heart-like.active {
+    color: #c82333;
+}
+
+.heart-unlike.active {
+    color: #495057;
+}
+
+/* ===============================
+   COMMENT ICON
+   =============================== */
+
+.fa-comment-dots {
+    color: #6c757d;
+}
+
+/* ===============================
+   EDIT / DELETE ICONS
+   =============================== */
+
+.icon-btn {
+    background: none !important;
+    border: none !important;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Edit = blue */
+.icon-btn.edit i {
+    color: #007bff;
+}
+
+/* Delete = red */
+.icon-btn.delete i {
+    color: #dc3545;
+}
+
+/* Hover feedback */
+.icon-btn.edit:hover i {
+    color: #0056b3;
+}
+
+.icon-btn.delete:hover i {
+    color: #a71d2a;
+}
+
+/* Remove focus ring */
+.icon-btn:focus,
+.icon-btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
