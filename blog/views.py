@@ -70,7 +70,7 @@ def blog_detail(request, slug):
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if not (request.user.is_staff or comment.user == request.user):
+    if not (request.user == comment.user or request.user.is_staff):
         return HttpResponseForbidden("You are not allowed to edit this comment.")
 
     if request.method == "POST":
@@ -82,7 +82,14 @@ def edit_comment(request, comment_id):
     else:
         form = CommentForm(instance=comment)
 
-    return render(request, "blog/edit_comment.html", {"form": form})
+    return render(
+        request,
+        "blog/edit_comment.html",
+        {
+            "form": form,
+            "comment": comment, 
+        },
+    )
 
 
 @login_required
