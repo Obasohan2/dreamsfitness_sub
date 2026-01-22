@@ -1,0 +1,47 @@
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="deleteMessage" class="d-none">
+                    <p class="mb-0">
+                        Are you sure you want to delete
+                        <strong class="item-name"></strong>?
+                        <br>
+                        <small class="text-danger">
+                            This action cannot be undone.
+                        </small>
+                    </p>
+                </div>
+
+                <div id="editMessage" class="d-none">
+                    <p class="mb-0">
+                        Do you want to edit
+                        <strong class="item-name"></strong>?
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Cancel
+                </button>
+
+                <form method="POST" id="confirmActionForm" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" id="confirmActionBtn"></button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -69,19 +69,32 @@
             {% endif %}
 
             {% if request.user.is_staff %}
-                <p class="mt-2">
-                    <a href="{% url 'edit_product' product.id %}">
-                        Edit
-                    </a>
-                    |
-                    <a
-                        href="{% url 'delete_product' product.id %}"
-                        class="text-danger"
-                    >
-                        Delete
-                    </a>
-                </p>
-            {% endif %}
+    <p class="mt-2">
+        <a
+            href="#"
+            class="text-primary"
+            data-toggle="modal"
+            data-target="#confirmModal"
+            data-action="{% url 'edit_product' product.id %}"
+            data-name="{{ product.name }}"
+            data-type="edit"
+        >
+            Edit
+        </a>
+        |
+        <a
+            href="#"
+            class="text-danger"
+            data-toggle="modal"
+            data-target="#confirmModal"
+            data-action="{% url 'delete_product' product.id %}"
+            data-name="{{ product.name }}"
+            data-type="delete"
+        >
+            Delete
+        </a>
+    </p>
+{% endif %}
 
             <p class="mt-4">
                 {{ product.description }}
@@ -280,9 +293,11 @@
     </div>
 
 </div>
+{% include "products/includes/confirm_modal.html" %}
 {% endblock %}
 
 {% block postloadjs %}
 {{ block.super }}
 {% include "products/includes/quantity_input_script.html" %}
+<script src="{% static 'products/js/confirm_modal.js' %}"></script>
 {% endblock %}

@@ -5,11 +5,6 @@
     bottom: 10px;
     right: 10px;
 }
-
 .btt-link {
     cursor: pointer;
-}
-
-.modal .text-danger {
-    color: #dc3545 !important;
 }

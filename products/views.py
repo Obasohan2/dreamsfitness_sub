@@ -182,9 +182,15 @@ def delete_product(request, product_id):
     """ Delete a product from the store """
     if not request.user.is_superuser:
         messages.error(request, 'Sorry, only store owners can do that.')
-        return redirect(reverse('home'))
-    
+        return redirect('home')
+
     product = get_object_or_404(Product, pk=product_id)
-    product.delete()
-    messages.success(request, 'Product deleted!')
-    return redirect(reverse('products'))
+
+    if request.method == "POST":
+        product.delete()
+        messages.success(request, 'Product deleted!')
+        return redirect('products')
+
+    # If someone tries to access via GET
+    messages.error(request, 'Invalid request.')
+    return redirect('products')

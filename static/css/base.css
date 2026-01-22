@@ -40,7 +40,7 @@ body {
 }
 
 .text-black {
-	color: #000 !important;
+	color: #000;
 }
 
 .border-black {
@@ -596,3 +596,4 @@ input[name="q"]::placeholder {
 .cart-table td {
     vertical-align: middle;
 }
+
