@@ -3,62 +3,58 @@
 
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta
-        name="description"
-        content="{% block meta_description %}
-        Dreams Fitness Center – fitness programs, nutrition plans, and memberships designed to help you reach your goals.
-        {% endblock %}"
-        name="keywords" content="fitness, fitness center, running, leeds, united kingdom, gym, personal training, nutrition, health">
-    >
-
-    <meta name="robots" content="index, follow">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
     {% block meta %}
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block meta_description %}Dreams Fitness Center offers fitness programs, nutrition plans, and memberships designed to help you reach your health and wellness goals.{% endblock %}">
+    <meta name="keywords" content="fitness center, gym, personal training, nutrition plans, fitness memberships, Leeds, United Kingdom">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
     {% endblock %}
 
     {% block extra_meta %}{% endblock %}
 
+    <title>
+        {% block meta_title %}Dreams Fitness Center{% endblock %}
+    </title>
+
     {% block corecss %}
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-            crossorigin="anonymous"
-        >
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css?family=Lato&display=swap"
-        >
-        <link
-            rel="stylesheet"
-            href="{% static 'css/base.css' %}"
-        >
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        crossorigin="anonymous"
+    >
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Lato&display=swap"
+    >
+    <link
+        rel="stylesheet"
+        href="{% static 'css/base.css' %}"
+    >
     {% endblock %}
 
     {% block extra_css %}{% endblock %}
 
     {% block corejs %}
-        <script src="https://kit.fontawesome.com/c38cb811c0.js" crossorigin="anonymous"></script>
-        <!-- jQuery -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-        <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://kit.fontawesome.com/c38cb811c0.js" crossorigin="anonymous"></script>
+
+    <!-- jQuery (single import) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
     {% endblock %}
 
     {% block extra_js %}{% endblock %}
 
-    <title>
-        {% block meta_title %}Dreams Fitness Center{% endblock %}
-    </title>
 </head>
+
 
 <body class="bg-white text-black d-flex flex-column min-vh-100">
 
