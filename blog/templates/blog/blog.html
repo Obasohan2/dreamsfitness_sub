@@ -141,14 +141,11 @@
                                     </span>
                                 {% endif %}
 
-                                <!-- COMMENTS -->
-                                <a
-                                    href="#comments"
-                                    class="text-secondary d-flex align-items-center text-decoration-none"
-                                >
+                                <!-- COMMENTS (NON-CLICKABLE) -->
+                                <span class="text-secondary d-flex align-items-center">
                                     <i class="fas fa-comment-dots mr-1"></i>
-                                    {{ comments.count }}
-                                </a>
+                                    {{ post.comments.count }}
+                                </span>
 
                             </div>
 
