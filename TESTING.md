@@ -12,7 +12,6 @@ Manual testing was conducted to ensure correct functionality, security, and resp
 | User login | Redirect to profile | Pass |
 | Superuser login | Redirect to dashboard | Pass |
 | Unauthenticated profile access | Redirect to login | Pass |
-| Non-staff user accessing dashboard | 403 Forbidden | Pass |
 
 ---
 
