@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
+from .views import handler404
 
 from home.sitemap import StaticViewSitemap, ProductSitemap, BlogSitemap
 
