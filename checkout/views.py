@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
 from .forms import OrderForm
 from .models import Order, OrderLineItem, SubscriptionLineItem
@@ -107,22 +109,13 @@ def checkout(request):
         client_secret = intent.client_secret
 
     context = {
-        # Form
         "order_form": order_form,
-
-        # Products
         "products": product_items,
         "product_total": product_total,
         "delivery": delivery,
-
-        # Subscription (KEY FIX)
         "subscription": subscription,
-
-        # Totals
         "final_total": grand_total,
         "grand_total": grand_total,
-
-        # Stripe
         "stripe_public_key": stripe_public_key,
         "client_secret": client_secret,
     }
@@ -199,10 +192,8 @@ def process_order(request):
     else:
         order.subscription_total = Decimal("0.00")
 
-    # ---------------- FINAL TOTALS ----------------
     order.update_total()
 
-    # ---------------- CLEAR CART ----------------
     request.session.pop("cart", None)
     request.session.pop("subscription_cart", None)
 
@@ -229,6 +220,26 @@ def checkout_success(request, order_number):
             form = UserProfileForm(profile_data, instance=profile)
             if form.is_valid():
                 form.save()
+
+    # ---------------- SEND CONFIRMATION EMAIL ----------------
+    context = {"order": order}
+
+    subject = render_to_string(
+        "checkout/confirmation_emails/confirmation_email_subject.txt",
+        context,
+    ).strip()
+
+    body = render_to_string(
+        "checkout/confirmation_emails/confirmation_email_body.txt",
+        context,
+    )
+
+    EmailMessage(
+        subject,
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        [order.email],
+    ).send()
 
     messages.success(
         request,
