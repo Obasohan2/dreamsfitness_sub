@@ -27,10 +27,7 @@
                 {% if user.is_authenticated %}
                     <div class="mb-4">
                         <h3 class="mb-3">Share Your Success Update</h3>
-                        <a
-                            href="{% url 'add_post' %}"
-                            class="btn btn-success btn-sm"
-                        >
+                        <a href="{% url 'add_post' %}" class="btn btn-success btn-sm">
                             Create Post
                         </a>
                     </div>
@@ -103,60 +100,55 @@
                             </p>
 
                             <!-- ================= REACTIONS ================= -->
-                            <div class="d-flex align-items-center justify-content-between mt-auto">
+                            <div class="d-flex align-items-center mt-3">
 
-                                <div class="d-flex align-items-center">
-
-                                    {% if user.is_authenticated %}
-
-                                        <!-- LIKE -->
-                                        <button
-                                            type="button"
-                                            class="heart-btn mr-3 d-flex align-items-center"
-                                            data-url="{% url 'toggle_like' post.id %}"
-                                            aria-label="Like"
-                                        >
-                                            <i class="fas fa-heart heart-like"></i>
-                                            <span class="ml-1">{{ post.likes.count }}</span>
-                                        </button>
-
-                                        <!-- UNLIKE -->
-                                        <button
-                                            type="button"
-                                            class="heart-btn d-flex align-items-center"
-                                            data-url="{% url 'toggle_unlike' post.id %}"
-                                            aria-label="Unlike"
-                                        >
-                                            <i class="far fa-heart heart-unlike"></i>
-                                            <span class="ml-1">{{ post.unlikes.count }}</span>
-                                        </button>
-
-                                    {% else %}
-
-                                        <span class="d-flex align-items-center mr-3">
-                                            <i class="fas fa-heart heart-like mr-1"></i>
+                                {% if user.is_authenticated %}
+                                    <!-- LIKE -->
+                                    <button
+                                        type="button"
+                                        class="heart-btn d-flex align-items-center react-btn mr-3"
+                                        data-url="{% url 'toggle_like' post.id %}"
+                                        data-post-id="{{ post.id }}"
+                                        aria-label="Like"
+                                    >
+                                        <i class="fas fa-heart heart-like mr-1 {% if user in post.likes.all %}active{% endif %}"></i>
+                                        <span id="likes-count-{{ post.id }}">
                                             {{ post.likes.count }}
                                         </span>
+                                    </button>
 
-                                        <span class="d-flex align-items-center">
-                                            <i class="far fa-heart heart-unlike mr-1"></i>
+                                    <!-- UNLIKE -->
+                                    <button
+                                        type="button"
+                                        class="heart-btn d-flex align-items-center react-btn mr-4"
+                                        data-url="{% url 'toggle_unlike' post.id %}"
+                                        data-post-id="{{ post.id }}"
+                                        aria-label="Unlike"
+                                    >
+                                        <i class="far fa-heart heart-unlike mr-1 {% if user in post.unlikes.all %}active{% endif %}"></i>
+                                        <span id="unlikes-count-{{ post.id }}">
                                             {{ post.unlikes.count }}
                                         </span>
-
-                                    {% endif %}
-
-                                </div>
+                                    </button>
+                                {% else %}
+                                    <span class="text-muted small mr-4">
+                                        <i class="fas fa-heart mr-1"></i>
+                                        {{ post.likes.count }}
+                                    </span>
+                                    <span class="text-muted small mr-4">
+                                        <i class="far fa-heart mr-1"></i>
+                                        {{ post.unlikes.count }}
+                                    </span>
+                                {% endif %}
 
                                 <!-- COMMENTS -->
-                                {% if post.slug %}
-                                    <a
-                                        href="{% url 'blog_detail' post.slug %}#comments"
-                                        class="text-secondary d-flex align-items-center text-decoration-none"
-                                    >
-                                        <i class="fas fa-comment-dots mr-2"></i>
-                                        {{ post.comments.count }}
-                                    </a>
-                                {% endif %}
+                                <a
+                                    href="#comments"
+                                    class="text-secondary d-flex align-items-center text-decoration-none"
+                                >
+                                    <i class="fas fa-comment-dots mr-1"></i>
+                                    {{ comments.count }}
+                                </a>
 
                             </div>
 

@@ -47,5 +47,4 @@ urlpatterns = [
     # Sitemap
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
 handler404 = "dreamsfitness.views.handler404"
