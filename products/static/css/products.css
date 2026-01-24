@@ -13,3 +13,43 @@
 .modal .text-danger {
     color: #dc3545 !important;
 }
+
+
+/* ===============================
+ CONTRAST FIXES
+================================ */
+
+/* Fix muted text */
+.text-muted {
+    color: #495057 !important; /* Bootstrap dark gray */
+}
+
+/* Fix outline buttons */
+.btn-outline-primary {
+    color: #0b5ed7;
+    border-color: #0b5ed7;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0b5ed7;
+    color: #ffffff;
+}
+
+/* Fix success buttons */
+.btn-success {
+    background-color: #146c43;
+    border-color: #146c43;
+}
+
+/* Fix badges */
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Fix icons */
+.fa,
+.fas,
+.far {
+    color: #212529;
+}

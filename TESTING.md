@@ -42,6 +42,156 @@ Manual testing was conducted to ensure correct functionality, security, and resp
 | Login as admin| Login to as admin gives access to blog/product management | login-in as a new user form works |  Pass |
 | Logout | message shown | Logging out message shown |  Pass |
 
+---
+
+## Wave testing
+
+I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave.webaim.org/) is a set of evaluation tools which helps authors to make their web content more accessible to individuals with disabilities. WAVE can identify many accessibility and Web Content Accessibility Guideline (WCAG) errors, but also facilitates human evaluation of web content as per definition on their site.
+
+<details>
+  <summary>Home</summary>
+
+  ![](static/images/WebHome.jpg)
+
+  I went on to fix the error by adding the aria label to the seach box input
+
+</details> 
+
+<details>
+<summary>Bag</summary>
+
+![](static/images/web_bag.jpg)
+
+</details> 
+
+<details>
+<summary>About us</summary>
+
+![](static/images/webabout_us.jpg)
+
+Fixed the alerts by adding an h2 level heading to shop now button
+
+</details> 
+
+<details>
+<summary>Privacy policy</summary>
+
+![](static/images/webprivacy_policy.jpg)
+
+</details> 
+
+<details>
+  <summary>Contact us</summary>
+
+  ![](static/images/web_contact.jpg)
+
+  changed the level heading. Skipped the labels part as I had no intention to use labels on this page
+
+</details> 
+
+<details>
+  <summary>Blog detail</summary>
+
+![](static/images/webblog_detail.jpg)
+
+I had no intention to add a heading on this page as well as adding headings to blog articles. Changed all comments tag to a paragraph
+
+</details> 
+
+<details>
+  <summary>Blog</summary>
+
+![](static/images/web_blog.jpg)
+
+I added the first level heading as i realized it was necessary to keep the site uniform throughout
+
+</details> 
+
+<details>
+  
+<summary>All specials</summary>
+
+![](static/images/weball_specials.jpg)
+
+  I added heading to price from paragraph tag. Skipped the labels part as I had no intention to use one
+
+</details>
+
+<details>
+  
+<summary>Products</summary>
+
+![](static/images/weball_products.jpg)
+Fixed the alerts by adding specified headings both to newsletter and product price
+
+</details> 
+
+<details>
+  
+<summary>Product detail</summary>
+
+![](static/images/webproduct_detail.jpg)
+
+I only have 2 colors black and white throughout the site except the footer border that has the same color with the contrast errror so I decided to skip
+
+</details> 
+
+<details>
+  
+<summary>Sign in</summary>
+
+![](static/images/sign_in.jpg)
+
+</details> 
+
+ <details>
+  <summary>Click here for Lighthouse results</summary>
+ Desktop
+
+  ![](static/images/lighthouse_desktop.jpg)
+
+Mobile
+
+  ![](static/images/lighthouse_mobile.jpg)
+ 
+  </details> 
+
+  <details>
+  <summary>Click here for Markup results</summary>
+
+   ![](static/images/html_validator.jpg)
+
+  </details> 
+
+  <details>
+  <summary>Click here for CSS results </summary>
+
+  ![](static/images/css_validator.jpg)
+
+  </details> 
+
+
+### Javascript validation
+I used JSlint to validate javascript found in some apps
+
+* bag app - semi colon warning
+
+* blog app -  semi colon warnings
+
+* base.html - zero warnings
+
+* newsletter - 8 warnings but the code is directly from mailchimp
+
+* checkout - semi colon warnings
+
+* products - semi colon warnings
+
+* profiles - no warnings
+
+### Python
+[ CI Python linter ](https://pep8ci.herokuapp.com/) was used to test python code
+
+
 
 ---
 
