@@ -33,22 +33,24 @@
             <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card h-100 shadow-sm border-0">
 
-                    <!-- Product Image (NOT a link – avoids redundant link warning) -->
-                    {% if product.images %}
-                        <img
-                            src="{{ product.images.url }}"
-                            class="card-img-top img-fluid"
-                            alt="{{ product.name }}"
-                            style="height: 200px; object-fit: cover;"
-                        >
-                    {% else %}
-                        <img
-                            src="{% static 'images/noimage.png' %}"
-                            class="card-img-top img-fluid"
-                            alt="No image available"
-                            style="height: 200px; object-fit: cover;"
-                        >
-                    {% endif %}
+                    <!-- Product Image -->
+                    <a href="{% url 'product_detail' product.id %}">
+                        {% if product.images %}
+                            <img
+                                src="{{ product.images.url }}"
+                                class="card-img-top img-fluid"
+                                alt="{{ product.name }}"
+                                style="height: 200px; object-fit: cover;"
+                            >
+                        {% else %}
+                            <img
+                                src="{% static 'images/noimage.png' %}"
+                                class="card-img-top img-fluid"
+                                alt="No image available"
+                                style="height: 200px; object-fit: cover;"
+                            >
+                        {% endif %}
+                    </a>
 
                     <!-- Card Body -->
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -71,7 +73,7 @@
                             {% if product.rating %}
                                 <span class="badge badge-warning text-dark">
                                     {{ product.rating|floatformat:1 }}
-                                    <i class="fas fa-star" aria-hidden="true"></i>
+                                    <i class="fas fa-star"></i>
                                 </span>
                             {% endif %}
                         </div>
@@ -110,7 +112,7 @@
                     <div class="card-footer bg-white border-0 d-flex justify-content-between">
                         <a
                             href="{% url 'product_detail' product.id %}"
-                            class="btn btn-primary btn-sm w-50 mr-1"
+                            class="btn btn-outline-primary btn-sm w-50 mr-1"
                         >
                             View
                         </a>
@@ -142,15 +144,11 @@
     </div>
 </div>
 
-<!-- Back to Top (fixed empty link) -->
+<!-- Back to Top -->
 <div class="btt-button shadow-sm rounded-0 border border-black">
-    <button
-        type="button"
-        class="btt-link d-flex h-100 w-100 bg-transparent border-0"
-        aria-label="Back to top"
-    >
-        <i class="fas fa-arrow-up text-black mx-auto my-auto" aria-hidden="true"></i>
-    </button>
+    <a class="btt-link d-flex h-100">
+        <i class="fas fa-arrow-up text-black mx-auto my-auto"></i>
+    </a>
 </div>
 
 {% include "products/includes/confirm_modal.html" %}
