@@ -22,7 +22,7 @@
         <form method="GET" action="{% url 'products' %}" role="search">
             <div class="input-group w-100">
 
-                <!-- Hidden label for screen readers -->
+                <!-- Screen-reader-only label -->
                 <label for="mobile-search-input" class="sr-only">
                     Search products and site content
                 </label>
@@ -33,7 +33,6 @@
                     type="search"
                     name="q"
                     placeholder="Search our site"
-                    aria-label="Search products and site content"
                     required
                 >
 
@@ -41,12 +40,12 @@
                     <button
                         class="btn btn-black border border-black rounded-0"
                         type="submit"
-                        aria-label="Submit search"
                     >
                         <i class="fas fa-search" aria-hidden="true"></i>
-                        <span class="sr-only">Search</span> <!-- Critical fix for "Empty button" -->
+                        <span class="sr-only">Search</span>
                     </button>
                 </div>
+
             </div>
         </form>
     </div>
@@ -103,8 +102,7 @@
 <!-- ================= MOBILE CART ================= -->
 <li class="list-inline-item">
     <a
-        class="nav-link d-block d-lg-none
-            {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
+        class="nav-link d-block d-lg-none {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
         href="{% url 'view_cart' %}"
         aria-label="View shopping cart{% if grand_total %}, total £{{ grand_total|floatformat:2 }}{% endif %}"
     >
