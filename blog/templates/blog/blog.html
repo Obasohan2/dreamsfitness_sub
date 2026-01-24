@@ -59,7 +59,7 @@
                                     class="rounded-circle mr-2"
                                     width="60"
                                     height="60"
-                                    alt="{{ post.title }}"
+                                    alt="Author profile picture"
                                     loading="lazy"
                                 >
                                 <div>
@@ -80,7 +80,7 @@
 
                             <!-- CATEGORY -->
                             {% if post.category %}
-                                <span class="badge badge-info mb-2 align-self-start">
+                                <span class="badge badge-primary mb-2 align-self-start">
                                     {{ post.category.name }}
                                 </span>
                             {% endif %}
@@ -88,16 +88,16 @@
                             <!-- CONTENT PREVIEW -->
                             <p class="mb-2 text-muted small flex-grow-1">
                                 {{ post.body|striptags|truncatewords:20 }}
-
-                                {% if post.slug %}
-                                    <a
-                                        href="{% url 'blog_detail' post.slug %}"
-                                        class="font-weight-bold"
-                                    >
-                                        Read more
-                                    </a>
-                                {% endif %}
                             </p>
+
+                            {% if post.slug %}
+                                <a
+                                    href="{% url 'blog_detail' post.slug %}"
+                                    class="btn btn-sm btn-outline-primary align-self-start"
+                                >
+                                    Read more
+                                </a>
+                            {% endif %}
 
                             <!-- ================= REACTIONS ================= -->
                             <div class="d-flex align-items-center mt-3">
@@ -111,7 +111,10 @@
                                         data-post-id="{{ post.id }}"
                                         aria-label="Like"
                                     >
-                                        <i class="fas fa-heart heart-like mr-1 {% if user in post.likes.all %}active{% endif %}"></i>
+                                        <i
+                                            class="fas fa-heart heart-like mr-1 {% if user in post.likes.all %}active{% endif %}"
+                                            aria-hidden="true"
+                                        ></i>
                                         <span id="likes-count-{{ post.id }}">
                                             {{ post.likes.count }}
                                         </span>
@@ -125,25 +128,28 @@
                                         data-post-id="{{ post.id }}"
                                         aria-label="Unlike"
                                     >
-                                        <i class="far fa-heart heart-unlike mr-1 {% if user in post.unlikes.all %}active{% endif %}"></i>
+                                        <i
+                                            class="far fa-heart heart-unlike mr-1 {% if user in post.unlikes.all %}active{% endif %}"
+                                            aria-hidden="true"
+                                        ></i>
                                         <span id="unlikes-count-{{ post.id }}">
                                             {{ post.unlikes.count }}
                                         </span>
                                     </button>
                                 {% else %}
                                     <span class="text-muted small mr-4">
-                                        <i class="fas fa-heart mr-1"></i>
+                                        <i class="fas fa-heart mr-1" aria-hidden="true"></i>
                                         {{ post.likes.count }}
                                     </span>
                                     <span class="text-muted small mr-4">
-                                        <i class="far fa-heart mr-1"></i>
+                                        <i class="far fa-heart mr-1" aria-hidden="true"></i>
                                         {{ post.unlikes.count }}
                                     </span>
                                 {% endif %}
 
-                                <!-- COMMENTS (NON-CLICKABLE) -->
+                                <!-- COMMENTS -->
                                 <span class="text-secondary d-flex align-items-center">
-                                    <i class="fas fa-comment-dots mr-1"></i>
+                                    <i class="fas fa-comment-dots mr-1" aria-hidden="true"></i>
                                     {{ post.comments.count }}
                                 </span>
 

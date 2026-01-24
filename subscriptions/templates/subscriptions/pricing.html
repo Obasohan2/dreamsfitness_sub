@@ -2,165 +2,151 @@
 {% load static %}
 
 {% block page_header %}
-<div class="container header-container">
-    <div class="row">
-        <div class="col text-center"></div>
+    <div class="container header-container">
+        <div class="row">
+            <div class="col text-center"></div>
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block content %}
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<link rel="stylesheet" href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}">
 
-<section class="container my-5">
+    <section class="container my-5">
 
-    <!-- =========================
-         PAGE TITLE
-    ========================== -->
-    <h2 class="text-center mb-4 text-black">Subscription Plans</h2>
-    <hr class="mx-auto" style="width:150px;">
+        <!-- PAGE TITLE -->
+        <h2 class="text-center mb-4 text-black">Subscription Plans</h2>
+        <hr class="mx-auto" style="width:150px;">
 
-    <!-- =========================
-         ADMIN QUICK ACTION
-    ========================== -->
-    {% if request.user.is_authenticated and request.user.is_superuser %}
-    <div class="text-center mb-4">
-        <a href="/admin/subscriptions/subplan/add/"
-           class="btn btn-dark rounded-0">
-             Add New Subscription Plan
-        </a>
-    </div>
-    {% endif %}
+        <!-- ADMIN QUICK ACTION -->
+        {% if request.user.is_authenticated and request.user.is_superuser %}
+            <div class="text-center mb-4">
+                <a href="/admin/subscriptions/subplan/add/"
+                   class="btn btn-dark rounded-0">
+                    Add New Subscription Plan
+                </a>
+            </div>
+        {% endif %}
 
-    <!-- =========================
-         PLANS GRID
-    ========================== -->
-    <div class="row text-center">
+        <!-- PLANS GRID -->
+        <div class="row text-center">
+            {% for plan in plans %}
+                <div class="col-12 col-md-4 mb-4">
+                    <div class="card rounded shadow-sm {% if plan.is_selected %}border-primary{% endif %}">
 
-        {% for plan in plans %}
-        <div class="col-12 col-md-4 mb-4">
-
-            <div class="card rounded shadow-sm {% if plan.is_selected %}border-primary{% endif %}">
-
-                <!-- HEADER -->
-                <div class="card-header py-3
-                    {% if plan.is_selected %}
-                        bg-primary text-white border-primary
-                    {% else %}
-                        bg-light
-                    {% endif %}
-                ">
-                    <h4 class="my-0">
-                        {{ plan.title }}
-                        {% if request.user.is_authenticated and request.user.is_superuser %}
-                            <span class="badge badge-warning ml-2">Admin</span>
-                        {% endif %}
-                    </h4>
-                </div>
-
-                <!-- BODY -->
-                <div class="card-body">
-
-                    <h1 class="card-title pricing-card-title">
-                        £{{ plan.price }}
-                        <small class="text-muted">/ {{ plan.validity_days }} Days</small>
-                    </h1>
-
-                    <p class="text-success mt-2">
-                        Member Capacity: {{ plan.max_member|default:"Unlimited" }}
-                    </p>
-
-                    <ul class="list-unstyled mt-3 mb-4">
-                        {% for feature in plan.subplanfeature_set.all %}
-                            <li>{{ feature.title }}</li>
-                        {% empty %}
-                            <li class="text-muted">No features listed</li>
-                        {% endfor %}
-                    </ul>
-
-                    <!-- =========================
-                         BUTTON LOGIC
-                    ========================== -->
-
-                    {% if request.user.is_authenticated and request.user.is_superuser %}
-
-                        <!-- ADMIN CONTROLS -->
-                        <div class="btn-group btn-group-sm d-flex">
-                            <a href="/admin/subscriptions/subplan/{{ plan.id }}/change/"
-                               class="btn btn-outline-dark">
-                                <i class="bi bi-pencil-square"></i> Edit Plan
-                            </a>
-
-                            <a href="/admin/subscriptions/subplanfeature/"
-                               class="btn btn-outline-secondary">
-                                <i class="bi bi-list-check"></i> Features
-                            </a>
+                        <!-- HEADER -->
+                        <div class="card-header py-3
+                            {% if plan.is_selected %}
+                                bg-primary text-white border-primary
+                            {% else %}
+                                bg-light
+                            {% endif %}
+                        ">
+                            <h4 class="my-0">
+                                {{ plan.title }}
+                                {% if request.user.is_authenticated and request.user.is_superuser %}
+                                    <span class="badge badge-warning ml-2">Admin</span>
+                                {% endif %}
+                            </h4>
                         </div>
 
-                    {% elif request.user.is_authenticated %}
+                        <!-- BODY -->
+                        <div class="card-body">
 
-                        {% if plan.is_selected %}
-                            <button class="btn btn-secondary btn-lg btn-block" disabled>
-                                ✓ Already Selected
-                            </button>
-                        {% else %}
-                            <a href="{% url 'sub_checkout' plan.id %}"
-                               class="btn btn-primary btn-lg btn-block">
-                                Subscribe
-                            </a>
-                        {% endif %}
+                            <h1 class="card-title pricing-card-title">
+                                £{{ plan.price }}
+                                <small class="text-muted">/ {{ plan.validity_days }} Days</small>
+                            </h1>
 
-                    {% else %}
+                            <p class="text-success mt-2">
+                                Member Capacity: {{ plan.max_member|default:"Unlimited" }}
+                            </p>
 
-                        <a href="{% url 'account_login' %}"
-                           class="btn btn-primary btn-lg btn-block">
-                            Login to Subscribe
-                        </a>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                {% for feature in plan.subplanfeature_set.all %}
+                                    <li>{{ feature.title }}</li>
+                                {% empty %}
+                                    <li class="text-muted">No features listed</li>
+                                {% endfor %}
+                            </ul>
 
-                    {% endif %}
+                            <!-- BUTTON LOGIC -->
+                            {% if request.user.is_authenticated and request.user.is_superuser %}
 
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+                                <!-- ADMIN CONTROLS -->
+                                <div class="btn-group btn-group-sm d-flex">
+                                    <a href="/admin/subscriptions/subplan/{{ plan.id }}/change/"
+                                       class="btn btn-outline-dark">
+                                        <i class="bi bi-pencil-square"></i> Edit Plan
+                                    </a>
 
-    </div>
+                                    <a href="/admin/subscriptions/subplanfeature/"
+                                       class="btn btn-outline-secondary">
+                                        <i class="bi bi-list-check"></i> Features
+                                    </a>
+                                </div>
 
-    <!-- =========================
-         COMPARISON TABLE
-    ========================== -->
-    <h2 class="text-center mt-5 mb-4 text-black">Fitness Plan Comparison</h2>
+                            {% elif request.user.is_authenticated %}
 
-    <div class="table-responsive">
-        <table class="table table-bordered text-center">
-            <thead class="thead-light">
-                <tr>
-                    <th>Feature</th>
-                    {% for plan in plans %}
-                        <th>{{ plan.title }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for feature in dfeatures %}
-                <tr>
-                    <td class="text-left">{{ feature.title }}</td>
-                    {% for plan in plans %}
-                        <td>
-                            {% if plan in feature.subplan.all %}
-                                <span class="text-success font-weight-bold">✔</span>
+                                {% if plan.is_selected %}
+                                    <button class="btn btn-secondary btn-lg btn-block" disabled>
+                                        ✓ Already Selected
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'sub_checkout' plan.id %}"
+                                       class="btn btn-primary btn-lg btn-block">
+                                        Subscribe
+                                    </a>
+                                {% endif %}
+
                             {% else %}
-                                <span class="text-danger font-weight-bold">✖</span>
-                            {% endif %}
-                        </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
-</section>
+                                <a href="{% url 'account_login' %}"
+                                   class="btn btn-primary btn-lg btn-block">
+                                    Login to Subscribe
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- COMPARISON TABLE -->
+        <h2 class="text-center mt-5 mb-4 text-black">Fitness Plan Comparison</h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Feature</th>
+                        {% for plan in plans %}
+                            <th>{{ plan.title }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feature in dfeatures %}
+                        <tr>
+                            <td class="text-left">{{ feature.title }}</td>
+                            {% for plan in plans %}
+                                <td>
+                                    {% if plan in feature.subplan.all %}
+                                        <span class="text-success font-weight-bold">✔</span>
+                                    {% else %}
+                                        <span class="text-danger font-weight-bold">✖</span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </section>
 {% endblock %}
