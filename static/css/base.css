@@ -593,3 +593,17 @@ footer a {
 footer a:hover {
   color: #000;
 }
+
+/* ----submit searcgh button---- */
+.btn-black {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+}
+
+.btn-black:hover,
+.btn-black:focus,
+.btn-black:active {
+    background-color: #222 !important;
+    color: #fff !important;
+}
