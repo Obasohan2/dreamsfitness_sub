@@ -45,6 +45,12 @@ Manual testing was conducted to ensure correct functionality, security, and resp
 
 ---
 
+## Compatibility testing
+
+Chrome emulated devices, and hardware devices iphone 13, samsung A51 and samsung tablet E were used to test compatibility
+
+---
+
 ## Authentication & Authorisation Testing
 
 | Test Case | Expected Result | Outcome |
