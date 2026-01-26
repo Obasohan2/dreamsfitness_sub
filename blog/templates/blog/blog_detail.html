@@ -18,206 +18,225 @@
 {% endblock %}
 
 {% block content %}
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<div class="container my-5">
+    <div class="container my-5">
 
-    <!-- ================= POST ================= -->
-    <div class="row mb-5">
-        <div class="col-12 col-md-10 col-lg-8 mx-auto">
+        <!-- ================= POST ================= -->
+        <div class="row mb-5">
+            <div class="col-12 col-md-10 col-lg-8 mx-auto">
 
-            <div class="d-flex flex-column flex-md-row">
+                <div class="d-flex flex-column flex-md-row">
 
-                <!-- IMAGE -->
-                <div class="text-center text-md-left mb-3 mb-md-0 mr-md-4">
-                    {% if post.image %}
-                        <div style="width: 240px; height: 240px; overflow: hidden; border-radius: 8px;">
-                            <img
-                                src="{{ post.image.url }}"
-                                class="img-fluid"
-                                style="width: 100%; height: 100%; object-fit: cover;"
-                                alt="Post image"
-                            >
-                        </div>
-                    {% else %}
-                        <div style="width: 200px; height: 200px; overflow: hidden; border-radius: 8px; opacity: 0.6;">
-                            <img
-                                src="{% static 'images/noimage.png' %}"
-                                style="width: 100%; height: 100%; object-fit: cover;"
-                                alt="No image available"
-                            >
-                        </div>
-                    {% endif %}
-                </div>
-
-                <!-- CONTENT -->
-                <div class="flex-grow-1">
-
-                    <!-- TITLE + ACTIONS -->
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h2 class="mb-1">{{ post.title }}</h2>
-
-                        {% if user == post.author or user.is_staff %}
-                            <div class="d-flex">
-
-                                <button
-                                    type="button"
-                                    class="icon-btn edit mr-3"
-                                    data-toggle="modal"
-                                    data-target="#confirmEditModal"
-                                    data-url="{% url 'edit_post' post.pk %}"
-                                    aria-label="Edit post"
+                    <!-- IMAGE -->
+                    <div class="text-center text-md-left mb-3 mb-md-0 mr-md-4">
+                        {% if post.image %}
+                            <div style="width: 240px; height: 240px; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <img
+                                    src="{{ post.image.url }}"
+                                    class="img-fluid"
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    alt="{{ post.title }}"
                                 >
-                                    <i class="fas fa-pen" aria-hidden="true"></i>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="icon-btn delete"
-                                    data-toggle="modal"
-                                    data-target="#confirmDeleteModal"
-                                    data-url="{% url 'delete_post' post.pk %}"
-                                    aria-label="Delete post"
+                            </div>
+                        {% else %}
+                            <div style="width: 200px; height: 200px; overflow: hidden; border-radius: 8px; opacity: 0.6;">
+                                <img
+                                    src="{% static 'images/noimage.png' %}"
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    alt="No image"
                                 >
-                                    <i class="fas fa-trash" aria-hidden="true"></i>
-                                </button>
-
                             </div>
                         {% endif %}
                     </div>
 
-                    <!-- META -->
-                    <p class="text-muted small mb-2">
-                        Created by {{ post.author.username }} ·
-                        {{ post.created_on|date:"M d, Y" }}
-                    </p>
+                    <!-- CONTENT -->
+                    <div class="flex-grow-1">
 
-                    <!-- CATEGORY -->
-                    {% if post.category %}
-                        <span class="badge badge-primary mb-3">
-                            {{ post.category.name }}
-                        </span>
-                    {% endif %}
+                        <!-- TITLE + ACTIONS -->
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h2 class="mb-1">{{ post.title }}</h2>
 
-                    <!-- BODY -->
-                    <div class="mb-4 post-body">
-                        {{ post.body|safe }}
-                    </div>
+                            <div class="d-flex">
 
-                    <!-- ================= REACTIONS ================= -->
-                    <div class="d-flex align-items-center mt-3">
+                                {# EDIT POST → ONLY AUTHOR #}
+                                {% if user == post.author %}
+                                    <button
+                                        type="button"
+                                        class="icon-btn edit mr-3"
+                                        data-toggle="modal"
+                                        data-target="#confirmEditModal"
+                                        data-url="{% url 'edit_post' post.pk %}"
+                                    >
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                {% endif %}
 
-                        {% if user.is_authenticated %}
-                            <button
-                                type="button"
-                                class="heart-btn d-flex align-items-center react-btn mr-3"
-                                data-url="{% url 'toggle_like' post.id %}"
-                                data-post-id="{{ post.id }}"
-                                aria-label="Like post"
-                            >
-                                <i
-                                    class="fas fa-heart heart-like mr-1 {% if user in post.likes.all %}active{% endif %}"
-                                    aria-hidden="true"
-                                ></i>
-                                <span id="likes-count-{{ post.id }}">
-                                    {{ post.likes.count }}
-                                </span>
-                            </button>
+                                {# DELETE POST → AUTHOR OR ADMIN #}
+                                {% if user == post.author or user.is_staff %}
+                                    <button
+                                        type="button"
+                                        class="icon-btn delete"
+                                        data-toggle="modal"
+                                        data-target="#confirmDeleteModal"
+                                        data-url="{% url 'delete_post' post.pk %}"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                {% endif %}
 
-                            <button
-                                type="button"
-                                class="heart-btn d-flex align-items-center react-btn mr-4"
-                                data-url="{% url 'toggle_unlike' post.id %}"
-                                data-post-id="{{ post.id }}"
-                                aria-label="Unlike post"
-                            >
-                                <i
-                                    class="far fa-heart heart-unlike mr-1 {% if user in post.unlikes.all %}active{% endif %}"
-                                    aria-hidden="true"
-                                ></i>
-                                <span id="unlikes-count-{{ post.id }}">
-                                    {{ post.unlikes.count }}
-                                </span>
-                            </button>
-                        {% else %}
-                            <span class="text-muted small mr-4">
-                                <i class="fas fa-heart mr-1" aria-hidden="true"></i>
-                                {{ post.likes.count }}
-                            </span>
-                            <span class="text-muted small mr-4">
-                                <i class="far fa-heart mr-1" aria-hidden="true"></i>
-                                {{ post.unlikes.count }}
+                            </div>
+                        </div>
+
+                        <!-- META -->
+                        <p class="text-muted small mb-2">
+                            Created by {{ post.author.username }} ·
+                            {{ post.created_on|date:"M d, Y" }}
+                        </p>
+
+                        <!-- CATEGORY -->
+                        {% if post.category %}
+                            <span class="badge badge-info mb-3">
+                                {{ post.category.name }}
                             </span>
                         {% endif %}
 
-                        <a
-                            href="#comments"
-                            class="text-secondary d-flex align-items-center text-decoration-none"
-                            aria-label="View comments"
-                        >
-                            <i class="fas fa-comment-dots mr-1" aria-hidden="true"></i>
-                            {{ comments.count }}
-                        </a>
+                        <!-- BODY -->
+                        <div class="mb-4 post-body">
+                            {{ post.body|safe }}
+                        </div>
 
-                    </div>
+                        <!-- ================= REACTIONS ================= -->
+                        <div class="d-flex align-items-center mt-3">
 
-                </div>
-            </div>
+                            {% if user.is_authenticated %}
+                                <!-- LIKE -->
+                                <button
+                                    type="button"
+                                    class="heart-btn d-flex align-items-center react-btn mr-3"
+                                    data-url="{% url 'toggle_like' post.id %}"
+                                    data-post-id="{{ post.id }}"
+                                >
+                                    <i class="fas fa-heart mr-1 {% if user in post.likes.all %}active{% endif %}"></i>
+                                    {{ post.likes.count }}
+                                </button>
 
-        </div>
-    </div>
+                                <!-- UNLIKE -->
+                                <button
+                                    type="button"
+                                    class="heart-btn d-flex align-items-center react-btn mr-4"
+                                    data-url="{% url 'toggle_unlike' post.id %}"
+                                    data-post-id="{{ post.id }}"
+                                >
+                                    <i class="far fa-heart mr-1 {% if user in post.unlikes.all %}active{% endif %}"></i>
+                                    {{ post.unlikes.count }}
+                                </button>
+                            {% endif %}
 
-    <hr>
+                            <!-- COMMENTS -->
+                            <a href="#comments" class="text-secondary d-flex align-items-center">
+                                <i class="fas fa-comment-dots mr-1"></i>
+                                {{ comments.count }}
+                            </a>
 
-    <!-- ================= COMMENTS ================= -->
-    <div class="row">
-        <div class="col-12 col-md-10 col-lg-8 mx-auto">
-
-            {% if not user.is_authenticated %}
-                <div class="alert alert-light text-center mb-4">
-                    <a href="{% url 'account_login' %}">Log in</a> to like posts and add comments.
-                </div>
-            {% endif %}
-
-            <h4 id="comments" class="mb-4 text-center">
-                Comments ({{ comments.count }})
-            </h4>
-
-            {% for comment in comments %}
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-body">
-
-                        <small class="text-muted">
-                            {{ comment.created_on|date:"M d, Y H:i" }}
-                        </small>
-
-                        <p class="mt-2 mb-0">
-                            {{ comment.body }}
-                        </p>
+                        </div>
 
                     </div>
                 </div>
-            {% empty %}
-                <p class="text-muted text-center">
-                    No comments yet.
-                </p>
-            {% endfor %}
 
-            <!-- BACK -->
-            <div class="text-center mt-5">
-                <a href="{% url 'blog' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>
-                    Back to Blog
-                </a>
             </div>
-
         </div>
+
+        <hr>
+
+        <!-- ================= COMMENTS ================= -->
+        <div class="row">
+            <div class="col-12 col-md-10 col-lg-8 mx-auto">
+
+                <h4 id="comments" class="mb-4 text-center">
+                    Comments ({{ comments.count }})
+                </h4>
+
+                {% for comment in comments %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-start">
+                                <small class="text-muted">
+                                    {{ comment.created_on|date:"M d, Y H:i" }}
+                                </small>
+
+                                <div class="d-flex">
+
+                                    {# EDIT COMMENT → ONLY AUTHOR #}
+                                    {% if user == comment.author %}
+                                        <button
+                                            type="button"
+                                            class="icon-btn edit mr-3"
+                                            data-toggle="modal"
+                                            data-target="#confirmEditModal"
+                                            data-url="{% url 'edit_comment' comment.id %}"
+                                        >
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                    {% endif %}
+
+                                    {# DELETE COMMENT → AUTHOR OR ADMIN #}
+                                    {% if user == comment.author or user.is_staff %}
+                                        <button
+                                            type="button"
+                                            class="icon-btn delete"
+                                            data-toggle="modal"
+                                            data-target="#confirmDeleteModal"
+                                            data-url="{% url 'delete_comment' comment.id %}"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <p class="mt-2 mb-0">
+                                {{ comment.body }}
+                            </p>
+
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted text-center">No comments yet.</p>
+                {% endfor %}
+
+                <!-- ADD COMMENT -->
+                {% if user.is_authenticated %}
+                    <form method="POST" class="mt-4">
+                        {% csrf_token %}
+                        {{ comment_form.body }}
+                        <button type="submit" class="btn btn-dark mt-2">
+                            Submit
+                        </button>
+                    </form>
+                {% endif %}
+
+            </div>
+        </div>
+
     </div>
 
-</div>
+    {% include "blog/includes/modal_confirm_delete.html" %}
+    {% include "blog/includes/modal_confirm_edit.html" %}
 
-{% include "blog/includes/modal_confirm_delete.html" %}
-{% include "blog/includes/modal_confirm_edit.html" %}
+    <script>
+        $('#confirmDeleteModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            $('#confirmDeleteForm').attr('action', button.data('url'));
+        });
 
-<script src="{% static 'blog/js/blog-likes.js' %}"></script>
+        $('#confirmEditModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            $('#confirmEditBtn').attr('href', button.data('url'));
+        });
+    </script>
+
+    <script src="{% static 'blog/js/blog-likes.js' %}"></script>
 {% endblock %}

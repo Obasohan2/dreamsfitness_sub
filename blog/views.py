@@ -20,17 +20,11 @@ def BlogList(request):
         .order_by("-created_on")
     )
 
-    for post in posts:
-        post.can_edit = (
-            request.user.is_authenticated
-            and (request.user.is_staff or post.author_id == request.user.id)
-        )
-
     return render(request, "blog/blog.html", {"posts": posts})
 
 
 # =========================
-# BLOG DETAIL
+# BLOG DETAIL + ADD COMMENT
 # =========================
 def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
@@ -64,49 +58,7 @@ def blog_detail(request, slug):
 
 
 # =========================
-# COMMENTS
-# =========================
-@login_required
-def edit_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
-
-    if not (request.user == comment.user or request.user.is_staff):
-        return HttpResponseForbidden("You are not allowed to edit this comment.")
-
-    if request.method == "POST":
-        form = CommentForm(request.POST, instance=comment)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Comment updated.")
-            return redirect("blog_detail", slug=comment.blog_post.slug)
-    else:
-        form = CommentForm(instance=comment)
-
-    return render(
-        request,
-        "blog/edit_comment.html",
-        {
-            "form": form,
-            "comment": comment, 
-        },
-    )
-
-
-@login_required
-def delete_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
-
-    if not request.user.is_staff:
-        return HttpResponseForbidden("Admins only")
-
-    slug = comment.blog_post.slug
-    comment.delete()
-    messages.success(request, "Comment deleted.")
-    return redirect("blog_detail", slug=slug)
-
-
-# =========================
-# POSTS
+# ADD POST (USER + ADMIN)
 # =========================
 @login_required
 def add_post(request):
@@ -125,12 +77,16 @@ def add_post(request):
     return render(request, "blog/add_post.html", {"form": form})
 
 
+# =========================
+# EDIT POST (AUTHOR ONLY)
+# =========================
 @login_required
 def edit_post(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
 
-    if not (request.user == post.author or request.user.is_staff):
-        return HttpResponseForbidden("You are not allowed to edit this post.")
+    # ADMIN CANNOT EDIT OTHER USERS' POSTS
+    if request.user != post.author:
+        return HttpResponseForbidden("You can only edit your own posts.")
 
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES, instance=post)
@@ -141,19 +97,71 @@ def edit_post(request, pk):
     else:
         form = PostForm(instance=post)
 
-    return render(request, "blog/add_post.html", {"form": form})
+    return render(request, "blog/edit_post.html", {
+        "form": form,
+        "post": post,
+    })
 
 
+# =========================
+# DELETE POST (AUTHOR OR ADMIN)
+# =========================
 @login_required
 def delete_post(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
 
-    if not (request.user == post.author or request.user.is_staff):
-        return HttpResponseForbidden("Not allowed")
+    if request.user != post.author and not request.user.is_staff:
+        return HttpResponseForbidden("You can only delete your own posts.")
 
     post.delete()
     messages.success(request, "Post deleted.")
     return redirect("blog")
+
+
+# =========================
+# EDIT COMMENT (AUTHOR ONLY)
+# =========================
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    # ADMIN CANNOT EDIT OTHER USERS' COMMENTS
+    if request.user != comment.user:
+        return HttpResponseForbidden("You can only edit your own comments.")
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Comment updated.")
+            return redirect("blog_detail", slug=comment.blog_post.slug)
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(
+        request,
+        "blog/edit_comment.html",
+        {
+            "form": form,
+            "comment": comment,
+        },
+    )
+
+
+# =========================
+# DELETE COMMENT (AUTHOR OR ADMIN)
+# =========================
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if request.user != comment.user and not request.user.is_staff:
+        return HttpResponseForbidden("You can only delete your own comments.")
+
+    slug = comment.blog_post.slug
+    comment.delete()
+    messages.success(request, "Comment deleted.")
+    return redirect("blog_detail", slug=slug)
 
 
 # =========================

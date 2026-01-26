@@ -88,3 +88,11 @@
     box-shadow: none !important;
 }
 
+
+
+/* Reduce form width */
+.edit-post-form {
+    max-width: 200px;   /* adjust this */
+    margin: 0 auto;     /* center it */
+}
+

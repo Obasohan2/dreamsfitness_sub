@@ -1,5 +1,4 @@
 from django import forms
-from django_summernote.widgets import SummernoteWidget
 
 from .models import BlogPost, Comment, Category
 from .widgets import CustomClearableFileInput
@@ -15,20 +14,26 @@ class BasePostForm(forms.ModelForm):
         widget=CustomClearableFileInput(),
     )
 
+    body = forms.CharField(
+        label="Body",
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control border-black rounded-0",
+                "rows": 12,
+                "placeholder": "Write your post here...",
+            }
+        ),
+    )
+
     class Meta:
         model = BlogPost
         fields = ["title", "category", "body", "image"]
-        labels = {
-            "title": "Title",
-            "category": "Category",
-            "body": "Body",
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         for name, field in self.fields.items():
-            if name != "image":
+            if name not in ("image", "body"):
                 field.widget.attrs.setdefault(
                     "class", "form-control border-black rounded-0"
                 )
@@ -38,59 +43,20 @@ class BasePostForm(forms.ModelForm):
 
 
 # ====================================================
-# ADD POST FORM
+# ADD / EDIT POST FORMS
 # ====================================================
 class AddPostForm(BasePostForm):
-    """
-    Form for creating a new blog post
-    """
-
-    class Meta(BasePostForm.Meta):
-        widgets = {
-            "title": forms.TextInput(
-                attrs={
-                    "placeholder": "Post title",
-                }
-            ),
-            "body": SummernoteWidget(
-                attrs={
-                    "placeholder": "Share your update...",
-                }
-            ),
-        }
+    pass
 
 
-# ====================================================
-# EDIT POST FORM
-# ====================================================
 class PostForm(BasePostForm):
-    """
-    Form for editing an existing blog post
-    """
-
-    class Meta(BasePostForm.Meta):
-        widgets = {
-            "title": forms.TextInput(
-                attrs={
-                    "placeholder": "Post title",
-                }
-            ),
-            "body": SummernoteWidget(
-                attrs={
-                    "placeholder": "Update your post content...",
-                }
-            ),
-        }
+    pass
 
 
 # ====================================================
-# COMMENT FORM (Used for Add/Edit)
+# COMMENT FORM
 # ====================================================
 class CommentForm(forms.ModelForm):
-    """
-    Form used to create or edit a comment
-    """
-
     class Meta:
         model = Comment
         fields = ["body"]

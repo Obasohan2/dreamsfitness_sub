@@ -9,13 +9,15 @@
                 title: 'Confirm Edit',
                 buttonText: 'Edit',
                 buttonClass: 'btn-primary',
-                messageSelector: '#editMessage'
+                messageSelector: '#editMessage',
+                method: 'GET'
             },
             delete: {
                 title: 'Confirm Delete',
                 buttonText: 'Delete',
                 buttonClass: 'btn-danger',
-                messageSelector: '#deleteMessage'
+                messageSelector: '#deleteMessage',
+                method: 'POST'
             }
         };
 
@@ -26,22 +28,38 @@
 
         if (!action) return;
 
-        // Set form action
-        $('#confirmActionForm').attr('action', actionUrl);
-
         // Inject product name
         $('.item-name').text(productName);
 
         // Reset state
         $('#deleteMessage, #editMessage').addClass('d-none');
-        $('#confirmActionBtn')
+
+        const confirmBtn = $('#confirmActionBtn');
+        const form = $('#confirmActionForm');
+
+        confirmBtn
             .removeClass('btn-primary btn-danger')
             .addClass(action.buttonClass)
-            .text(action.buttonText);
+            .text(action.buttonText)
+            .off('click');
 
-        // Set modal content
         $('#confirmModalTitle').text(action.title);
         $(action.messageSelector).removeClass('d-none');
+
+        if (action.method === 'POST') {
+            // DELETE → submit form
+            form.attr('action', actionUrl);
+            form.attr('method', 'POST');
+            confirmBtn.on('click', function () {
+                form.submit();
+            });
+        } else {
+            // EDIT → redirect (NO SUBMIT)
+            form.removeAttr('action');
+            confirmBtn.on('click', function () {
+                window.location.href = actionUrl;
+            });
+        }
     });
 
 })();

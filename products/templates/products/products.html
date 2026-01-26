@@ -80,7 +80,7 @@
 
                         {% if request.user.is_superuser %}
                             <small class="mt-2 text-center">
-                                <a
+                                {% comment %} <a
                                     href="#"
                                     class="text-primary edit-btn"
                                     data-toggle="modal"
@@ -90,8 +90,11 @@
                                     data-type="edit"
                                 >
                                     Edit
+                                </a> {% endcomment %}
+
+                                <a href="{% url 'edit_product' product.id %}">
+                                    Edit
                                 </a>
-                                |
                                 <a
                                     href="#"
                                     class="text-danger delete-btn"

@@ -3,78 +3,149 @@
 {% load crispy_forms_tags %}
 
 {% block extra_title %}
-    Edit Post
+Edit Post
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
 {% endblock %}
 
 {% block page_header %}
-    <div class="container header-container">
-        <div class="row">
-            <div class="col"></div>
-        </div>
+<div class="container header-container">
+    <div class="row">
+        <div class="col"></div>
     </div>
+</div>
 {% endblock %}
 
 {% block content %}
-    <div class="overlay"></div>
+<div class="overlay"></div>
 
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-12 col-md-8">
+<div class="container">
 
-                <hr>
-                <h2 class="mb-2">
-                    Fitness Testimony
-                </h2>
-                <p class="text-muted">
-                    Edit Post
-                </p>
-                <hr>
-
-                <form
-                    method="POST"
-                    enctype="multipart/form-data"
-                    action="{% url 'edit_post' post.slug %}"
-                >
-                    {% csrf_token %}
-
-                    <!-- Title (narrow) -->
-                    <div class="form-group row">
-                        <div class="col-md-8 col-lg-6">
-                            {{ form.title|as_crispy_field }}
-                        </div>
-                    </div>
-
-                    <!-- Body (full width) -->
-                    <div class="form-group">
-                        {{ form.body|as_crispy_field }}
-                    </div>
-
-                    <!-- Image -->
-                    <div class="form-group">
-                        {{ form.image|as_crispy_field }}
-                    </div>
-
-                    <div class="mt-3">
-
-                        <button
-                            type="submit"
-                            class="btn btn-dark"
-                        >
-                            Save Changes
-                        </button>
-
-                        <a
-                            href="{% url 'post_detail' post.slug %}"
-                            class="btn btn-outline-secondary ml-2"
-                        >
-                            Cancel
-                        </a>
-
-                    </div>
-
-                </form>
-
-            </div>
+    <!-- ===== HEADER ===== -->
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <hr>
+            <h2>Edit Post</h2>
+            <p class="text-muted">Update your post</p>
+            <hr>
         </div>
     </div>
+
+    <!-- ===== FORM ===== -->
+    <div class="row">
+        <div class="col-12 col-md-6">
+
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                class="form mb-3"
+            >
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- ===== FORM FIELDS (EXCEPT IMAGE) ===== -->
+                {% for field in form %}
+                    {% if field.name != "image" %}
+                        <div class="form-group">
+                            {{ field|as_crispy_field }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- ===== IMAGE FIELD ===== -->
+                <div class="form-group">
+                    <label for="{{ form.image.id_for_label }}" class="font-weight-bold">
+                        Update Image (optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="{{ form.image.name }}"
+                        id="{{ form.image.id_for_label }}"
+                        class="form-control-file"
+                        accept="image/*"
+                        onchange="previewImage(this)"
+                    >
+
+                    <small class="form-text text-muted">
+                        JPG, PNG or GIF — max 5MB
+                    </small>
+
+                    {% if post.image %}
+                        <div class="mt-3">
+                            <p class="mb-1 font-weight-bold">Current Image:</p>
+                            <img
+                                src="{{ post.image.url }}"
+                                class="img-fluid rounded border"
+                                style="max-height: 100px; object-fit: contain;"
+                                alt="Current image"
+                            >
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-3 d-none" id="imagePreviewWrapper">
+                        <img
+                            id="imagePreview"
+                            class="img-fluid rounded border"
+                            style="max-height: 100px; object-fit: contain;"
+                            alt="Image preview"
+                        >
+                    </div>
+
+                    {% if form.image.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.image.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- ===== ACTIONS ===== -->
+                <div class="mt-4 d-flex align-items-center">
+                    <button type="submit" class="btn btn-black mr-2">
+                        Save Changes
+                    </button>
+
+                    <a
+                        href="{% url 'blog_detail' post.slug %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== IMAGE PREVIEW JS ===== -->
+<script>
+(function () {
+    window.previewImage = function (input) {
+        const wrapper = document.getElementById('imagePreviewWrapper');
+        const img = document.getElementById('imagePreview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img.src = e.target.result;
+                wrapper.classList.remove('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            img.src = '';
+            wrapper.classList.add('d-none');
+        }
+    };
+})();
+</script>
 {% endblock %}

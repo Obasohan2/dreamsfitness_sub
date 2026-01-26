@@ -51,7 +51,7 @@ I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave
 <details>
   <summary>Home</summary>
 
-  ![](static/images/WebHome.jpg)
+  ![](media/WebHome.png)
 
   I went on to fix the error by adding the aria label to the seach box input
 
@@ -60,14 +60,14 @@ I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave
 <details>
 <summary>Bag</summary>
 
-![](static/images/web_bag.jpg)
+![](media/WebHome.png)
 
 </details> 
 
 <details>
 <summary>About us</summary>
 
-![](static/images/webabout_us.jpg)
+![](media/WebHome.png)
 
 Fixed the alerts by adding an h2 level heading to shop now button
 
@@ -76,14 +76,14 @@ Fixed the alerts by adding an h2 level heading to shop now button
 <details>
 <summary>Privacy policy</summary>
 
-![](static/images/webprivacy_policy.jpg)
+![](media/WebHome.png)
 
 </details> 
 
 <details>
   <summary>Contact us</summary>
 
-  ![](static/images/web_contact.jpg)
+  ![](media/WebHome.png)
 
   changed the level heading. Skipped the labels part as I had no intention to use labels on this page
 
@@ -92,7 +92,7 @@ Fixed the alerts by adding an h2 level heading to shop now button
 <details>
   <summary>Blog detail</summary>
 
-![](static/images/webblog_detail.jpg)
+![](media/WebHome.png)
 
 I had no intention to add a heading on this page as well as adding headings to blog articles. Changed all comments tag to a paragraph
 
@@ -101,7 +101,7 @@ I had no intention to add a heading on this page as well as adding headings to b
 <details>
   <summary>Blog</summary>
 
-![](static/images/web_blog.jpg)
+![](media/web_blog.jpg)
 
 I added the first level heading as i realized it was necessary to keep the site uniform throughout
 
@@ -111,7 +111,7 @@ I added the first level heading as i realized it was necessary to keep the site 
   
 <summary>All specials</summary>
 
-![](static/images/weball_specials.jpg)
+![](media/weball_specials.jpg)
 
   I added heading to price from paragraph tag. Skipped the labels part as I had no intention to use one
 
@@ -121,7 +121,7 @@ I added the first level heading as i realized it was necessary to keep the site 
   
 <summary>Products</summary>
 
-![](static/images/weball_products.jpg)
+![](media/weball_products.jpg)
 Fixed the alerts by adding specified headings both to newsletter and product price
 
 </details> 
@@ -130,7 +130,7 @@ Fixed the alerts by adding specified headings both to newsletter and product pri
   
 <summary>Product detail</summary>
 
-![](static/images/webproduct_detail.jpg)
+![](media/webproduct_detail.jpg)
 
 I only have 2 colors black and white throughout the site except the footer border that has the same color with the contrast errror so I decided to skip
 
@@ -140,7 +140,7 @@ I only have 2 colors black and white throughout the site except the footer borde
   
 <summary>Sign in</summary>
 
-![](static/images/sign_in.jpg)
+![](media/sign_in.jpg)
 
 </details> 
 
@@ -148,28 +148,29 @@ I only have 2 colors black and white throughout the site except the footer borde
   <summary>Click here for Lighthouse results</summary>
  Desktop
 
-  ![](static/images/lighthouse_desktop.jpg)
+  ![](media/lighthouse_desktop.jpg)
 
 Mobile
 
-  ![](static/images/lighthouse_mobile.jpg)
+  ![](media/lighthouse_mobile.jpg)
  
   </details> 
 
   <details>
   <summary>Click here for Markup results</summary>
 
-   ![](static/images/html_validator.jpg)
+   ![](media/html_validator.jpg)
 
   </details> 
 
   <details>
   <summary>Click here for CSS results </summary>
 
-  ![](static/images/css_validator.jpg)
+  ![](media/css_validator.jpg)
 
   </details> 
 
+---
 
 ### Javascript validation
 I used JSlint to validate javascript found in some apps
@@ -190,8 +191,6 @@ I used JSlint to validate javascript found in some apps
 
 ### Python
 [ CI Python linter ](https://pep8ci.herokuapp.com/) was used to test python code
-
-
 
 ---
 

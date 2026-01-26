@@ -7,7 +7,7 @@ html {
 }
 
 body {
-	background: url("/media/gym1.jpg") no-repeat center center fixed;
+	background: url("/media/gym1.png") no-repeat center center fixed;
 	background-size: cover;
 	color: #555;
 	font-family: "Lato";
@@ -17,6 +17,12 @@ body {
 	width: 120px;
 	/* uniform width */
 }
+
+
+.navbar-nav > .nav-item {
+    margin-right: 3rem;
+}
+
 
 /* ================= UTILITIES ===================== */
 
