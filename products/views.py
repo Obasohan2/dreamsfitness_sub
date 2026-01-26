@@ -150,36 +150,33 @@ def add_product(request):
 
 @login_required
 def edit_product(request, product_id):
-    # 🔒 Permission check
+    # Permission check
     if not request.user.is_superuser:
         messages.error(request, 'Sorry, only store owners can do that.')
         return redirect('home')
 
-    # 📦 Get product
+    # Get product
     product = get_object_or_404(Product, pk=product_id)
 
-    # 📝 Create form ONCE (pre-populates on GET, updates on POST)
+    # Create form ONCE (pre-populates on GET, updates on POST)
     form = ProductForm(
         request.POST or None,
         request.FILES or None,
         instance=product,
     )
 
-    # ✅ Handle form submission
     if request.method == 'POST':
         if form.is_valid():
             form.save()
             messages.success(request, 'Successfully updated product!')
             return redirect('product_detail', product_id=product.id)
         else:
-            # 🔍 Debug during development
-            print("FORM ERRORS:", form.errors)
             messages.error(
                 request,
                 'Failed to update product. Please ensure the form is valid.'
             )
 
-    # 🎨 Render edit page
+    # Render edit page
     return render(request, 'products/edit_product.html', {
         'form': form,
         'product': product,

@@ -33,6 +33,7 @@
                     type="search"
                     name="q"
                     placeholder="Search our site"
+                    aria-label="Search products"
                     required
                 >
 
@@ -40,6 +41,7 @@
                     <button
                         class="btn btn-black border border-black rounded-0"
                         type="submit"
+                        aria-label="Submit search"
                     >
                         <i class="fas fa-search" aria-hidden="true"></i>
                         <span class="sr-only">Search</span>
@@ -102,7 +104,13 @@
 <!-- ================= MOBILE CART ================= -->
 <li class="list-inline-item">
     <a
-        class="nav-link d-block d-lg-none {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
+        class="nav-link d-block d-lg-none
+            {% if grand_total %}
+                text-primary font-weight-bold
+            {% else %}
+                text-black
+            {% endif %}
+        "
         href="{% url 'view_cart' %}"
         aria-label="View shopping cart{% if grand_total %}, total £{{ grand_total|floatformat:2 }}{% endif %}"
     >
