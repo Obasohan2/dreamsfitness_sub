@@ -11,41 +11,67 @@
             </a>
         </li>
 
-       <!-- Shop dropdown -->
-<li class="nav-item dropdown mr-lg-5">
-    <a
-        class="logo-font font-weight-bold nav-link text-dark dropdown-toggle"
-        href="#"
-        id="all-products-link"
-        data-toggle="dropdown"
-        aria-expanded="false"
-        aria-label="Shop menu"
-    >
-        Visit Shop
-    </a>
+        <!-- Shop dropdown -->
+        <li class="nav-item dropdown mr-lg-5">
+            <a
+                class="logo-font font-weight-bold nav-link text-dark dropdown-toggle"
+                href="#"
+                id="all-products-link"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-label="Shop menu"
+            >
+                Visit Shop
+            </a>
 
-    <div class="dropdown-menu border-0 shadow-sm" aria-labelledby="all-products-link">
-        <a href="{% url 'products' %}" class="dropdown-item">Catalog</a>
-        <a href="{% url 'products' %}?sort=category&direction=asc" class="dropdown-item">By Category</a>
-        <a href="{% url 'products' %}?sort=price&direction=asc" class="dropdown-item">By Price</a>
-        <a href="{% url 'products' %}?sort=rating&direction=desc" class="dropdown-item">By Rating</a>
-    </div>
-</li>
+            <div
+                class="dropdown-menu border-0 shadow-sm"
+                aria-labelledby="all-products-link"
+            >
+                <a href="{% url 'products' %}" class="dropdown-item">
+                    Catalog
+                </a>
+                <a
+                    href="{% url 'products' %}?sort=category&direction=asc"
+                    class="dropdown-item"
+                >
+                    By Category
+                </a>
+                <a
+                    href="{% url 'products' %}?sort=price&direction=asc"
+                    class="dropdown-item"
+                >
+                    By Price
+                </a>
+                <a
+                    href="{% url 'products' %}?sort=rating&direction=desc"
+                    class="dropdown-item"
+                >
+                    By Rating
+                </a>
+            </div>
+        </li>
 
-<!-- Community Blog -->
-<li class="nav-item mr-lg-5">
-    <a class="logo-font font-weight-bold nav-link text-dark" href="{% url 'blog' %}">
-        Community Blog
-    </a>
-</li>
+        <!-- Community Blog -->
+        <li class="nav-item mr-lg-5">
+            <a
+                class="logo-font font-weight-bold nav-link text-dark"
+                href="{% url 'blog' %}"
+            >
+                Community Blog
+            </a>
+        </li>
 
-<!-- Subscriptions -->
-<li class="nav-item mr-lg-5">
-    <a class="logo-font font-weight-bold nav-link text-dark" href="{% url 'pricing' %}">
-        Subscriptions
-    </a>
-</li>
-
+        <!-- Subscriptions -->
+        <li class="nav-item mr-lg-5">
+            <a
+                class="logo-font font-weight-bold nav-link text-dark"
+                href="{% url 'pricing' %}"
+            >
+                Subscriptions
+            </a>
+        </li>
 
     </ul>
 </div>
