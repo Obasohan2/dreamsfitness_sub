@@ -26,40 +26,35 @@
         <div class="row mb-5">
             <div class="col-12 col-md-10 col-lg-8 mx-auto">
 
-                <div class="d-flex flex-column flex-md-row">
+                <!-- IMAGE + CONTENT ROW -->
+                <div class="row align-items-start">
 
-                    <!-- IMAGE -->
-                    <div class="text-center text-md-left mb-3 mb-md-0 mr-md-4">
-                        {% if post.image %}
-                            <div style="width: 240px; height: 240px; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <!-- IMAGE COLUMN -->
+                    <div class="col-12 col-md-5 mb-4 mb-md-0">
+                        <div class="post-image-wrapper">
+                            {% if post.image %}
                                 <img
                                     src="{{ post.image.url }}"
-                                    class="img-fluid"
-                                    style="width: 100%; height: 100%; object-fit: cover;"
                                     alt="{{ post.title }}"
+                                    class="post-image img-fluid rounded"
                                 >
-                            </div>
-                        {% else %}
-                            <div style="width: 200px; height: 200px; overflow: hidden; border-radius: 8px; opacity: 0.6;">
+                            {% else %}
                                 <img
                                     src="{% static 'images/noimage.png' %}"
-                                    style="width: 100%; height: 100%; object-fit: cover;"
                                     alt="No image"
+                                    class="post-image img-fluid rounded opacity-75"
                                 >
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
 
-                    <!-- CONTENT -->
-                    <div class="flex-grow-1">
+                    <!-- CONTENT COLUMN -->
+                    <div class="col-12 col-md-7">
 
-                        <!-- TITLE + ACTIONS -->
                         <div class="d-flex justify-content-between align-items-start">
                             <h2 class="mb-1">{{ post.title }}</h2>
 
                             <div class="d-flex">
-
-                                {# EDIT POST → ONLY AUTHOR #}
                                 {% if user == post.author %}
                                     <button
                                         type="button"
@@ -67,12 +62,12 @@
                                         data-toggle="modal"
                                         data-target="#confirmEditModal"
                                         data-url="{% url 'edit_post' post.pk %}"
+                                        aria-label="Edit post"
                                     >
-                                        <i class="fas fa-pen"></i>
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
                                     </button>
                                 {% endif %}
 
-                                {# DELETE POST → AUTHOR OR ADMIN #}
                                 {% if user == post.author or user.is_staff %}
                                     <button
                                         type="button"
@@ -80,11 +75,11 @@
                                         data-toggle="modal"
                                         data-target="#confirmDeleteModal"
                                         data-url="{% url 'delete_post' post.pk %}"
+                                        aria-label="Delete post"
                                     >
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 {% endif %}
-
                             </div>
                         </div>
 
@@ -116,9 +111,15 @@
                                     class="heart-btn d-flex align-items-center react-btn mr-3"
                                     data-url="{% url 'toggle_like' post.id %}"
                                     data-post-id="{{ post.id }}"
+                                    aria-label="Like"
                                 >
-                                    <i class="fas fa-heart mr-1 {% if user in post.likes.all %}active{% endif %}"></i>
-                                    {{ post.likes.count }}
+                                    <i
+                                        class="fas fa-heart heart-like mr-1 {% if user in post.likes.all %}active{% endif %}"
+                                        aria-hidden="true"
+                                    ></i>
+                                    <span id="likes-count-{{ post.id }}">
+                                        {{ post.likes.count }}
+                                    </span>
                                 </button>
 
                                 <!-- UNLIKE -->
@@ -127,15 +128,21 @@
                                     class="heart-btn d-flex align-items-center react-btn mr-4"
                                     data-url="{% url 'toggle_unlike' post.id %}"
                                     data-post-id="{{ post.id }}"
+                                    aria-label="Unlike"
                                 >
-                                    <i class="far fa-heart mr-1 {% if user in post.unlikes.all %}active{% endif %}"></i>
-                                    {{ post.unlikes.count }}
+                                    <i
+                                        class="far fa-heart heart-unlike mr-1 {% if user in post.unlikes.all %}active{% endif %}"
+                                        aria-hidden="true"
+                                    ></i>
+                                    <span id="unlikes-count-{{ post.id }}">
+                                        {{ post.unlikes.count }}
+                                    </span>
                                 </button>
                             {% endif %}
 
                             <!-- COMMENTS -->
                             <a href="#comments" class="text-secondary d-flex align-items-center">
-                                <i class="fas fa-comment-dots mr-1"></i>
+                                <i class="fas fa-comment-dots mr-1" aria-hidden="true"></i>
                                 {{ comments.count }}
                             </a>
 
@@ -167,8 +174,6 @@
                                 </small>
 
                                 <div class="d-flex">
-
-                                    {# EDIT COMMENT → ONLY AUTHOR #}
                                     {% if user == comment.author %}
                                         <button
                                             type="button"
@@ -176,12 +181,12 @@
                                             data-toggle="modal"
                                             data-target="#confirmEditModal"
                                             data-url="{% url 'edit_comment' comment.id %}"
+                                            aria-label="Edit comment"
                                         >
-                                            <i class="fas fa-pen"></i>
+                                            <i class="fas fa-pen" aria-hidden="true"></i>
                                         </button>
                                     {% endif %}
 
-                                    {# DELETE COMMENT → AUTHOR OR ADMIN #}
                                     {% if user == comment.author or user.is_staff %}
                                         <button
                                             type="button"
@@ -189,11 +194,11 @@
                                             data-toggle="modal"
                                             data-target="#confirmDeleteModal"
                                             data-url="{% url 'delete_comment' comment.id %}"
+                                            aria-label="Delete comment"
                                         >
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
                                         </button>
                                     {% endif %}
-
                                 </div>
                             </div>
 
@@ -207,7 +212,6 @@
                     <p class="text-muted text-center">No comments yet.</p>
                 {% endfor %}
 
-                <!-- ADD COMMENT -->
                 {% if user.is_authenticated %}
                     <form method="POST" class="mt-4">
                         {% csrf_token %}

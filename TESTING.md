@@ -53,12 +53,12 @@ I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave
 
   ![](media/WebHome.png)
 
-  I went on to fix the error by adding the aria label to the seach box input
+  I went on to fix the error by adding the missing navbar toggler button to the Mobile navigation.
 
 </details> 
 
 <details>
-<summary>Bag</summary>
+<summary>Shopping Cart</summary>
 
 ![](media/WebHome.png)
 
