@@ -23,36 +23,63 @@
 
     {% block extra_meta %}{% endblock %}
 
-    <title>{% block meta_title %}Dreams Fitness Center{% endblock %}</title>
+    <title>
+        {% block meta_title %}Dreams Fitness Center{% endblock %}
+    </title>
 
     {% block corecss %}
+
+        <!-- Bootstrap CSS (non-blocking) -->
         <link
-            rel="stylesheet"
+            rel="preload"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-            crossorigin="anonymous"
+            as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
         >
+        <noscript>
+            <link
+                rel="stylesheet"
+                href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            >
+        </noscript>
+
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Lato&display=swap"
         >
+
+        <!-- Base CSS -->
         <link
             rel="stylesheet"
             href="{% static 'css/base.css' %}"
         >
+
     {% endblock %}
 
     {% block extra_css %}{% endblock %}
 
     {% block corejs %}
-        <script src="https://kit.fontawesome.com/c38cb811c0.js" crossorigin="anonymous"></script>
+
+        <!-- FontAwesome -->
+        <script
+            src="https://kit.fontawesome.com/c38cb811c0.js"
+            crossorigin="anonymous"
+            defer
+        ></script>
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
         <!-- Stripe -->
         <script src="https://js.stripe.com/v3/"></script>
+
     {% endblock %}
 
     {% block extra_js %}{% endblock %}
@@ -79,27 +106,20 @@
 
         <!-- Search -->
         <div class="col-12 col-lg-4 my-auto py-1">
-            <form method="GET" action="{% url 'products' %}" role="search">
-                <label for="desktop-search" class="sr-only">
-                    Search products and site content
-                </label>
+            <form method="GET" action="{% url 'products' %}">
                 <div class="input-group w-100">
                     <input
-                        id="desktop-search"
                         class="form-control border border-black rounded-0"
-                        type="search"
+                        type="text"
                         name="q"
                         placeholder="Search our site"
-                        aria-label="Search products"
                     >
                     <div class="input-group-append">
                         <button
-                            class="btn btn-black border border-black rounded-0"
+                            class="form-control btn btn-black border border-black rounded-0"
                             type="submit"
-                            aria-label="Submit search"
                         >
                             <i class="fas fa-search" aria-hidden="true"></i>
-                            <span class="sr-only">Search</span>
                         </button>
                     </div>
                 </div>
@@ -110,22 +130,18 @@
         <div class="col-12 col-lg-4 my-auto py-1">
             <ul class="list-inline list-unstyled text-center text-lg-right my-0">
 
-                <!-- User Menu -->
                 <li class="list-inline-item dropdown">
                     <a
-                        class="nav-link text-black d-flex flex-column align-items-center px-2"
+                        class="nav-link text-black d-flex flex-column align-items-center justify-content-center px-2"
                         href="#"
-                        id="user-menu"
                         data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
                         aria-label="User menu"
                     >
-                        <i class="fas fa-user fa-lg mb-2" aria-hidden="true"></i>
+                        <i class="fas fa-user fa-lg mb-3" aria-hidden="true"></i>
                         <span class="nav-label">Membership</span>
                     </a>
 
-                    <div class="dropdown-menu border-0" aria-labelledby="user-menu">
+                    <div class="dropdown-menu border-0">
 
                         {% if request.user.is_authenticated %}
 
@@ -146,25 +162,27 @@
                             </a>
 
                         {% else %}
+
                             <a href="{% url 'account_signup' %}" class="dropdown-item">
                                 Register
                             </a>
+
                             <a href="{% url 'account_login' %}" class="dropdown-item">
                                 Login
                             </a>
+
                         {% endif %}
 
                     </div>
                 </li>
 
-                <!-- Cart -->
                 <li class="list-inline-item">
                     <a
                         href="{% url 'view_cart' %}"
-                        class="nav-link text-black d-flex flex-column align-items-center px-2"
-                        aria-label="Shopping cart total £{{ grand_total|default_if_none:0|floatformat:2 }}"
+                        class="nav-link text-black d-flex flex-column align-items-center justify-content-center px-2"
+                        aria-label="Shopping cart"
                     >
-                        <i class="fas fa-shopping-bag fa-lg mb-2" aria-hidden="true"></i>
+                        <i class="fas fa-shopping-bag fa-lg mb-3" aria-hidden="true"></i>
                         <span class="nav-label">
                             £{{ grand_total|default_if_none:0|floatformat:2 }}
                         </span>
@@ -173,6 +191,7 @@
 
             </ul>
         </div>
+
     </div>
 
     <!-- ================= MOBILE NAV ================= -->
@@ -184,9 +203,6 @@
                 type="button"
                 data-toggle="collapse"
                 data-target="#main-nav"
-                aria-controls="main-nav"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
             >
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -210,21 +226,33 @@
 
 <!-- ================= TOASTS ================= -->
 {% if messages %}
-    <div class="message-container">
-        {% for message in messages %}
-            {% if "newsletter" not in message.tags %}
-                {% if message.level == 40 %}
-                    {% include "includes/toasts/toast_error.html" %}
-                {% elif message.level == 30 %}
-                    {% include "includes/toasts/toast_warning.html" %}
-                {% elif message.level == 25 %}
-                    {% include "includes/toasts/toast_success.html" %}
-                {% else %}
-                    {% include "includes/toasts/toast_info.html" %}
+    {% with messages as all_messages %}
+
+        <div class="message-container">
+            {% for message in all_messages %}
+                {% if "newsletter" not in message.tags %}
+                    {% with message.level as level %}
+                        {% if level == 40 %}
+                            {% include "includes/toasts/toast_error.html" %}
+                        {% elif level == 30 %}
+                            {% include "includes/toasts/toast_warning.html" %}
+                        {% elif level == 25 %}
+                            {% include "includes/toasts/toast_success.html" %}
+                        {% else %}
+                            {% include "includes/toasts/toast_info.html" %}
+                        {% endif %}
+                    {% endwith %}
                 {% endif %}
+            {% endfor %}
+        </div>
+
+        {% for message in all_messages %}
+            {% if message.extra_tags == "newsletter" %}
+                {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
             {% endif %}
         {% endfor %}
-    </div>
+
+    {% endwith %}
 {% endif %}
 
 <!-- ================= MAIN CONTENT ================= -->
@@ -237,15 +265,6 @@
 <footer class="site-footer mt-auto">
     {% include "includes/footer.html" %}
 </footer>
-
-<!-- ================= NEWSLETTER MODAL ================= -->
-{% if messages %}
-    {% for message in messages %}
-        {% if message.extra_tags == "newsletter" %}
-            {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
-        {% endif %}
-    {% endfor %}
-{% endif %}
 
 {% block postloadjs %}
 <script>

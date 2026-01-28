@@ -58,32 +58,32 @@ I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave
 </details> 
 
 <details>
-<summary>Shopping Cart</summary>
+<summary>Vist Shop - Catalogue</summary>
 
-![](media/WebHome.png)
+![](media/waveprod.png)
 
 </details> 
 
 <details>
-<summary>About us</summary>
+<summary>Community Blog</summary>
 
-![](media/WebHome.png)
+![](media/wavecom.png)
 
 Fixed the alerts by adding an h2 level heading to shop now button
 
 </details> 
 
 <details>
-<summary>Privacy policy</summary>
+<summary>Subscription</summary>
 
-![](media/WebHome.png)
+![](media/wavesub.png)
 
 </details> 
 
 <details>
   <summary>Contact us</summary>
 
-  ![](media/WebHome.png)
+  ![](media/wavecont.png)
 
   changed the level heading. Skipped the labels part as I had no intention to use labels on this page
 
@@ -95,52 +95,6 @@ Fixed the alerts by adding an h2 level heading to shop now button
 ![](media/WebHome.png)
 
 I had no intention to add a heading on this page as well as adding headings to blog articles. Changed all comments tag to a paragraph
-
-</details> 
-
-<details>
-  <summary>Blog</summary>
-
-![](media/web_blog.jpg)
-
-I added the first level heading as i realized it was necessary to keep the site uniform throughout
-
-</details> 
-
-<details>
-  
-<summary>All specials</summary>
-
-![](media/weball_specials.jpg)
-
-  I added heading to price from paragraph tag. Skipped the labels part as I had no intention to use one
-
-</details>
-
-<details>
-  
-<summary>Products</summary>
-
-![](media/weball_products.jpg)
-Fixed the alerts by adding specified headings both to newsletter and product price
-
-</details> 
-
-<details>
-  
-<summary>Product detail</summary>
-
-![](media/webproduct_detail.jpg)
-
-I only have 2 colors black and white throughout the site except the footer border that has the same color with the contrast errror so I decided to skip
-
-</details> 
-
-<details>
-  
-<summary>Sign in</summary>
-
-![](media/sign_in.jpg)
 
 </details> 
 

@@ -56,18 +56,11 @@ body {
 	background-color: #dc3545 !important;
 }
 
-
-/* ================= BUTTONS ======================= */
-
-/* .shop-now-button,
-.btn-black {
-	background-color: #000;
-	color: #fff;
+a:hover,
+a:focus {
+    text-decoration-thickness: 2px;
 }
 
-.shop-now-button {
-	min-width: 260px;
-} */
 
 .btn-primary,
 .btn-success,
