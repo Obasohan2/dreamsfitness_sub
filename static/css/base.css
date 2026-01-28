@@ -81,18 +81,6 @@ a:focus {
 }
 
 
-
-/* 
-.shop-now-button:hover,
-.shop-now-button:active,
-.shop-now-button:focus,
-.btn-black:hover,
-.btn-black:active,
-.btn-black:focus {
-	background-color: #222;
-	color: #fff;
-} */
-
 .btn-outline-black {
 	background-color: #fff;
 	color: #000 !important;
