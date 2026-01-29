@@ -114,3 +114,6 @@
     display: block;
 }
 
+.login-required {
+    cursor: pointer;
+}
