@@ -2,20 +2,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getCookie(name) {
         let cookieValue = null;
+
         if (document.cookie && document.cookie !== "") {
             const cookies = document.cookie.split(";");
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
+
+            for (const cookieString of cookies) {
+                const cookie = cookieString.trim();
+
                 if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    cookieValue = decodeURIComponent(
+                        cookie.substring(name.length + 1)
+                    );
                     break;
                 }
             }
         }
+
         return cookieValue;
     }
 
-    document.querySelectorAll(".react-btn").forEach(btn => {
+    document.querySelectorAll(".react-btn").forEach((btn) => {
         btn.addEventListener("click", function () {
             const url = this.dataset.url;
             const postId = this.dataset.postId;
@@ -28,24 +34,38 @@ document.addEventListener("DOMContentLoaded", function () {
                     "X-Requested-With": "XMLHttpRequest",
                 },
             })
-            .then(res => {
-                // If user is logged out, Django may redirect to login (302)
-                if (res.redirected) {
-                    window.location.href = res.url;
-                    return null;
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (!data) return;
+                .then((res) => {
+                    // If user is logged out, Django may redirect to login (302)
+                    if (res.redirected) {
+                        window.location.href = res.url;
+                        return null;
+                    }
 
-                const likesEl = document.getElementById(`likes-count-${postId}`);
-                const unlikesEl = document.getElementById(`unlikes-count-${postId}`);
+                    return res.json();
+                })
+                .then((data) => {
+                    if (!data) {
+                        return;
+                    }
 
-                if (likesEl) likesEl.innerText = data.likes_count;
-                if (unlikesEl) unlikesEl.innerText = data.unlikes_count;
-            })
-            .catch(err => console.error("Reaction error:", err));
+                    const likesEl = document.getElementById(
+                        `likes-count-${postId}`
+                    );
+                    const unlikesEl = document.getElementById(
+                        `unlikes-count-${postId}`
+                    );
+
+                    if (likesEl) {
+                        likesEl.innerText = data.likes_count;
+                    }
+
+                    if (unlikesEl) {
+                        unlikesEl.innerText = data.unlikes_count;
+                    }
+                })
+                .catch((err) => {
+                    console.error("Reaction error:", err);
+                });
         });
     });
 

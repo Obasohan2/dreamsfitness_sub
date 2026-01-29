@@ -53,12 +53,12 @@ I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave
 
   ![](media/WebHome.png)
 
-  I went on to fix the error by adding the missing navbar toggler button to the Mobile navigation.
+  I went on to fix the error by adding the missing navbar toggler button to the Mobile navigation and label to the search.
 
 </details> 
 
 <details>
-<summary>Vist Shop - Catalogue</summary>
+<summary>Vist Shop - Catalog</summary>
 
 ![](media/waveprod.png)
 
@@ -69,7 +69,7 @@ I also tested this site on [WAVE Web Accessibility Evaluation Tool](https://wave
 
 ![](media/wavecom.png)
 
-Fixed the alerts by adding an h2 level heading to shop now button
+Fixed the alerts by adding buttons to Visit Shop and Subscription
 
 </details> 
 
@@ -94,9 +94,10 @@ Fixed the alerts by adding an h2 level heading to shop now button
 
 ![](media/wavblogdetail.png)
 
-I had no intention to add a heading on this page as well as adding headings to blog articles. Changed all comments tag to a paragraph
-
 </details> 
+
+
+---
 
  <details>
   <summary>Click here for Lighthouse results</summary>
@@ -110,10 +111,12 @@ Mobile
  
   </details> 
 
+---
+
   <details>
   <summary>Click here for Markup results</summary>
 
-   ![](media/html_validator.jpg)
+   ![](media/html_validator.png)
 
   </details> 
 
@@ -126,31 +129,8 @@ Mobile
 
 ---
 
-### Javascript validation
-I used JSlint to validate javascript found in some apps
-
-* bag app - semi colon warning
-
-* blog app -  semi colon warnings
-
-* base.html - zero warnings
-
-* newsletter - 8 warnings but the code is directly from mailchimp
-
-* checkout - semi colon warnings
-
-* products - semi colon warnings
-
-* profiles - no warnings
-
 ### Python
 [ CI Python linter ](https://pep8ci.herokuapp.com/) was used to test python code
-
----
-
-## Compatibility testing
-
-Chrome emulated devices, and hardware devices iphone 13, samsung A51 and samsung tablet E were used to test compatibility
 
 ---
 
@@ -223,5 +203,3 @@ Responsiveness is achieved using the Bootstrap grid system.
 ## Known Bugs
 
 - None at time of submission
-
-
