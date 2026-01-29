@@ -82,34 +82,39 @@ The following environment variables were configured in Heroku:
 
 ## Django Database Configuration Notes
 
-To connect Django to the Heroku PostgreSQL database, make sure the following packages are installed:
+To connect Django to the Heroku PostgreSQL database, ensure the following packages are installed:
 
 ```bash
 pip install dj-database-url psycopg2-binary
+```
 
-Add the required packages to your `requirements.txt`:
+Add the required packages to your `requirements.txt` file:
 
 ```txt
 dj-database-url
 psycopg2-binary
+```
 
+---
 
-Deployment via GitHub
+## Deployment via GitHub
 
 1. Commit and push all changes to your GitHub repository:
    ```bash
    git add .
    git commit -m "Prepare app for deployment"
    git push origin main
-
-2. Open the Heroku App Dashboard.
-3. Navigate to the Deploy tab.
-4. Under Deployment method, connect the application to your GitHub repository.
+   ```
+2. Open the **Heroku App Dashboard**.
+3. Navigate to the **Deploy** tab.
+4. Under **Deployment method**, connect the application to your GitHub repository.
 5. Choose one of the following:
-- Manual Deploy – deploy manually when needed
-- Automatic Deploy – deploy automatically on every push to the selected branch
-6. Deploy the main branch.
-7. Click View to access the live application.
+   - **Manual Deploy** – deploy manually when needed
+   - **Automatic Deploy** – deploy automatically on every push to the selected branch
+6. Deploy the **main** branch.
+7. Click **View** to access the live application.
+
+---
 
 ## Static & Media Files
 
