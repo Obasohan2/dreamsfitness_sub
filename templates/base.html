@@ -9,6 +9,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <meta
             name="description"
             content="{% block meta_description %}Dreams Fitness Center offers fitness programs, nutrition plans, and memberships designed to help you reach your health and wellness goals.{% endblock %}"
@@ -23,9 +24,7 @@
 
     {% block extra_meta %}{% endblock %}
 
-    <title>
-        {% block meta_title %}Dreams Fitness Center{% endblock %}
-    </title>
+    <title>{% block meta_title %}Dreams Fitness Center{% endblock %}</title>
 
     {% block corecss %}
 
@@ -52,10 +51,7 @@
         >
 
         <!-- Base CSS -->
-        <link
-            rel="stylesheet"
-            href="{% static 'css/base.css' %}"
-        >
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
     {% endblock %}
 
@@ -94,7 +90,7 @@
     <!-- ================= DESKTOP NAV ================= -->
     <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
 
-        <!-- Logo -->
+        <!-- LOGO -->
         <div class="col-12 col-lg-4 my-auto py-1 text-center text-lg-left">
             <a href="{% url 'home' %}" class="nav-link main-logo-link">
                 <h2 class="logo-font my-0 text-black">
@@ -104,20 +100,22 @@
             </a>
         </div>
 
-        <!-- Search -->
+        <!-- SEARCH -->
         <div class="col-12 col-lg-4 my-auto py-1">
-            <form method="GET" action="{% url 'products' %}">
+            <form method="GET" action="{% url 'products' %}" role="search">
                 <div class="input-group w-100">
                     <input
                         class="form-control border border-black rounded-0"
-                        type="text"
+                        type="search"
                         name="q"
                         placeholder="Search our site"
+                        aria-label="Search site"
                     >
                     <div class="input-group-append">
                         <button
-                            class="form-control btn btn-black border border-black rounded-0"
+                            class="btn btn-black border border-black rounded-0"
                             type="submit"
+                            aria-label="Submit search"
                         >
                             <i class="fas fa-search" aria-hidden="true"></i>
                         </button>
@@ -126,23 +124,25 @@
             </form>
         </div>
 
-        <!-- User / Cart -->
+        <!-- USER / CART -->
         <div class="col-12 col-lg-4 my-auto py-1">
             <ul class="list-inline list-unstyled text-center text-lg-right my-0">
 
+                <!-- USER MENU -->
                 <li class="list-inline-item dropdown">
                     <a
-                        class="nav-link text-black d-flex flex-column align-items-center justify-content-center px-2"
+                        class="nav-link text-black d-flex flex-column align-items-center px-2"
                         href="#"
                         data-toggle="dropdown"
-                        aria-label="User menu"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-label="Membership menu"
                     >
-                        <i class="fas fa-user fa-lg mb-3" aria-hidden="true"></i>
+                        <i class="fas fa-user fa-lg mb-2" aria-hidden="true"></i>
                         <span class="nav-label">Membership</span>
                     </a>
 
                     <div class="dropdown-menu border-0">
-
                         {% if request.user.is_authenticated %}
 
                             {% if request.user.is_superuser %}
@@ -162,27 +162,24 @@
                             </a>
 
                         {% else %}
-
                             <a href="{% url 'account_signup' %}" class="dropdown-item">
                                 Register
                             </a>
-
                             <a href="{% url 'account_login' %}" class="dropdown-item">
                                 Login
                             </a>
-
                         {% endif %}
-
                     </div>
                 </li>
 
+                <!-- CART -->
                 <li class="list-inline-item">
                     <a
                         href="{% url 'view_cart' %}"
-                        class="nav-link text-black d-flex flex-column align-items-center justify-content-center px-2"
+                        class="nav-link text-black d-flex flex-column align-items-center px-2"
                         aria-label="Shopping cart"
                     >
-                        <i class="fas fa-shopping-bag fa-lg mb-3" aria-hidden="true"></i>
+                        <i class="fas fa-shopping-bag fa-lg mb-2" aria-hidden="true"></i>
                         <span class="nav-label">
                             £{{ grand_total|default_if_none:0|floatformat:2 }}
                         </span>
@@ -203,6 +200,9 @@
                 type="button"
                 data-toggle="collapse"
                 data-target="#main-nav"
+                aria-controls="main-nav"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
             >
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -226,33 +226,27 @@
 
 <!-- ================= TOASTS ================= -->
 {% if messages %}
-    {% with messages as all_messages %}
-
-        <div class="message-container">
-            {% for message in all_messages %}
-                {% if "newsletter" not in message.tags %}
-                    {% with message.level as level %}
-                        {% if level == 40 %}
-                            {% include "includes/toasts/toast_error.html" %}
-                        {% elif level == 30 %}
-                            {% include "includes/toasts/toast_warning.html" %}
-                        {% elif level == 25 %}
-                            {% include "includes/toasts/toast_success.html" %}
-                        {% else %}
-                            {% include "includes/toasts/toast_info.html" %}
-                        {% endif %}
-                    {% endwith %}
+    <div class="message-container">
+        {% for message in messages %}
+            {% if "newsletter" not in message.tags %}
+                {% if message.level == 40 %}
+                    {% include "includes/toasts/toast_error.html" %}
+                {% elif message.level == 30 %}
+                    {% include "includes/toasts/toast_warning.html" %}
+                {% elif message.level == 25 %}
+                    {% include "includes/toasts/toast_success.html" %}
+                {% else %}
+                    {% include "includes/toasts/toast_info.html" %}
                 {% endif %}
-            {% endfor %}
-        </div>
-
-        {% for message in all_messages %}
-            {% if message.extra_tags == "newsletter" %}
-                {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
             {% endif %}
         {% endfor %}
+    </div>
 
-    {% endwith %}
+    {% for message in messages %}
+        {% if message.extra_tags == "newsletter" %}
+            {% include "includes/newsletter_success_modal.html" with newsletter_message=message %}
+        {% endif %}
+    {% endfor %}
 {% endif %}
 
 <!-- ================= MAIN CONTENT ================= -->
@@ -268,16 +262,14 @@
 
 {% block postloadjs %}
 <script>
-    $(document).ready(function () {
+    $(function () {
         $('.toast').toast('show');
     });
-</script>
 
-<script>
-    $(window).on("load", function () {
-        const modal = $("#newsletterModal");
+    $(window).on('load', function () {
+        const modal = $('#newsletterModal');
         if (modal.length) {
-            modal.modal("show");
+            modal.modal('show');
         }
     });
 </script>

@@ -3,7 +3,6 @@
 
     <!-- ================= MOBILE SEARCH ================= -->
     <li class="list-inline-item dropdown">
-
         <a
             class="text-black nav-link"
             href="#"
@@ -24,7 +23,6 @@
             aria-labelledby="mobile-search"
         >
             <form method="GET" action="{% url 'products' %}" role="search">
-
                 <label for="mobile-search-input" class="sr-only">
                     Search products and site content
                 </label>
@@ -51,15 +49,12 @@
                         </button>
                     </div>
                 </div>
-
             </form>
         </div>
-
     </li>
 
     <!-- ================= MOBILE USER / MEMBERSHIP ================= -->
     <li class="list-inline-item dropdown">
-
         <a
             class="text-black nav-link"
             href="#"
@@ -79,49 +74,54 @@
             class="dropdown-menu border-0"
             aria-labelledby="mobile-user-options"
         >
-
             {% if request.user.is_authenticated %}
 
                 {% if request.user.is_superuser %}
-                    <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                    <a
+                        href="{% url 'admin_dashboard' %}"
+                        class="dropdown-item"
+                    >
                         Admin Dashboard
                     </a>
                     <div class="dropdown-divider"></div>
                 {% endif %}
 
-                <a href="{% url 'my_profile' %}" class="dropdown-item">
+                <a
+                    href="{% url 'my_profile' %}"
+                    class="dropdown-item"
+                >
                     My Profile
                 </a>
 
-                <a href="{% url 'account_logout' %}" class="dropdown-item">
+                <a
+                    href="{% url 'account_logout' %}"
+                    class="dropdown-item"
+                >
                     Logout
                 </a>
 
             {% else %}
-                <a href="{% url 'account_signup' %}" class="dropdown-item">
+                <a
+                    href="{% url 'account_signup' %}"
+                    class="dropdown-item"
+                >
                     Register
                 </a>
 
-                <a href="{% url 'account_login' %}" class="dropdown-item">
+                <a
+                    href="{% url 'account_login' %}"
+                    class="dropdown-item"
+                >
                     Login
                 </a>
             {% endif %}
-
         </div>
-
     </li>
 
     <!-- ================= MOBILE CART ================= -->
     <li class="list-inline-item">
-
         <a
-            class="nav-link
-                {% if grand_total %}
-                    text-primary font-weight-bold
-                {% else %}
-                    text-black
-                {% endif %}
-            "
+            class="nav-link {% if grand_total %}text-primary font-weight-bold{% else %}text-black{% endif %}"
             href="{% url 'view_cart' %}"
             aria-label="View shopping cart{% if grand_total %}, total £{{ grand_total|floatformat:2 }}{% endif %}"
         >
@@ -132,7 +132,6 @@
                 </p>
             </div>
         </a>
-
     </li>
 
 </ul>

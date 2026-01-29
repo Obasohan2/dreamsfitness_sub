@@ -117,3 +117,8 @@
 .login-required {
     cursor: pointer;
 }
+
+
+.navbar-nav .nav-link.active {
+    border-bottom: 2px solid #000;
+}
