@@ -92,7 +92,7 @@ Fixed the alerts by adding an h2 level heading to shop now button
 <details>
   <summary>Blog detail</summary>
 
-![](media/WebHome.png)
+![](media/wavblogdetail.png)
 
 I had no intention to add a heading on this page as well as adding headings to blog articles. Changed all comments tag to a paragraph
 
@@ -102,11 +102,11 @@ I had no intention to add a heading on this page as well as adding headings to b
   <summary>Click here for Lighthouse results</summary>
  Desktop
 
-  ![](media/lighthouse_desktop.jpg)
+  ![](media/desktopLH.png)
 
 Mobile
 
-  ![](media/lighthouse_mobile.jpg)
+  ![](media/mobileLH.png)
  
   </details> 
 
@@ -120,7 +120,7 @@ Mobile
   <details>
   <summary>Click here for CSS results </summary>
 
-  ![](media/css_validator.jpg)
+  ![](media/css_validator.png)
 
   </details> 
 

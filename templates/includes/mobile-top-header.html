@@ -20,6 +20,7 @@
 
         <div
             class="dropdown-menu border-0 w-100 p-3 rounded-0 my-0"
+            role="menu"
             aria-labelledby="mobile-search"
         >
             <form method="GET" action="{% url 'products' %}" role="search">
@@ -72,6 +73,7 @@
 
         <div
             class="dropdown-menu border-0"
+            role="menu"
             aria-labelledby="mobile-user-options"
         >
             {% if request.user.is_authenticated %}
